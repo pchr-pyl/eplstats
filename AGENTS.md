@@ -39,9 +39,14 @@ progress). Only a club's PL seasons are in scope — Championship seasons skippe
   - League fixtures: `https://fbref.com/en/comps/9/{season}/schedule/{season}-Premier-League-Scores-and-Fixtures`
   - League keeperadv: `https://fbref.com/en/comps/9/{season}/keepersadv/Premier-League-Stats` → `{markdown_squads, markdown_players, metadata}`
 - Capology: `https://www.capology.com/club/{capologySlug}/salaries/{season}/` → `{markdown, metadata}`. Capology wages are ESTIMATES, not official.
-- Understat: `https://understat.com/league/EPL/{startYear}` — data lives in
-  inline `<script>` vars (`datesData`, `playersData`, `statisticsData` /
-  `teamsData`), JSON-encoded with hex escapes; fetch page HTML and extract.
+  Capology's Cloudflare NEVER clears in Playwright (challenge loops) — scrape it
+  via the firecrawl MCP tool (`firecrawl_scrape`, formats:["markdown"],
+  onlyMainContent:false), same as the old project did. `run.py`'s capology
+  handler will fail through the browser.
+- Understat: `https://understat.com/league/EPL/{startYear}` — data is populated
+  by `league.min.js` XHRs, NOT in raw HTML. `session.navigate()` the page then
+  read `window.datesData / playersData / teamsData` (league page has no
+  `statisticsData`; team pages do).
 
 ## Gotchas
 - Console is cp1252 — use `python -X utf8` when printing scraped text.

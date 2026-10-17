@@ -1,0 +1,658 @@
+[
+ {
+  "slug": "arsenal",
+  "name": "Arsenal",
+  "fbrefId": "18bb7c10",
+  "fbrefSlug": "Arsenal",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Arsenal",
+  "capologySlug": "arsenal",
+  "color": "#EF0107"
+ },
+ {
+  "slug": "aston-villa",
+  "name": "Aston Villa",
+  "fbrefId": "8602292d",
+  "fbrefSlug": "Aston-Villa",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Aston Villa",
+  "capologySlug": "aston-villa",
+  "color": "#95BFE5"
+ },
+ {
+  "slug": "bournemouth",
+  "name": "Bournemouth",
+  "fbrefId": "4ba7cbea",
+  "fbrefSlug": "Bournemouth",
+  "seasons": [
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Bournemouth",
+  "capologySlug": "bournemouth",
+  "color": "#DA291C"
+ },
+ {
+  "slug": "brentford",
+  "name": "Brentford",
+  "fbrefId": "cd051869",
+  "fbrefSlug": "Brentford",
+  "seasons": [
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Brentford",
+  "capologySlug": "brentford",
+  "color": "#E30613"
+ },
+ {
+  "slug": "brighton",
+  "name": "Brighton And Hove Albion",
+  "fbrefId": "d07537b9",
+  "fbrefSlug": "Brighton-and-Hove-Albion",
+  "seasons": [
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Brighton",
+  "capologySlug": "brighton",
+  "color": "#0057B8"
+ },
+ {
+  "slug": "burnley",
+  "name": "Burnley",
+  "fbrefId": "943e8050",
+  "fbrefSlug": "Burnley",
+  "seasons": [
+   "2014-2015",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2023-2024",
+   "2025-2026"
+  ],
+  "understatName": "Burnley",
+  "capologySlug": "burnley",
+  "color": "#6C1D45"
+ },
+ {
+  "slug": "cardiff-city",
+  "name": "Cardiff City",
+  "fbrefId": "75fae011",
+  "fbrefSlug": "Cardiff-City",
+  "seasons": [
+   "2018-2019"
+  ],
+  "understatName": "Cardiff",
+  "capologySlug": "cardiff",
+  "color": "#0070B5"
+ },
+ {
+  "slug": "chelsea",
+  "name": "Chelsea",
+  "fbrefId": "cff3d9bb",
+  "fbrefSlug": "Chelsea",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Chelsea",
+  "capologySlug": "chelsea",
+  "color": "#034694"
+ },
+ {
+  "slug": "coventry-city",
+  "name": "Coventry City",
+  "fbrefId": "f7e3dfe9",
+  "fbrefSlug": "Coventry-City",
+  "seasons": [
+   "2026-2027"
+  ],
+  "understatName": "Coventry",
+  "capologySlug": "coventry",
+  "color": "#059DD9"
+ },
+ {
+  "slug": "crystal-palace",
+  "name": "Crystal Palace",
+  "fbrefId": "47c64c55",
+  "fbrefSlug": "Crystal-Palace",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Crystal Palace",
+  "capologySlug": "crystal-palace",
+  "color": "#1B458F"
+ },
+ {
+  "slug": "everton",
+  "name": "Everton",
+  "fbrefId": "d3fd31cc",
+  "fbrefSlug": "Everton",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Everton",
+  "capologySlug": "everton",
+  "color": "#003399"
+ },
+ {
+  "slug": "fulham",
+  "name": "Fulham",
+  "fbrefId": "fd962109",
+  "fbrefSlug": "Fulham",
+  "seasons": [
+   "2018-2019",
+   "2020-2021",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Fulham",
+  "capologySlug": "fulham",
+  "color": "#000000"
+ },
+ {
+  "slug": "huddersfield-town",
+  "name": "Huddersfield Town",
+  "fbrefId": "f5922ca5",
+  "fbrefSlug": "Huddersfield-Town",
+  "seasons": [
+   "2017-2018",
+   "2018-2019"
+  ],
+  "understatName": "Huddersfield",
+  "capologySlug": "huddersfield",
+  "color": "#0E63AD"
+ },
+ {
+  "slug": "hull-city",
+  "name": "Hull City",
+  "fbrefId": "bd8769d1",
+  "fbrefSlug": "Hull-City",
+  "seasons": [
+   "2014-2015",
+   "2016-2017",
+   "2026-2027"
+  ],
+  "understatName": "Hull",
+  "capologySlug": "hull-city",
+  "color": "#F18A01"
+ },
+ {
+  "slug": "ipswich-town",
+  "name": "Ipswich Town",
+  "fbrefId": "b74092de",
+  "fbrefSlug": "Ipswich-Town",
+  "seasons": [
+   "2024-2025",
+   "2026-2027"
+  ],
+  "understatName": "Ipswich",
+  "capologySlug": "ipswich-town",
+  "color": "#3A64A3"
+ },
+ {
+  "slug": "leeds-united",
+  "name": "Leeds United",
+  "fbrefId": "5bfb9659",
+  "fbrefSlug": "Leeds-United",
+  "seasons": [
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Leeds",
+  "capologySlug": "leeds",
+  "color": "#FFCD00"
+ },
+ {
+  "slug": "leicester-city",
+  "name": "Leicester City",
+  "fbrefId": "a2d435b3",
+  "fbrefSlug": "Leicester-City",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2024-2025"
+  ],
+  "understatName": "Leicester",
+  "capologySlug": "leicester",
+  "color": "#003090"
+ },
+ {
+  "slug": "liverpool",
+  "name": "Liverpool",
+  "fbrefId": "822bd0ba",
+  "fbrefSlug": "Liverpool",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Liverpool",
+  "capologySlug": "liverpool",
+  "color": "#C8102E"
+ },
+ {
+  "slug": "luton-town",
+  "name": "Luton Town",
+  "fbrefId": "e297cd13",
+  "fbrefSlug": "Luton-Town",
+  "seasons": [
+   "2023-2024"
+  ],
+  "understatName": "Luton",
+  "capologySlug": "luton-town",
+  "color": "#F78F1E"
+ },
+ {
+  "slug": "man-city",
+  "name": "Manchester City",
+  "fbrefId": "b8fd03ef",
+  "fbrefSlug": "Manchester-City",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Manchester City",
+  "capologySlug": "manchester-city",
+  "color": "#6CABDD"
+ },
+ {
+  "slug": "man-utd",
+  "name": "Manchester United",
+  "fbrefId": "19538871",
+  "fbrefSlug": "Manchester-United",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Manchester United",
+  "capologySlug": "manchester-united",
+  "color": "#DA291C"
+ },
+ {
+  "slug": "middlesbrough",
+  "name": "Middlesbrough",
+  "fbrefId": "7f59c601",
+  "fbrefSlug": "Middlesbrough",
+  "seasons": [
+   "2016-2017"
+  ],
+  "understatName": "Middlesbrough",
+  "capologySlug": "middlesbrough",
+  "color": "#E31937"
+ },
+ {
+  "slug": "newcastle-united",
+  "name": "Newcastle United",
+  "fbrefId": "b2b47a98",
+  "fbrefSlug": "Newcastle-United",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Newcastle United",
+  "capologySlug": "newcastle",
+  "color": "#241F20"
+ },
+ {
+  "slug": "norwich-city",
+  "name": "Norwich City",
+  "fbrefId": "1c781004",
+  "fbrefSlug": "Norwich-City",
+  "seasons": [
+   "2015-2016",
+   "2019-2020",
+   "2021-2022"
+  ],
+  "understatName": "Norwich",
+  "capologySlug": "norwich",
+  "color": "#FFF200"
+ },
+ {
+  "slug": "nottingham-forest",
+  "name": "Nottingham Forest",
+  "fbrefId": "e4a775cb",
+  "fbrefSlug": "Nottingham-Forest",
+  "seasons": [
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Nottingham Forest",
+  "capologySlug": "nottingham-forest",
+  "color": "#DD0000"
+ },
+ {
+  "slug": "qpr",
+  "name": "Queens Park Rangers",
+  "fbrefId": "a757999c",
+  "fbrefSlug": "Queens-Park-Rangers",
+  "seasons": [
+   "2014-2015"
+  ],
+  "understatName": "Queens Park Rangers",
+  "capologySlug": "qpr",
+  "color": "#1D5BA4"
+ },
+ {
+  "slug": "sheffield-united",
+  "name": "Sheffield United",
+  "fbrefId": "1df6b87e",
+  "fbrefSlug": "Sheffield-United",
+  "seasons": [
+   "2019-2020",
+   "2020-2021",
+   "2023-2024"
+  ],
+  "understatName": "Sheffield United",
+  "capologySlug": "sheffield-united",
+  "color": "#EE2737"
+ },
+ {
+  "slug": "southampton",
+  "name": "Southampton",
+  "fbrefId": "33c895d4",
+  "fbrefSlug": "Southampton",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2024-2025"
+  ],
+  "understatName": "Southampton",
+  "capologySlug": "southampton",
+  "color": "#D71920"
+ },
+ {
+  "slug": "stoke-city",
+  "name": "Stoke City",
+  "fbrefId": "17892952",
+  "fbrefSlug": "Stoke-City",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018"
+  ],
+  "understatName": "Stoke",
+  "capologySlug": "stoke-city",
+  "color": "#E03A3E"
+ },
+ {
+  "slug": "sunderland",
+  "name": "Sunderland",
+  "fbrefId": "8ef52968",
+  "fbrefSlug": "Sunderland",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Sunderland",
+  "capologySlug": "sunderland",
+  "color": "#EB172B"
+ },
+ {
+  "slug": "swansea-city",
+  "name": "Swansea City",
+  "fbrefId": "fb10988f",
+  "fbrefSlug": "Swansea-City",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018"
+  ],
+  "understatName": "Swansea",
+  "capologySlug": "swansea",
+  "color": "#121212"
+ },
+ {
+  "slug": "tottenham",
+  "name": "Tottenham Hotspur",
+  "fbrefId": "361ca564",
+  "fbrefSlug": "Tottenham-Hotspur",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026",
+   "2026-2027"
+  ],
+  "understatName": "Tottenham",
+  "capologySlug": "tottenham",
+  "color": "#132257"
+ },
+ {
+  "slug": "watford",
+  "name": "Watford",
+  "fbrefId": "2abfe087",
+  "fbrefSlug": "Watford",
+  "seasons": [
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2021-2022"
+  ],
+  "understatName": "Watford",
+  "capologySlug": "watford",
+  "color": "#FBEE23"
+ },
+ {
+  "slug": "west-brom",
+  "name": "West Bromwich Albion",
+  "fbrefId": "60c6b05f",
+  "fbrefSlug": "West-Bromwich-Albion",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2020-2021"
+  ],
+  "understatName": "West Bromwich Albion",
+  "capologySlug": "west-bromwich",
+  "color": "#122F67"
+ },
+ {
+  "slug": "west-ham",
+  "name": "West Ham United",
+  "fbrefId": "7c21e445",
+  "fbrefSlug": "West-Ham-United",
+  "seasons": [
+   "2014-2015",
+   "2015-2016",
+   "2016-2017",
+   "2017-2018",
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026"
+  ],
+  "understatName": "West Ham",
+  "capologySlug": "west-ham",
+  "color": "#7A263A"
+ },
+ {
+  "slug": "wolves",
+  "name": "Wolverhampton Wanderers",
+  "fbrefId": "8cec06e1",
+  "fbrefSlug": "Wolverhampton-Wanderers",
+  "seasons": [
+   "2018-2019",
+   "2019-2020",
+   "2020-2021",
+   "2021-2022",
+   "2022-2023",
+   "2023-2024",
+   "2024-2025",
+   "2025-2026"
+  ],
+  "understatName": "Wolverhampton Wanderers",
+  "capologySlug": "wolverhampton",
+  "color": "#FDB913"
+ }
+]

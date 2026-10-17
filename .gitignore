@@ -48,3 +48,4 @@ __pycache__/
 scripts/scrape/state/
 scripts/scrape/*.log
 scripts/scrape/failures.jsonl
+/tmp/
