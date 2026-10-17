@@ -1,0 +1,255 @@
+{
+  "app": {
+    "title": "Manchester United",
+    "subtitle": "Season-by-Season Analytics"
+  },
+  "filter": {
+    "from": "From",
+    "to": "To"
+  },
+  "managers": {
+    "pick": "Select managers to compare",
+    "chartTitle": "Points per match & win rate",
+    "tableTitle": "Manager comparison",
+    "colManager": "Manager",
+    "colPeriod": "Period",
+    "perMp": "MP",
+    "ptsPerMp": "Pts/MP",
+    "winPct": "Win %",
+    "interim": "interim",
+    "noData": "Select at least one manager"
+  },
+  "competitions": {
+    "all": "All",
+    "premier-league": "Premier League",
+    "fa-cup": "FA Cup",
+    "efl-cup": "EFL Cup",
+    "europe": "Europe"
+  },
+  "kpi": {
+    "ptsPerMp": "Pts / MP",
+    "gfPerMp": "Goals for / MP",
+    "gaPerMp": "Goals against / MP",
+    "xgPerMp": "xG / MP",
+    "xgaPerMp": "xGA / MP",
+    "sotaPerMp": "SoT against / MP",
+    "winRate": "Win rate",
+    "csRate": "Clean sheet rate",
+    "vsPrevious": "vs previous season",
+    "vsAverage": "vs average",
+    "avg": "avg",
+    "previous": "previous"
+  },
+  "charts": {
+    "attack": "Attack",
+    "defense": "Defense",
+    "pointsTrend": "Points trend",
+    "rates": "Win & clean sheet rates",
+    "gfPerMp": "GF per match",
+    "gaPerMp": "GA per match",
+    "xg": "xG",
+    "xga": "xGA",
+    "ptsPerMp": "Pts / MP",
+    "winRate": "Win %",
+    "csRate": "CS %",
+    "refLine": "2.0 baseline"
+  },
+  "table": {
+    "title": "Season-by-season stats",
+    "season": "Season",
+    "competition": "Competition",
+    "mp": "MP",
+    "w": "W",
+    "d": "D",
+    "l": "L",
+    "gf": "GF",
+    "ga": "GA",
+    "gd": "GD",
+    "pts": "Pts",
+    "ptsPerMp": "Pts/MP",
+    "xg": "xG",
+    "xga": "xGA",
+    "xgd": "xGD",
+    "cs": "CS",
+    "winRate": "Win %",
+    "csRate": "CS %",
+    "topScorer": "Top scorer",
+    "goalkeeper": "Goalkeeper",
+    "notes": "Notes",
+    "hint": "Click a season row to see match-by-match detail"
+  },
+  "matchLog": {
+    "matches": "matches",
+    "close": "Close",
+    "noData": "No match-level data for this selection",
+    "loading": "Loading…",
+    "noStatData": "No detailed stats for this selection",
+    "tabs": {
+      "scores": "Scores & Fixtures",
+      "shooting": "Shooting",
+      "keeper": "Goalkeeping",
+      "misc": "Miscellaneous"
+    },
+    "side": {
+      "for": "Man Utd",
+      "against": "Opponents"
+    },
+    "poss": "Poss",
+    "form": "Form",
+    "att": "Att",
+    "venue": {
+      "Home": "Home",
+      "Away": "Away",
+      "Neutral": "Neutral"
+    }
+  },
+  "dataNote": "Data: fbref.com · xG from Understat (Premier League only, from 2014/15)",
+  "lang": {
+    "th": "ไทย",
+    "en": "EN"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "rank": {
+    "champion": "Champions"
+  },
+  "nav": {
+    "overview": "Overview",
+    "matches": "Scores & Fixtures",
+    "shooting": "Shooting",
+    "keepers": "Keepers",
+    "misc": "Miscellaneous",
+    "attack": "Attack",
+    "squad": "Squad",
+    "managers": "Managers",
+    "compare": "Compare"
+  },
+  "attack": {
+    "title": "Attack analytics",
+    "note": "Shots/on-target from fbref matchlogs — shot data exists from 2016-17 onward (older seasons have no shot data on fbref)",
+    "kpi": {
+      "gfPerMp": "Goals / MP",
+      "shPerMp": "Shots / MP",
+      "sotPct": "On target %",
+      "gPerSh": "Goals / shot"
+    },
+    "chart": {
+      "goals": "Goals and xG per match",
+      "shots": "Shots and accuracy per match"
+    },
+    "table": {
+      "title": "Per-season attack stats",
+      "season": "Season",
+      "topScorer": "Top scorer"
+    }
+  },
+  "keepers": {
+    "title": "Goalkeeping",
+    "kpi": {
+      "saves": "Saves",
+      "savePct": "Save %",
+      "cs": "Clean sheets",
+      "goalsPrevented": "PSxG prevented"
+    },
+    "chart": {
+      "bySeason": "Goalkeeping by season",
+      "perGk": "Per goalkeeper",
+      "goalsPrevented": "Goals prevented (PSxG)"
+    },
+    "table": {
+      "title": "Goalkeeping by season",
+      "season": "Season",
+      "player": "Player",
+      "mp": "MP",
+      "ga": "GA",
+      "sota": "SoTA",
+      "saves": "Saves",
+      "savePct": "Save %",
+      "cs": "CS"
+    },
+    "sota": "SoTA",
+    "saves": "Saves",
+    "ga": "GA",
+    "psxg": "PSxG",
+    "goalsPrevented": "Goals prevented",
+    "savePct": "Save %",
+    "goalsPreventedNote": "PSxG data is legacy-sourced; fbref no longer publishes PSxG."
+  },
+  "squad": {
+    "title": "Squad",
+    "season": "Season",
+    "kpi": {
+      "weeklyBill": "Weekly wage bill",
+      "yearlyBill": "Yearly wage bill",
+      "totalBill": "Total wages / year",
+      "playerCount": "Players",
+      "avgAge": "Avg age"
+    },
+    "table": {
+      "title": "Squad wages",
+      "name": "Name",
+      "pos": "Pos",
+      "age": "Age",
+      "weeklyGross": "Weekly gross",
+      "yearlyGross": "Yearly gross",
+      "expires": "Expires",
+      "status": "Status"
+    },
+    "chart": {
+      "weeklyTrend": "Team weekly wage bill by season",
+      "ageTitle": "Age bands",
+      "expiryTitle": "Contracts by expiry year"
+    },
+    "dataNote": "Estimated salary data from",
+    "disclaimer": "Salary figures are Capology estimates, not official club figures.",
+    "status": {
+      "Active": "Active",
+      "Inactive": "Inactive",
+      "Loan": "Loan"
+    },
+    "pos": {
+      "G": "GK",
+      "D": "DF",
+      "M": "MF",
+      "F": "FW"
+    },
+    "performance": {
+      "title": "Season Performance – {season}"
+    },
+    "col": {
+      "player": "Player",
+      "pos": "Pos",
+      "age": "Age",
+      "mp": "MP",
+      "starts": "Starts",
+      "min": "Min",
+      "gls": "Gls",
+      "ast": "Ast",
+      "gPlusA": "G+A",
+      "crdY": "CrdY",
+      "crdR": "CrdR",
+      "sh": "Sh",
+      "sot": "SoT",
+      "sotPct": "SoT%",
+      "gPerSh": "G/Sh"
+    }
+  },
+  "compare": {
+    "title": "Compare seasons",
+    "seasonA": "Season A",
+    "seasonB": "Season B",
+    "chartTitle": "Cumulative points",
+    "statTitle": "After {matchweek} matches",
+    "w": "W",
+    "d": "D",
+    "l": "L",
+    "winRate": "Win %",
+    "drawRate": "Draw %",
+    "lossRate": "Loss %",
+    "points": "Pts",
+    "matchweek": "Matchweek",
+    "note": "Premier League matches played only"
+  }
+}

@@ -1,0 +1,233 @@
+# Migration of man-utd raw files -> EPL layout
+
+## Migrated
+capology-2014-2015.json -> clubs\man-utd\2014-2015\capology.json
+capology-2015-2016.json -> clubs\man-utd\2015-2016\capology.json
+capology-2016-2017.json -> clubs\man-utd\2016-2017\capology.json
+capology-2017-2018.json -> clubs\man-utd\2017-2018\capology.json
+capology-2018-2019.json -> clubs\man-utd\2018-2019\capology.json
+capology-2019-2020.json -> clubs\man-utd\2019-2020\capology.json
+capology-2020-2021.json -> clubs\man-utd\2020-2021\capology.json
+capology-2021-2022.json -> clubs\man-utd\2021-2022\capology.json
+capology-2022-2023.json -> clubs\man-utd\2022-2023\capology.json
+capology-2023-2024.json -> clubs\man-utd\2023-2024\capology.json
+capology-2024-2025.json -> clubs\man-utd\2024-2025\capology.json
+capology-2025-2026.json -> clubs\man-utd\2025-2026\capology.json
+capology-2026-2027.json -> clubs\man-utd\2026-2027\capology.json
+history.json -> clubs\man-utd\history.json
+keeper-2014-2015.json -> clubs\man-utd\2014-2015\keeper-matchlog.json
+keeper-2015-2016.json -> clubs\man-utd\2015-2016\keeper-matchlog.json
+keeper-2016-2017.json -> clubs\man-utd\2016-2017\keeper-matchlog.json
+keeper-2017-2018.json -> clubs\man-utd\2017-2018\keeper-matchlog.json
+keeper-2018-2019.json -> clubs\man-utd\2018-2019\keeper-matchlog.json
+keeper-2019-2020.json -> clubs\man-utd\2019-2020\keeper-matchlog.json
+keeper-2020-2021.json -> clubs\man-utd\2020-2021\keeper-matchlog.json
+keeper-2021-2022.json -> clubs\man-utd\2021-2022\keeper-matchlog.json
+keeper-2022-2023.json -> clubs\man-utd\2022-2023\keeper-matchlog.json
+keeper-2023-2024.json -> clubs\man-utd\2023-2024\keeper-matchlog.json
+keeper-2024-2025.json -> clubs\man-utd\2024-2025\keeper-matchlog.json
+keeper-2025-2026.json -> clubs\man-utd\2025-2026\keeper-matchlog.json
+keeper-squad-2014-2015.json -> clubs\man-utd\2014-2015\keeper-squad.json
+keeper-squad-2015-2016.json -> clubs\man-utd\2015-2016\keeper-squad.json
+keeper-squad-2016-2017.json -> clubs\man-utd\2016-2017\keeper-squad.json
+keeper-squad-2017-2018.json -> clubs\man-utd\2017-2018\keeper-squad.json
+keeper-squad-2018-2019.json -> clubs\man-utd\2018-2019\keeper-squad.json
+keeper-squad-2019-2020.json -> clubs\man-utd\2019-2020\keeper-squad.json
+keeper-squad-2020-2021.json -> clubs\man-utd\2020-2021\keeper-squad.json
+keeper-squad-2021-2022.json -> clubs\man-utd\2021-2022\keeper-squad.json
+keeper-squad-2022-2023.json -> clubs\man-utd\2022-2023\keeper-squad.json
+keeper-squad-2023-2024.json -> clubs\man-utd\2023-2024\keeper-squad.json
+keeper-squad-2024-2025.json -> clubs\man-utd\2024-2025\keeper-squad.json
+keeper-squad-2025-2026.json -> clubs\man-utd\2025-2026\keeper-squad.json
+keeperadv-2014-2015.json -> league\2014-2015\keeperadv.json
+keeperadv-2015-2016.json -> league\2015-2016\keeperadv.json
+keeperadv-2016-2017.json -> league\2016-2017\keeperadv.json
+keeperadv-2017-2018.json -> league\2017-2018\keeperadv.json
+keeperadv-2018-2019.json -> league\2018-2019\keeperadv.json
+keeperadv-2019-2020.json -> league\2019-2020\keeperadv.json
+keeperadv-2020-2021.json -> league\2020-2021\keeperadv.json
+keeperadv-2021-2022.json -> league\2021-2022\keeperadv.json
+keeperadv-2022-2023.json -> league\2022-2023\keeperadv.json
+keeperadv-2023-2024.json -> league\2023-2024\keeperadv.json
+keeperadv-2024-2025.json -> league\2024-2025\keeperadv.json
+keeperadv-2025-2026.json -> league\2025-2026\keeperadv.json
+matchlog-2014-2015-keeper.json -> clubs\man-utd\2014-2015\keeper.json
+matchlog-2014-2015-misc.json -> clubs\man-utd\2014-2015\misc.json
+matchlog-2014-2015-shooting.json -> clubs\man-utd\2014-2015\shooting.json
+matchlog-2014-2015.json -> clubs\man-utd\2014-2015\schedule.json
+matchlog-2015-2016-keeper.json -> clubs\man-utd\2015-2016\keeper.json
+matchlog-2015-2016-misc.json -> clubs\man-utd\2015-2016\misc.json
+matchlog-2015-2016-shooting.json -> clubs\man-utd\2015-2016\shooting.json
+matchlog-2015-2016.json -> clubs\man-utd\2015-2016\schedule.json
+matchlog-2016-2017-keeper.json -> clubs\man-utd\2016-2017\keeper.json
+matchlog-2016-2017-misc.json -> clubs\man-utd\2016-2017\misc.json
+matchlog-2016-2017-shooting.json -> clubs\man-utd\2016-2017\shooting.json
+matchlog-2016-2017.json -> clubs\man-utd\2016-2017\schedule.json
+matchlog-2017-2018-keeper.json -> clubs\man-utd\2017-2018\keeper.json
+matchlog-2017-2018-misc.json -> clubs\man-utd\2017-2018\misc.json
+matchlog-2017-2018-shooting.json -> clubs\man-utd\2017-2018\shooting.json
+matchlog-2017-2018.json -> clubs\man-utd\2017-2018\schedule.json
+matchlog-2018-2019-keeper.json -> clubs\man-utd\2018-2019\keeper.json
+matchlog-2018-2019-misc.json -> clubs\man-utd\2018-2019\misc.json
+matchlog-2018-2019-shooting.json -> clubs\man-utd\2018-2019\shooting.json
+matchlog-2018-2019.json -> clubs\man-utd\2018-2019\schedule.json
+matchlog-2019-2020-keeper.json -> clubs\man-utd\2019-2020\keeper.json
+matchlog-2019-2020-misc.json -> clubs\man-utd\2019-2020\misc.json
+matchlog-2019-2020-shooting.json -> clubs\man-utd\2019-2020\shooting.json
+matchlog-2019-2020.json -> clubs\man-utd\2019-2020\schedule.json
+matchlog-2020-2021-keeper.json -> clubs\man-utd\2020-2021\keeper.json
+matchlog-2020-2021-misc.json -> clubs\man-utd\2020-2021\misc.json
+matchlog-2020-2021-shooting.json -> clubs\man-utd\2020-2021\shooting.json
+matchlog-2020-2021.json -> clubs\man-utd\2020-2021\schedule.json
+matchlog-2021-2022-keeper.json -> clubs\man-utd\2021-2022\keeper.json
+matchlog-2021-2022-misc.json -> clubs\man-utd\2021-2022\misc.json
+matchlog-2021-2022-shooting.json -> clubs\man-utd\2021-2022\shooting.json
+matchlog-2021-2022.json -> clubs\man-utd\2021-2022\schedule.json
+matchlog-2022-2023-keeper.json -> clubs\man-utd\2022-2023\keeper.json
+matchlog-2022-2023-misc.json -> clubs\man-utd\2022-2023\misc.json
+matchlog-2022-2023-shooting.json -> clubs\man-utd\2022-2023\shooting.json
+matchlog-2022-2023.json -> clubs\man-utd\2022-2023\schedule.json
+matchlog-2023-2024-keeper.json -> clubs\man-utd\2023-2024\keeper.json
+matchlog-2023-2024-misc.json -> clubs\man-utd\2023-2024\misc.json
+matchlog-2023-2024-shooting.json -> clubs\man-utd\2023-2024\shooting.json
+matchlog-2023-2024.json -> clubs\man-utd\2023-2024\schedule.json
+matchlog-2024-2025-keeper.json -> clubs\man-utd\2024-2025\keeper.json
+matchlog-2024-2025-misc.json -> clubs\man-utd\2024-2025\misc.json
+matchlog-2024-2025-shooting.json -> clubs\man-utd\2024-2025\shooting.json
+matchlog-2024-2025.json -> clubs\man-utd\2024-2025\schedule.json
+matchlog-2025-2026-keeper.json -> clubs\man-utd\2025-2026\keeper.json
+matchlog-2025-2026-misc.json -> clubs\man-utd\2025-2026\misc.json
+matchlog-2025-2026-shooting.json -> clubs\man-utd\2025-2026\shooting.json
+matchlog-2025-2026.json -> clubs\man-utd\2025-2026\schedule.json
+matchlog-2026-2027-keeper.json -> clubs\man-utd\2026-2027\keeper.json
+matchlog-2026-2027-misc.json -> clubs\man-utd\2026-2027\misc.json
+matchlog-2026-2027-shooting.json -> clubs\man-utd\2026-2027\shooting.json
+matchlog-2026-2027.json -> clubs\man-utd\2026-2027\schedule.json
+players-2026-2027.json -> clubs\man-utd\2026-2027\players.json
+shooting-against-2014-2015.json -> clubs\man-utd\2014-2015\shooting-against.json
+shooting-against-2015-2016.json -> clubs\man-utd\2015-2016\shooting-against.json
+shooting-against-2016-2017.json -> clubs\man-utd\2016-2017\shooting-against.json
+shooting-against-2017-2018.json -> clubs\man-utd\2017-2018\shooting-against.json
+shooting-against-2018-2019.json -> clubs\man-utd\2018-2019\shooting-against.json
+shooting-against-2019-2020.json -> clubs\man-utd\2019-2020\shooting-against.json
+shooting-against-2020-2021.json -> clubs\man-utd\2020-2021\shooting-against.json
+shooting-against-2021-2022.json -> clubs\man-utd\2021-2022\shooting-against.json
+shooting-against-2022-2023.json -> clubs\man-utd\2022-2023\shooting-against.json
+shooting-against-2023-2024.json -> clubs\man-utd\2023-2024\shooting-against.json
+shooting-against-2024-2025.json -> clubs\man-utd\2024-2025\shooting-against.json
+shooting-against-2025-2026.json -> clubs\man-utd\2025-2026\shooting-against.json
+shooting-against-2026-2027.json -> clubs\man-utd\2026-2027\shooting-against.json
+understat-2014.json -> clubs\man-utd\2014-2015\understat.json
+understat-2015.json -> clubs\man-utd\2015-2016\understat.json
+understat-2016.json -> clubs\man-utd\2016-2017\understat.json
+understat-2017.json -> clubs\man-utd\2017-2018\understat.json
+understat-2018.json -> clubs\man-utd\2018-2019\understat.json
+understat-2019.json -> clubs\man-utd\2019-2020\understat.json
+understat-2020.json -> clubs\man-utd\2020-2021\understat.json
+understat-2021.json -> clubs\man-utd\2021-2022\understat.json
+understat-2022.json -> clubs\man-utd\2022-2023\understat.json
+understat-2023.json -> clubs\man-utd\2023-2024\understat.json
+understat-2024.json -> clubs\man-utd\2024-2025\understat.json
+understat-2025.json -> clubs\man-utd\2025-2026\understat.json
+understat-2026.json -> clubs\man-utd\2026-2027\understat.json
+
+## Skipped
+capology-2013-2014.json (pre-2014-15)
+matchlog-1992-1993-keeper.json (pre-2014-15)
+matchlog-1992-1993-misc.json (pre-2014-15)
+matchlog-1992-1993-shooting.json (pre-2014-15)
+matchlog-1992-1993.json (pre-2014-15)
+matchlog-1993-1994-keeper.json (pre-2014-15)
+matchlog-1993-1994-misc.json (pre-2014-15)
+matchlog-1993-1994-shooting.json (pre-2014-15)
+matchlog-1993-1994.json (pre-2014-15)
+matchlog-1994-1995-keeper.json (pre-2014-15)
+matchlog-1994-1995-misc.json (pre-2014-15)
+matchlog-1994-1995-shooting.json (pre-2014-15)
+matchlog-1994-1995.json (pre-2014-15)
+matchlog-1995-1996-keeper.json (pre-2014-15)
+matchlog-1995-1996-misc.json (pre-2014-15)
+matchlog-1995-1996-shooting.json (pre-2014-15)
+matchlog-1995-1996.json (pre-2014-15)
+matchlog-1996-1997-keeper.json (pre-2014-15)
+matchlog-1996-1997-misc.json (pre-2014-15)
+matchlog-1996-1997-shooting.json (pre-2014-15)
+matchlog-1996-1997.json (pre-2014-15)
+matchlog-1997-1998-keeper.json (pre-2014-15)
+matchlog-1997-1998-misc.json (pre-2014-15)
+matchlog-1997-1998-shooting.json (pre-2014-15)
+matchlog-1997-1998.json (pre-2014-15)
+matchlog-1998-1999-keeper.json (pre-2014-15)
+matchlog-1998-1999-misc.json (pre-2014-15)
+matchlog-1998-1999-shooting.json (pre-2014-15)
+matchlog-1998-1999.json (pre-2014-15)
+matchlog-1999-2000-keeper.json (pre-2014-15)
+matchlog-1999-2000-misc.json (pre-2014-15)
+matchlog-1999-2000-shooting.json (pre-2014-15)
+matchlog-1999-2000.json (pre-2014-15)
+matchlog-2000-2001-keeper.json (pre-2014-15)
+matchlog-2000-2001-misc.json (pre-2014-15)
+matchlog-2000-2001-shooting.json (pre-2014-15)
+matchlog-2000-2001.json (pre-2014-15)
+matchlog-2001-2002-keeper.json (pre-2014-15)
+matchlog-2001-2002-misc.json (pre-2014-15)
+matchlog-2001-2002-shooting.json (pre-2014-15)
+matchlog-2001-2002.json (pre-2014-15)
+matchlog-2002-2003-keeper.json (pre-2014-15)
+matchlog-2002-2003-misc.json (pre-2014-15)
+matchlog-2002-2003-shooting.json (pre-2014-15)
+matchlog-2002-2003.json (pre-2014-15)
+matchlog-2003-2004-keeper.json (pre-2014-15)
+matchlog-2003-2004-misc.json (pre-2014-15)
+matchlog-2003-2004-shooting.json (pre-2014-15)
+matchlog-2003-2004.json (pre-2014-15)
+matchlog-2004-2005-keeper.json (pre-2014-15)
+matchlog-2004-2005-misc.json (pre-2014-15)
+matchlog-2004-2005-shooting.json (pre-2014-15)
+matchlog-2004-2005.json (pre-2014-15)
+matchlog-2005-2006-keeper.json (pre-2014-15)
+matchlog-2005-2006-misc.json (pre-2014-15)
+matchlog-2005-2006-shooting.json (pre-2014-15)
+matchlog-2005-2006.json (pre-2014-15)
+matchlog-2006-2007-keeper.json (pre-2014-15)
+matchlog-2006-2007-misc.json (pre-2014-15)
+matchlog-2006-2007-shooting.json (pre-2014-15)
+matchlog-2006-2007.json (pre-2014-15)
+matchlog-2007-2008-keeper.json (pre-2014-15)
+matchlog-2007-2008-misc.json (pre-2014-15)
+matchlog-2007-2008-shooting.json (pre-2014-15)
+matchlog-2007-2008.json (pre-2014-15)
+matchlog-2008-2009-keeper.json (pre-2014-15)
+matchlog-2008-2009-misc.json (pre-2014-15)
+matchlog-2008-2009-shooting.json (pre-2014-15)
+matchlog-2008-2009.json (pre-2014-15)
+matchlog-2009-2010-keeper.json (pre-2014-15)
+matchlog-2009-2010-misc.json (pre-2014-15)
+matchlog-2009-2010-shooting.json (pre-2014-15)
+matchlog-2009-2010.json (pre-2014-15)
+matchlog-2010-2011-keeper.json (pre-2014-15)
+matchlog-2010-2011-misc.json (pre-2014-15)
+matchlog-2010-2011-shooting.json (pre-2014-15)
+matchlog-2010-2011.json (pre-2014-15)
+matchlog-2011-2012-keeper.json (pre-2014-15)
+matchlog-2011-2012-misc.json (pre-2014-15)
+matchlog-2011-2012-shooting.json (pre-2014-15)
+matchlog-2011-2012.json (pre-2014-15)
+matchlog-2012-2013-keeper.json (pre-2014-15)
+matchlog-2012-2013-misc.json (pre-2014-15)
+matchlog-2012-2013-shooting.json (pre-2014-15)
+matchlog-2012-2013.json (pre-2014-15)
+matchlog-2013-2014-keeper.json (pre-2014-15)
+matchlog-2013-2014-misc.json (pre-2014-15)
+matchlog-2013-2014-shooting.json (pre-2014-15)
+matchlog-2013-2014.json (pre-2014-15)
+
+## Ambiguous placements (flagged to lead)
+- keeper-YYYY-YYYY.json (markdown shape) shares the SAME sourceURL as
+  matchlog-YYYY-YYYY-keeper.json (tables shape). Kept as keeper-matchlog.json.
+- understat-YYYY.json is CLUB team-page data (38 matches = that club's own,
+  players = club squad), NOT league data -> placed at clubs/man-utd/{season}/understat.json.
+  New league/{season}/understat.json will be scraped fresh (all teams).
+- shooting-against-YYYY-YYYY.json is fetched from the league shooting page but
+  filtered to 'vs Manchester Utd' rows -> clubs/man-utd/{season}/shooting-against.json.
+- capology-2013-2014.json skipped: outside 2014-2015.. range.

@@ -1,0 +1,20 @@
+{
+ "updated": "2026-09-18",
+ "source": "legacy Google Sheet (fbref keeper_adv, scraped before fbref removed PSxG)",
+ "note": "fbref no longer publishes PSxG. Season values are Premier League only. goalsPrevented = psxg - (ga - pka).",
+ "seasons": [
+  {"season": "2017-2018", "psxg": 39.4, "ga": 28, "pka": 2},
+  {"season": "2018-2019", "psxg": 49.9, "ga": 54, "pka": 3},
+  {"season": "2019-2020", "psxg": 34.7, "ga": 36, "pka": 1},
+  {"season": "2020-2021", "psxg": 39.3, "ga": 44, "pka": 2},
+  {"season": "2021-2022", "psxg": 55.1, "ga": 57, "pka": 3},
+  {"season": "2022-2023", "psxg": 41.3, "ga": 43, "pka": 1},
+  {"season": "2023-2024", "psxg": 59.7, "ga": 58, "pka": 1},
+  {"season": "2024-2025", "psxg": 54.1, "ga": 54, "pka": 0},
+  {"season": "2025-2026", "psxg": 30.1, "ga": 30, "pka": 0}
+ ],
+ "perGk": [
+  {"season": "2025-2026", "player": "Senne Lammens", "mp": 10, "ga": 15, "sota": 38, "saves": 23, "cs": 1, "psxg": 15.6, "psxgPlusMinus": 0.6, "partial": true},
+  {"season": "2023-2024", "player": "André Onana", "mp": 10, "ga": 16, "sota": 54, "saves": 39, "cs": 2, "psxg": 15.9, "psxgPlusMinus": 0.9, "partial": true}
+ ]
+}
