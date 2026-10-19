@@ -35,9 +35,9 @@ function getValue(obj: unknown, path: string): unknown {
 }
 
 function getInitialLang(): Lang {
-  if (typeof window === 'undefined') return 'th';
+  if (typeof window === 'undefined') return 'en';
   const saved = localStorage.getItem(LANG_KEY) as Lang | null;
-  return saved === 'th' || saved === 'en' ? saved : 'th';
+  return saved === 'th' || saved === 'en' ? saved : 'en';
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {

@@ -102,3 +102,9 @@ Per-match PSxG is not available anywhere post-removal — don't promise it.
 - Legacy `scripts/*.py` + `data/man-utd-*.json` + old `public/data/matchlogs-*.json`
   remain but nothing in `src` imports them.
 - Dev: `npm run dev` → http://localhost:3000
+
+## Refreshing the current season
+Re-scrape ALL types for every club in the in-progress season (schedule,
+shooting, keeper, misc, players, keeper-squad + league table/fixtures/
+understat) with maxAge:0 on firecrawl calls, then run build_all.py. Schedules
+alone leave stale stat rows.

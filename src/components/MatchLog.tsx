@@ -11,6 +11,8 @@ import {
   StatTable,
   ScoresList,
   SideToggle,
+  LoadFail,
+  LOAD_FAILED,
 } from './matchlog-shared';
 
 type TabKey = 'scores' | MatchlogType;
@@ -31,7 +33,9 @@ export function MatchLog({
   const { club } = useClub();
   const [tab, setTab] = useState<TabKey>('scores');
   const [side, setSide] = useState<'for' | 'against'>('for');
-  const [matchlogs, setMatchlogs] = useState<SeasonMatchlogs | null>(null);
+  const [matchlogs, setMatchlogs] = useState<
+    SeasonMatchlogs | typeof LOAD_FAILED | null
+  >(null);
 
   const rows = matchesForSeason(matches, season, group);
   const showComp = group === 'all' || group === 'europe';
@@ -44,7 +48,7 @@ export function MatchLog({
     if (tab === 'scores' || matchlogs != null) return;
     let live = true;
     loadMatchlogs(club.slug, season).then((data) => {
-      if (live) setMatchlogs(data);
+      if (live) setMatchlogs(data === LOAD_FAILED ? LOAD_FAILED : data);
     });
     return () => {
       live = false;
@@ -52,7 +56,10 @@ export function MatchLog({
   }, [tab, club.slug, season, matchlogs]);
 
   const loading = tab !== 'scores' && matchlogs == null;
-  const statTable = tab !== 'scores' ? matchlogs?.[tab]?.[side] : undefined;
+  const statTable =
+    tab !== 'scores' && matchlogs !== LOAD_FAILED
+      ? matchlogs?.[tab]?.[side]
+      : undefined;
 
   return (
     <div className="min-w-0 rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
@@ -105,6 +112,14 @@ export function MatchLog({
         )
       ) : loading ? (
         <p className="px-4 py-6 text-sm text-muted">{t('matchLog.loading')}</p>
+      ) : matchlogs === LOAD_FAILED ? (
+        <LoadFail
+          onRetry={() =>
+            loadMatchlogs(club.slug, season).then((d) =>
+              setMatchlogs(d === LOAD_FAILED ? LOAD_FAILED : d),
+            )
+          }
+        />
       ) : statTable ? (
         <StatTable table={statTable} group={group} />
       ) : (

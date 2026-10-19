@@ -20,7 +20,7 @@ import type { KeepersData, GkSeasonRow } from '@/lib/types';
 import { seasonShort } from '@/lib/stats';
 import { fmt, pct, signed, dash } from '@/lib/format';
 import { useClub } from './ClubProvider';
-import { loadKeepersSeason } from './matchlog-shared';
+import { loadKeepersSeason, LOAD_FAILED } from './matchlog-shared';
 
 type SortKey = 'season' | 'player' | 'mp' | 'ga' | 'sota' | 'saves' | 'savePct' | 'cs';
 type SortDir = 'asc' | 'desc';
@@ -50,7 +50,9 @@ export function KeepersDashboard({
       lazySeasons.map((s) => loadKeepersSeason(club.slug, s))
     ).then((results) => {
       if (!live) return;
-      setExtra(results.filter((r): r is KeepersData => r != null));
+      setExtra(
+        results.filter((r): r is KeepersData => r != null && r !== LOAD_FAILED),
+      );
       setLazyLoading(false);
     });
     return () => {

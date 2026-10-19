@@ -20,7 +20,7 @@ import type { SquadData, SquadSeason, SquadPlayer, PlayersData, PlayerSeasonStat
 import { seasonShort } from '@/lib/stats';
 import { fmt, gbp, dash } from '@/lib/format';
 import { useClub } from './ClubProvider';
-import { loadSquadSeason } from './matchlog-shared';
+import { loadSquadSeason, LoadFail, LOAD_FAILED } from './matchlog-shared';
 
 type SortKey = 'name' | 'pos' | 'age' | 'weeklyGross' | 'yearlyGross' | 'expires' | 'status';
 type SortDir = 'asc' | 'desc';
@@ -90,6 +90,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
   const { club } = useClub();
   const [extraSeasons, setExtraSeasons] = useState<Record<string, SquadSeason>>({});
   const [loadingSeason, setLoadingSeason] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const seasonMap = useMemo<Record<string, SquadSeason>>(
     () => ({ ...(data.seasons ?? {}), ...extraSeasons }),
     [data.seasons, extraSeasons]
@@ -349,10 +350,13 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                 onChange={(e) => {
                   const s = e.target.value;
                   setSeason(s);
+                  setLoadError(null);
                   if (s && !(s in seasonMap) && loadingSeason !== s) {
                     setLoadingSeason(s);
                     loadSquadSeason(club.slug, s).then((d) => {
-                      if (d) setExtraSeasons((p) => ({ ...p, [s]: d }));
+                      if (d && d !== LOAD_FAILED)
+                        setExtraSeasons((p) => ({ ...p, [s]: d }));
+                      else if (d === LOAD_FAILED) setLoadError(s);
                       setLoadingSeason((cur) => (cur === s ? null : cur));
                     });
                   }
@@ -371,6 +375,22 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
             </div>
           )}
         </div>
+        {loadError === activeSeason && (
+          <LoadFail
+            onRetry={() => {
+              const s = activeSeason;
+              if (!s) return;
+              setLoadError(null);
+              setLoadingSeason(s);
+              loadSquadSeason(club.slug, s).then((d) => {
+                if (d && d !== LOAD_FAILED)
+                  setExtraSeasons((p) => ({ ...p, [s]: d }));
+                else if (d === LOAD_FAILED) setLoadError(s);
+                setLoadingSeason((cur) => (cur === s ? null : cur));
+              });
+            }}
+          />
+        )}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           {kpi.map((k) => (
             <div

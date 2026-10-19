@@ -135,3 +135,13 @@ body {
 [data-theme='dark'] .epl-logo {
   filter: brightness(0) invert(1);
 }
+
+/* match detail expand animation (grid-template-rows 0fr->1fr) */
+.detail-anim {
+  transition: grid-template-rows 180ms ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .detail-anim {
+    transition: none;
+  }
+}

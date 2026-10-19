@@ -11,6 +11,8 @@ import {
   StatTable,
   ScoresList,
   SideToggle,
+  LoadFail,
+  LOAD_FAILED,
 } from './matchlog-shared';
 
 export function MatchlogBrowser({
@@ -30,13 +32,22 @@ export function MatchlogBrowser({
   const [season, setSeason] = useState(seasons[seasons.length - 1] ?? '');
   const [group, setGroup] = useState<CompGroup>('all');
   const [side, setSide] = useState<'for' | 'against'>('for');
-  const [loaded, setLoaded] = useState<{ season: string; data: SeasonMatchlogs } | null>(null);
+  const [loaded, setLoaded] = useState<
+    { season: string; data: SeasonMatchlogs } | typeof LOAD_FAILED | null
+  >(null);
+
+  const fetchSeason = (s: string) => {
+    loadMatchlogs(club.slug, s).then((data) =>
+      setLoaded(data === LOAD_FAILED ? LOAD_FAILED : { season: s, data }),
+    );
+  };
 
   useEffect(() => {
     if (type === 'scores') return;
     let live = true;
     loadMatchlogs(club.slug, season).then((data) => {
-      if (live) setLoaded({ season, data });
+      if (live)
+        setLoaded(data === LOAD_FAILED ? LOAD_FAILED : { season, data });
     });
     return () => {
       live = false;
@@ -46,12 +57,17 @@ export function MatchlogBrowser({
   const rows = type === 'scores' ? matchesForSeason(matches, season, group) : [];
   const showComp = group === 'all' || group === 'europe';
 
-  const loading = type !== 'scores' && loaded?.season !== season;
-  const statTable = type !== 'scores' && !loading ? loaded?.data[type]?.[side] : undefined;
+  const loadedData = loaded === LOAD_FAILED ? null : loaded;
+  const loading =
+    type !== 'scores' &&
+    (loaded === null ||
+      (loaded !== LOAD_FAILED && loaded.season !== season));
+  const statTable =
+    type !== 'scores' && !loading ? loadedData?.data[type]?.[side] : undefined;
   const statCount =
     statTable == null
       ? null
-      : statTable.rows.filter((r) => {
+      : statTable.rows.filter((r: string[]) => {
           const i = statTable.columns.indexOf('Comp');
           return i < 0 || compInGroup(r[i] ?? '', group);
         }).length;
@@ -98,10 +114,12 @@ export function MatchlogBrowser({
           rows.length === 0 ? (
             <p className="px-4 py-6 text-sm text-muted">{t('matchLog.noData')}</p>
           ) : (
-            <ScoresList rows={rows} showComp={showComp} />
+            <ScoresList rows={rows} showComp={showComp} contained={false} />
           )
         ) : loading ? (
           <p className="px-4 py-6 text-sm text-muted">{t('matchLog.loading')}</p>
+        ) : loaded === LOAD_FAILED ? (
+          <LoadFail onRetry={() => fetchSeason(season)} />
         ) : statTable ? (
           <StatTable table={statTable} group={group} />
         ) : (

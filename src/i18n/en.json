@@ -105,6 +105,54 @@
       "Home": "Home",
       "Away": "Away",
       "Neutral": "Neutral"
+    },
+    "loadFail": "Couldn't load stats",
+    "retry": "Retry",
+    "upcoming": "Upcoming",
+    "report": "Match report on fbref",
+    "referee": "Referee",
+    "captain": "Captain",
+    "manager": "Manager",
+    "notes": "Notes",
+    "detail": {
+      "shooting": "Shooting",
+      "keeper": "Goalkeeping",
+      "misc": "Miscellaneous",
+      "vs": "vs"
+    },
+    "stat": {
+      "shooting": {
+        "sh": "Shots",
+        "sot": "Shots on target",
+        "sotPct": "SoT %",
+        "gSh": "Goals / shot",
+        "dist": "Avg shot distance",
+        "fk": "FK",
+        "pk": "PK / PKatt"
+      },
+      "keeper": {
+        "sota": "SoTA",
+        "saves": "Saves",
+        "savePct": "Save %",
+        "cs": "Clean sheet"
+      },
+      "misc": {
+        "crdY": "Yellow cards",
+        "crdR": "Red cards",
+        "fls": "Fouls committed",
+        "fld": "Fouls drawn",
+        "off": "Offsides",
+        "crs": "Crosses",
+        "int": "Interceptions",
+        "tklw": "Tackles won",
+        "pkWon": "PK won",
+        "pkCon": "PK conceded",
+        "og": "Own goals",
+        "recov": "Recoveries",
+        "aerWon": "Aerials won",
+        "aerLost": "Aerials lost",
+        "aerPct": "Aerial %"
+      }
     }
   },
   "dataNote": "Data: fbref.com · xG from Understat (Premier League only, from 2014/15)",

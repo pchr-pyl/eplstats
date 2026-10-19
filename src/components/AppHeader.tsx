@@ -26,7 +26,6 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
   const { lang, setLang, t } = useI18n();
   const { theme, toggle } = useTheme();
   const pathname = usePathname();
-  const router = useRouter();
   const ctx = useClubOptional();
   const club = ctx?.club ?? null;
   const clubs = ctx?.clubs ?? [];

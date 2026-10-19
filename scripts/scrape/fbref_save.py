@@ -22,8 +22,9 @@ FAIL = ROOT / "scripts" / "scrape" / "failures.jsonl"
 
 def find_pages(obj):
     if isinstance(obj, dict):
-        if "pages" in obj:
-            return obj["pages"]
+        for k in ("pages", "results"):
+            if k in obj and isinstance(obj[k], list):
+                return obj[k]
         for v in obj.values():
             r = find_pages(v)
             if r is not None:

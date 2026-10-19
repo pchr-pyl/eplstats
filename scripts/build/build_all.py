@@ -87,7 +87,9 @@ def build_matches(club, league_xg):
                 "venue": strip_md(g("Venue")) or None,
                 "result": strip_md(g("Result")) or None,
                 "gf": gfv, "ga": gav, "gfPens": gfp, "gaPens": gap,
-                "opponent": strip_md(g("Opponent")) or None,
+                "opponent": strip_cc(strip_md(g("Opponent"))) or None,
+                "reportUrl": (lambda m: m.group(1) if m else None)(
+                    re.search(r"\((https?://[^)]+)\)", g("Match Report"))),
                 "possession": num(g("Poss")),
                 "attendance": num(g("Attendance")),
                 "captain": strip_md(g("Captain")) or None,
@@ -303,7 +305,7 @@ def keeper_matchlog(club):
                     "venue": strip_md(r[idx.get("Venue", 5)]) or None,
                     "result": strip_md(r[idx["Result"]]) or None,
                     "gf": gfv, "ga": gav, "gfPens": gfp, "gaPens": gap,
-                    "opponent": strip_md(r[idx["Opponent"]]) or None,
+                    "opponent": strip_cc(strip_md(r[idx["Opponent"]])) or None,
                     "sota": num(r[idx["SoTA"]]),
                     "saves": num(r[idx["Saves"]]),
                     "savePct": num(r[idx["Save%"]]),
@@ -501,6 +503,23 @@ def build_players(club):
     return out
 
 
+# fbref prefixes European opponents with a flag alt-text like "es " / "az ".
+# Strip a leading lowercase 2-3 letter code only when followed by an
+# uppercase/non-ASCII letter ("es Atlético Madrid" -> "Atlético Madrid").
+CC_PREFIX = re.compile(r"^([a-z]{2,3}) (?=[A-ZÀ-ɏ])")
+STRIPPED_CC = set()
+
+
+def strip_cc(name):
+    if not name:
+        return name
+    m = CC_PREFIX.match(name)
+    if m:
+        STRIPPED_CC.add(m.group(1))
+        return name[m.end():]
+    return name
+
+
 # ---------------------------------------------------------------- attack/matchlogs/squad
 def build_matchlogs(club):
     seasons = {}
@@ -517,7 +536,15 @@ def build_matchlogs(club):
                 side = "for" if lab.startswith("For") else \
                     "against" if lab.startswith("Against") else None
                 if side:
-                    sides[side] = {"columns": t["columns"], "rows": t["rows"]}
+                    cols, rows = t["columns"], t["rows"]
+                    if "Opponent" in cols:
+                        oi = cols.index("Opponent")
+                        rows = [
+                            [strip_cc(c) if i == oi else c
+                             for i, c in enumerate(r)]
+                            for r in rows
+                        ]
+                    sides[side] = {"columns": cols, "rows": rows}
             types[typ] = sides
         seasons[season] = types
         write_json(PUBLIC / club["slug"] / f"matchlogs-{season}.json", types)
@@ -1108,6 +1135,8 @@ def main():
     if mgr.exists():
         write_json(BUILT / "managers.json", load_json(mgr), compact=False)
     print(f"done: {len(index)} clubs in index")
+    if STRIPPED_CC:
+        print(f"opponent cc-prefixes stripped: {sorted(STRIPPED_CC)}")
 
 
 if __name__ == "__main__":

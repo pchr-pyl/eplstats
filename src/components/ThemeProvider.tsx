@@ -28,7 +28,7 @@ function apply(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const [theme, setThemeState] = useState<Theme>('light');
   const mountedRef = useRef(false);
 
   useEffect(() => {

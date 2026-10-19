@@ -10,7 +10,7 @@ import type {
   Zone,
 } from '@/lib/types';
 import { fmt, signed } from '@/lib/format';
-import { loadLeagueSeason, formatDate } from './matchlog-shared';
+import { loadLeagueSeason, formatDate, LoadFail, LOAD_FAILED } from './matchlog-shared';
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -63,11 +63,16 @@ export function LeagueHome({
 
   const [season, setSeason] = useState(initial?.season ?? seasons[seasons.length - 1] ?? '');
   const [view, setView] = useState<ViewKey>('all');
-  const [extra, setExtra] = useState<Record<string, LeagueSeasonData | null>>({});
+  const [extra, setExtra] = useState<
+    Record<string, LeagueSeasonData | null | typeof LOAD_FAILED>
+  >({});
 
+  const loaded = season === initial?.season ? initial : (extra[season] ?? null);
   const data: LeagueSeasonData | null =
-    season === initial?.season ? initial : (extra[season] ?? null);
-  const loading = season !== initial?.season && !(season in extra);
+    loaded === LOAD_FAILED ? null : loaded;
+  const loading =
+    season !== initial?.season && !(season in extra) && loaded !== LOAD_FAILED;
+  const failed = loaded === LOAD_FAILED;
 
   useEffect(() => {
     if (!season || season === initial?.season || season in extra) return;
@@ -131,6 +136,17 @@ export function LeagueHome({
         </select>
         {loading && (
           <span className="h-3 w-3 animate-spin rounded-full border-2 border-border border-t-brand" aria-label="loading" />
+        )}
+        {failed && (
+          <LoadFail
+            onRetry={() =>
+              setExtra((p) => {
+                const n = { ...p };
+                delete n[season];
+                return n;
+              })
+            }
+          />
         )}
       </section>
 

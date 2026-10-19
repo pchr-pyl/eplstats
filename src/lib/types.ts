@@ -49,6 +49,7 @@ export interface MatchRow {
   oppFormation: string | null;
   referee: string | null;
   notes: string | null;
+  reportUrl?: string | null;
   xg: number | null;
   xga: number | null;
 }
