@@ -258,7 +258,43 @@
   },
   "home": {
     "plSeasons": "PL seasons",
-    "leagueTable": "League table"
+    "leagueTable": "League table",
+    "summary": {
+      "leader": "Leader",
+      "bestAttack": "Best attack",
+      "bestDefence": "Best defence",
+      "mostXg": "Most xG",
+      "overPerformer": "Biggest over-performer",
+      "underPerformer": "Biggest under-performer",
+      "topScorer": "Top scorer (all comps)"
+    },
+    "tabs": {
+      "all": "All",
+      "home": "Home",
+      "away": "Away",
+      "last5": "Last 5 matches",
+      "xg": "xG"
+    },
+    "cols": {
+      "pl": "PL",
+      "score": "+/-",
+      "next": "Next",
+      "form": "Form",
+      "xpts": "xPTS",
+      "ptsMinusXpts": "PTS−xPTS"
+    },
+    "zones": {
+      "cl": "Champions League",
+      "el": "Europa League",
+      "ecl": "Conference League",
+      "rel": "Relegation",
+      "projected": "(projected)"
+    },
+    "rounds": {
+      "results": "Results",
+      "fixtures": "Fixtures",
+      "mw": "Matchweek"
+    }
   },
   "clubCompare": {
     "pickClubs": "Select up to 4 clubs",

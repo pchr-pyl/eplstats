@@ -260,6 +260,7 @@ export interface ClubIndexEntry {
   nameTh: string | null;
   brandLight: string | null;
   brandDark: string | null;
+  logo?: string | null;
   seasons: string[];
   latest: string;
 }
@@ -284,3 +285,76 @@ export interface LeagueSeasonRow {
 }
 
 export type LeagueData = Record<string, LeagueSeasonRow[]>;
+
+// ---- home league summary (public/data/league/{season}.json) ----
+
+export type Zone = 'cl' | 'el' | 'ecl' | 'rel' | null;
+
+export interface LeagueTableViewRow {
+  slug: string;
+  rank: number | null;
+  mp: number;
+  w?: number;
+  d?: number;
+  l?: number;
+  gf?: number;
+  ga?: number;
+  gd?: number;
+  pts?: number;
+  xg?: number | null;
+  xga?: number | null;
+  xgd?: number | null;
+  xpts?: number;
+  ptsMinusXpts?: number | null;
+}
+
+export interface LeagueFormMatch {
+  result: 'W' | 'D' | 'L';
+  gf: number;
+  ga: number;
+  opponent: string;
+  venue: 'H' | 'A';
+  date: string;
+}
+
+export interface LeagueNextMatch {
+  opponent: string;
+  venue: 'H' | 'A';
+  date: string;
+}
+
+export interface LeagueRoundMatch {
+  date: string;
+  time: string;
+  home: string | null;
+  away: string | null;
+  score: string | null;
+}
+
+export interface LeagueSeasonData {
+  season: string;
+  views: {
+    all: LeagueSeasonRow[];
+    home: LeagueTableViewRow[];
+    away: LeagueTableViewRow[];
+    last5: LeagueTableViewRow[];
+    xg: LeagueTableViewRow[];
+  };
+  form: Record<string, LeagueFormMatch[]>;
+  next: Record<string, LeagueNextMatch>;
+  zones: Record<string, Zone>;
+  zonesProjected: boolean;
+  summary: {
+    leader?: { slug: string; value: number } | null;
+    bestAttack?: { slug: string; value: number } | null;
+    bestDefence?: { slug: string; value: number } | null;
+    mostXg?: { slug: string; value: number } | null;
+    overPerformer?: { slug: string; value: number } | null;
+    underPerformer?: { slug: string; value: number } | null;
+    topScorer?: { slug: string; player: string; goals: number } | null;
+  };
+  rounds: {
+    last?: { wk: number; matches: LeagueRoundMatch[] } | null;
+    next?: { wk: number; matches: LeagueRoundMatch[] } | null;
+  };
+}

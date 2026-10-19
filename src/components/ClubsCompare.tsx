@@ -146,10 +146,13 @@ export function ClubsCompare({
                 }`}
                 aria-pressed={active}
               >
-                <span
+                <img
                   aria-hidden
-                  className="inline-block h-2.5 w-2.5 rounded-full"
-                  style={{ background: c.color }}
+                  src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/logos/${c.slug}.png`}
+                  width={16}
+                  height={16}
+                  alt=""
+                  className="inline-block h-4 w-4 object-contain"
                 />
                 {lang === 'th' && c.nameTh ? c.nameTh : c.name}
               </button>
@@ -209,10 +212,13 @@ export function ClubsCompare({
                   <tr key={slug} className="border-b border-border-light">
                     <td className="px-3 py-2.5 text-sm font-medium text-primary">
                       <span className="inline-flex items-center gap-2">
-                        <span
+                        <img
                           aria-hidden
-                          className="inline-block h-3 w-3 rounded-full"
-                          style={{ background: color(slug) }}
+                          src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/logos/${slug}.png`}
+                          width={18}
+                          height={18}
+                          alt=""
+                          className="inline-block h-5 w-5 object-contain"
                         />
                         {name(slug)}
                         <span className="text-xs text-muted">

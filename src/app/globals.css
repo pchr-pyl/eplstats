@@ -130,3 +130,8 @@ body {
   );
   pointer-events: none;
 }
+
+/* EPL logo (dark-purple mark) inverted for dark theme */
+[data-theme='dark'] .epl-logo {
+  filter: brightness(0) invert(1);
+}

@@ -19,7 +19,10 @@ export async function generateMetadata({
   const { club } = await params;
   const entry = getClubIndex().find((c) => c.slug === club);
   if (!entry) return {};
-  return { title: `${entry.name} — Premier League — Club Analytics` };
+  return {
+    title: `${entry.name} — Premier League — Club Analytics`,
+    icons: { icon: `/logos/${club}.png`, apple: `/logos/${club}.png` },
+  };
 }
 
 export default async function ClubLayout({

@@ -21,6 +21,7 @@
   "latest": "2026-2027",
   "shortName": "Arsenal",
   "nameTh": "อาร์เซนอล",
+  "logo": "/logos/arsenal.png",
   "brandLight": "#ef0107",
   "brandDark": "#ef0107"
  },
@@ -43,6 +44,7 @@
   "latest": "2026-2027",
   "shortName": "Aston Villa",
   "nameTh": "แอสตัน วิลลา",
+  "logo": "/logos/aston-villa.png",
   "brandLight": "#708fac",
   "brandDark": "#95bfe5"
  },
@@ -65,6 +67,7 @@
   "latest": "2026-2027",
   "shortName": "Bournemouth",
   "nameTh": "บอร์นมัธ",
+  "logo": "/logos/bournemouth.png",
   "brandLight": "#da291c",
   "brandDark": "#da291c"
  },
@@ -83,6 +86,7 @@
   "latest": "2026-2027",
   "shortName": "Brentford",
   "nameTh": "เบรนท์ฟอร์ด",
+  "logo": "/logos/brentford.png",
   "brandLight": "#e30613",
   "brandDark": "#e30613"
  },
@@ -105,6 +109,7 @@
   "latest": "2026-2027",
   "shortName": "Brighton",
   "nameTh": "ไบรท์ตัน",
+  "logo": "/logos/brighton.png",
   "brandLight": "#0057b8",
   "brandDark": "#1a68bf"
  },
@@ -126,6 +131,7 @@
   "latest": "2025-2026",
   "shortName": "Burnley",
   "nameTh": "เบิร์นลีย์",
+  "logo": "/logos/burnley.png",
   "brandLight": "#6c1d45",
   "brandDark": "#915674"
  },
@@ -139,6 +145,7 @@
   "latest": "2018-2019",
   "shortName": "Cardiff City",
   "nameTh": "คาร์ดิฟฟ์ ซิตี้",
+  "logo": "/logos/cardiff-city.png",
   "brandLight": "#0070b5",
   "brandDark": "#0070b5"
  },
@@ -164,6 +171,7 @@
   "latest": "2026-2027",
   "shortName": "Chelsea",
   "nameTh": "เชลซี",
+  "logo": "/logos/chelsea.png",
   "brandLight": "#034694",
   "brandDark": "#356ba9"
  },
@@ -177,6 +185,7 @@
   "latest": "2026-2027",
   "shortName": "Coventry City",
   "nameTh": "โคเวนทรี ซิตี้",
+  "logo": "/logos/coventry-city.png",
   "brandLight": "#059dd9",
   "brandDark": "#059dd9"
  },
@@ -202,6 +211,7 @@
   "latest": "2026-2027",
   "shortName": "Crystal Palace",
   "nameTh": "คริสตัล พาเลซ",
+  "logo": "/logos/crystal-palace.png",
   "brandLight": "#1b458f",
   "brandDark": "#496aa5"
  },
@@ -227,6 +237,7 @@
   "latest": "2026-2027",
   "shortName": "Everton",
   "nameTh": "เอฟเวอร์ตัน",
+  "logo": "/logos/everton.png",
   "brandLight": "#003399",
   "brandDark": "#4066b2"
  },
@@ -246,6 +257,7 @@
   "latest": "2026-2027",
   "shortName": "Fulham",
   "nameTh": "ฟูแลม",
+  "logo": "/logos/fulham.png",
   "brandLight": "#000000",
   "brandDark": "#666666"
  },
@@ -260,6 +272,7 @@
   "latest": "2018-2019",
   "shortName": "Huddersfield",
   "nameTh": "ฮัดเดอร์สฟีลด์ ทาวน์",
+  "logo": "/logos/huddersfield-town.png",
   "brandLight": "#0e63ad",
   "brandDark": "#1a6bb1"
  },
@@ -275,6 +288,7 @@
   "latest": "2026-2027",
   "shortName": "Hull City",
   "nameTh": "ฮัลล์ ซิตี้",
+  "logo": "/logos/hull-city.png",
   "brandLight": "#d97c01",
   "brandDark": "#f18a01"
  },
@@ -289,6 +303,7 @@
   "latest": "2026-2027",
   "shortName": "Ipswich Town",
   "nameTh": "อิปสวิช ทาวน์",
+  "logo": "/logos/ipswich-town.png",
   "brandLight": "#3a64a3",
   "brandDark": "#3a64a3"
  },
@@ -306,6 +321,7 @@
   "latest": "2026-2027",
   "shortName": "Leeds United",
   "nameTh": "ลีดส์ ยูไนเต็ด",
+  "logo": "/logos/leeds-united.png",
   "brandLight": "#b29000",
   "brandDark": "#ffcd00"
  },
@@ -328,6 +344,7 @@
   "latest": "2024-2025",
   "shortName": "Leicester City",
   "nameTh": "เลสเตอร์ ซิตี้",
+  "logo": "/logos/leicester-city.png",
   "brandLight": "#003090",
   "brandDark": "#4064ac"
  },
@@ -353,6 +370,7 @@
   "latest": "2026-2027",
   "shortName": "Liverpool",
   "nameTh": "ลิเวอร์พูล",
+  "logo": "/logos/liverpool.png",
   "brandLight": "#c8102e",
   "brandDark": "#c8102e"
  },
@@ -366,6 +384,7 @@
   "latest": "2023-2024",
   "shortName": "Luton Town",
   "nameTh": "ลูตัน ทาวน์",
+  "logo": "/logos/luton-town.png",
   "brandLight": "#d27a1a",
   "brandDark": "#f78f1e"
  },
@@ -391,6 +410,7 @@
   "latest": "2026-2027",
   "shortName": "Manchester City",
   "nameTh": "แมนเชสเตอร์ ซิตี้",
+  "logo": "/logos/man-city.png",
   "brandLight": "#619ac7",
   "brandDark": "#6cabdd"
  },
@@ -416,6 +436,7 @@
   "latest": "2026-2027",
   "shortName": "Manchester Utd",
   "nameTh": "แมนเชสเตอร์ ยูไนเต็ด",
+  "logo": "/logos/man-utd.png",
   "brandLight": "#da291c",
   "brandDark": "#da291c"
  },
@@ -429,6 +450,7 @@
   "latest": "2016-2017",
   "shortName": "Middlesbrough",
   "nameTh": "มิดเดิลส์เบรอ",
+  "logo": "/logos/middlesbrough.png",
   "brandLight": "#e31937",
   "brandDark": "#e31937"
  },
@@ -453,6 +475,7 @@
   "latest": "2026-2027",
   "shortName": "Newcastle",
   "nameTh": "นิวคาสเซิล ยูไนเต็ด",
+  "logo": "/logos/newcastle-united.png",
   "brandLight": "#241f20",
   "brandDark": "#666263"
  },
@@ -468,6 +491,7 @@
   "latest": "2021-2022",
   "shortName": "Norwich City",
   "nameTh": "นอริช ซิตี้",
+  "logo": "/logos/norwich-city.png",
   "brandLight": "#999100",
   "brandDark": "#fff200"
  },
@@ -485,6 +509,7 @@
   "latest": "2026-2027",
   "shortName": "Nottingham",
   "nameTh": "น็อตติงแฮม ฟอเรสต์",
+  "logo": "/logos/nottingham-forest.png",
   "brandLight": "#dd0000",
   "brandDark": "#dd0000"
  },
@@ -498,6 +523,7 @@
   "latest": "2014-2015",
   "shortName": "QPR",
   "nameTh": "ควีนส์ พาร์ค เรนเจอส์",
+  "logo": "/logos/qpr.png",
   "brandLight": "#1d5ba4",
   "brandDark": "#2863a9"
  },
@@ -513,6 +539,7 @@
   "latest": "2023-2024",
   "shortName": "Sheffield United",
   "nameTh": "เชฟฟีลด์ ยูไนเต็ด",
+  "logo": "/logos/sheffield-united.png",
   "brandLight": "#ee2737",
   "brandDark": "#ee2737"
  },
@@ -535,6 +562,7 @@
   "latest": "2024-2025",
   "shortName": "Southampton",
   "nameTh": "เซาแทมป์ตัน",
+  "logo": "/logos/southampton.png",
   "brandLight": "#d71920",
   "brandDark": "#d71920"
  },
@@ -551,6 +579,7 @@
   "latest": "2017-2018",
   "shortName": "Stoke City",
   "nameTh": "สโต๊ก ซิตี้",
+  "logo": "/logos/stoke-city.png",
   "brandLight": "#e03a3e",
   "brandDark": "#e03a3e"
  },
@@ -568,6 +597,7 @@
   "latest": "2026-2027",
   "shortName": "Sunderland",
   "nameTh": "ซันเดอร์แลนด์",
+  "logo": "/logos/sunderland.png",
   "brandLight": "#eb172b",
   "brandDark": "#eb172b"
  },
@@ -584,6 +614,7 @@
   "latest": "2017-2018",
   "shortName": "Swansea City",
   "nameTh": "สวอนซี ซิตี้",
+  "logo": "/logos/swansea-city.png",
   "brandLight": "#121212",
   "brandDark": "#656565"
  },
@@ -609,6 +640,7 @@
   "latest": "2026-2027",
   "shortName": "Tottenham",
   "nameTh": "ท็อตแนม ฮอตสเปอร์",
+  "logo": "/logos/tottenham.png",
   "brandLight": "#132257",
   "brandDark": "#5a6489"
  },
@@ -627,6 +659,7 @@
   "latest": "2021-2022",
   "shortName": "Watford",
   "nameTh": "วอตฟอร์ด",
+  "logo": "/logos/watford.png",
   "brandLight": "#978f15",
   "brandDark": "#fbee23"
  },
@@ -644,6 +677,7 @@
   "latest": "2020-2021",
   "shortName": "West Brom",
   "nameTh": "เวสต์บรอมวิช อัลเบียน",
+  "logo": "/logos/west-brom.png",
   "brandLight": "#122f67",
   "brandDark": "#4d638d"
  },
@@ -668,6 +702,7 @@
   "latest": "2025-2026",
   "shortName": "West Ham",
   "nameTh": "เวสต์แฮม ยูไนเต็ด",
+  "logo": "/logos/west-ham.png",
   "brandLight": "#7a263a",
   "brandDark": "#955161"
  },
@@ -688,6 +723,7 @@
   "latest": "2025-2026",
   "shortName": "Wolves",
   "nameTh": "วูล์ฟแฮมป์ตัน",
+  "logo": "/logos/wolves.png",
   "brandLight": "#be8b0e",
   "brandDark": "#fdb913"
  }

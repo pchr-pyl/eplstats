@@ -87,8 +87,10 @@ Per-match PSxG is not available anywhere post-removal — don't promise it.
   `data/built/index.json` (slug,name,color,shortName,nameTh,brandLight,brandDark,
   seasons,latest), `data/built/managers.json`.
 - Perf: judge tab-nav speed with `npm run build && npm run serve` (production
-  static export on :3002, real prefetching). Dev mode compiles routes on first
-  hit — not representative. Shared club data (seasons/matches/managers) ships
+  static export on :3002 via `scripts/serve_out.py`, which maps Next's flat
+  prefetch filenames like `__next.$d$club.X.__PAGE__.txt` to the on-disk
+  directory layout — plain `http.server` 404s them). Dev mode compiles routes
+  on first hit — not representative. Shared club data (seasons/matches/managers) ships
   once in the `[club]` layout segment via `useClubData()`; tab pages stay small.
 - Verify: `python -X utf8 scripts/build/verify_man_utd.py`.
 - Routes: `/` league home, `/{club}[/matches|/shooting|/keepers|/misc|/attack|

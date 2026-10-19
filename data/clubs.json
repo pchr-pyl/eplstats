@@ -22,7 +22,8 @@
   "understatName": "Arsenal",
   "capologySlug": "arsenal",
   "color": "#EF0107",
-  "nameTh": "อาร์เซนอล"
+  "nameTh": "อาร์เซนอล",
+  "logoSource": "fotmob"
  },
  {
   "slug": "aston-villa",
@@ -44,7 +45,8 @@
   "understatName": "Aston Villa",
   "capologySlug": "aston-villa",
   "color": "#95BFE5",
-  "nameTh": "แอสตัน วิลลา"
+  "nameTh": "แอสตัน วิลลา",
+  "logoSource": "fotmob"
  },
  {
   "slug": "bournemouth",
@@ -66,7 +68,8 @@
   "understatName": "Bournemouth",
   "capologySlug": "bournemouth",
   "color": "#DA291C",
-  "nameTh": "บอร์นมัธ"
+  "nameTh": "บอร์นมัธ",
+  "logoSource": "fotmob"
  },
  {
   "slug": "brentford",
@@ -84,7 +87,8 @@
   "understatName": "Brentford",
   "capologySlug": "brentford",
   "color": "#E30613",
-  "nameTh": "เบรนท์ฟอร์ด"
+  "nameTh": "เบรนท์ฟอร์ด",
+  "logoSource": "fotmob"
  },
  {
   "slug": "brighton",
@@ -106,7 +110,8 @@
   "understatName": "Brighton",
   "capologySlug": "brighton",
   "color": "#0057B8",
-  "nameTh": "ไบรท์ตัน"
+  "nameTh": "ไบรท์ตัน",
+  "logoSource": "fotmob"
  },
  {
   "slug": "burnley",
@@ -127,7 +132,8 @@
   "understatName": "Burnley",
   "capologySlug": "burnley",
   "color": "#6C1D45",
-  "nameTh": "เบิร์นลีย์"
+  "nameTh": "เบิร์นลีย์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "cardiff-city",
@@ -140,7 +146,8 @@
   "understatName": "Cardiff",
   "capologySlug": "cardiff",
   "color": "#0070B5",
-  "nameTh": "คาร์ดิฟฟ์ ซิตี้"
+  "nameTh": "คาร์ดิฟฟ์ ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "chelsea",
@@ -165,7 +172,8 @@
   "understatName": "Chelsea",
   "capologySlug": "chelsea",
   "color": "#034694",
-  "nameTh": "เชลซี"
+  "nameTh": "เชลซี",
+  "logoSource": "fotmob"
  },
  {
   "slug": "coventry-city",
@@ -178,7 +186,8 @@
   "understatName": "Coventry",
   "capologySlug": "coventry",
   "color": "#059DD9",
-  "nameTh": "โคเวนทรี ซิตี้"
+  "nameTh": "โคเวนทรี ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "crystal-palace",
@@ -203,7 +212,8 @@
   "understatName": "Crystal Palace",
   "capologySlug": "crystal-palace",
   "color": "#1B458F",
-  "nameTh": "คริสตัล พาเลซ"
+  "nameTh": "คริสตัล พาเลซ",
+  "logoSource": "fotmob"
  },
  {
   "slug": "everton",
@@ -228,7 +238,8 @@
   "understatName": "Everton",
   "capologySlug": "everton",
   "color": "#003399",
-  "nameTh": "เอฟเวอร์ตัน"
+  "nameTh": "เอฟเวอร์ตัน",
+  "logoSource": "fotmob"
  },
  {
   "slug": "fulham",
@@ -247,7 +258,8 @@
   "understatName": "Fulham",
   "capologySlug": "fulham",
   "color": "#000000",
-  "nameTh": "ฟูแลม"
+  "nameTh": "ฟูแลม",
+  "logoSource": "fotmob"
  },
  {
   "slug": "huddersfield-town",
@@ -261,7 +273,8 @@
   "understatName": "Huddersfield",
   "capologySlug": "huddersfield",
   "color": "#0E63AD",
-  "nameTh": "ฮัดเดอร์สฟีลด์ ทาวน์"
+  "nameTh": "ฮัดเดอร์สฟีลด์ ทาวน์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "hull-city",
@@ -276,7 +289,8 @@
   "understatName": "Hull",
   "capologySlug": "hull-city",
   "color": "#F18A01",
-  "nameTh": "ฮัลล์ ซิตี้"
+  "nameTh": "ฮัลล์ ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "ipswich-town",
@@ -290,7 +304,8 @@
   "understatName": "Ipswich",
   "capologySlug": "ipswich-town",
   "color": "#3A64A3",
-  "nameTh": "อิปสวิช ทาวน์"
+  "nameTh": "อิปสวิช ทาวน์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "leeds-united",
@@ -307,7 +322,8 @@
   "understatName": "Leeds",
   "capologySlug": "leeds",
   "color": "#FFCD00",
-  "nameTh": "ลีดส์ ยูไนเต็ด"
+  "nameTh": "ลีดส์ ยูไนเต็ด",
+  "logoSource": "fotmob"
  },
  {
   "slug": "leicester-city",
@@ -329,7 +345,8 @@
   "understatName": "Leicester",
   "capologySlug": "leicester",
   "color": "#003090",
-  "nameTh": "เลสเตอร์ ซิตี้"
+  "nameTh": "เลสเตอร์ ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "liverpool",
@@ -354,7 +371,8 @@
   "understatName": "Liverpool",
   "capologySlug": "liverpool",
   "color": "#C8102E",
-  "nameTh": "ลิเวอร์พูล"
+  "nameTh": "ลิเวอร์พูล",
+  "logoSource": "fotmob"
  },
  {
   "slug": "luton-town",
@@ -367,7 +385,8 @@
   "understatName": "Luton",
   "capologySlug": "luton-town",
   "color": "#F78F1E",
-  "nameTh": "ลูตัน ทาวน์"
+  "nameTh": "ลูตัน ทาวน์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "man-city",
@@ -392,7 +411,8 @@
   "understatName": "Manchester City",
   "capologySlug": "manchester-city",
   "color": "#6CABDD",
-  "nameTh": "แมนเชสเตอร์ ซิตี้"
+  "nameTh": "แมนเชสเตอร์ ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "man-utd",
@@ -417,7 +437,8 @@
   "understatName": "Manchester United",
   "capologySlug": "manchester-united",
   "color": "#DA291C",
-  "nameTh": "แมนเชสเตอร์ ยูไนเต็ด"
+  "nameTh": "แมนเชสเตอร์ ยูไนเต็ด",
+  "logoSource": "fotmob"
  },
  {
   "slug": "middlesbrough",
@@ -430,7 +451,8 @@
   "understatName": "Middlesbrough",
   "capologySlug": "middlesbrough",
   "color": "#E31937",
-  "nameTh": "มิดเดิลส์เบรอ"
+  "nameTh": "มิดเดิลส์เบรอ",
+  "logoSource": "fotmob"
  },
  {
   "slug": "newcastle-united",
@@ -454,7 +476,8 @@
   "understatName": "Newcastle United",
   "capologySlug": "newcastle",
   "color": "#241F20",
-  "nameTh": "นิวคาสเซิล ยูไนเต็ด"
+  "nameTh": "นิวคาสเซิล ยูไนเต็ด",
+  "logoSource": "fotmob"
  },
  {
   "slug": "norwich-city",
@@ -469,7 +492,8 @@
   "understatName": "Norwich",
   "capologySlug": "norwich",
   "color": "#FFF200",
-  "nameTh": "นอริช ซิตี้"
+  "nameTh": "นอริช ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "nottingham-forest",
@@ -486,7 +510,8 @@
   "understatName": "Nottingham Forest",
   "capologySlug": "nottingham-forest",
   "color": "#DD0000",
-  "nameTh": "น็อตติงแฮม ฟอเรสต์"
+  "nameTh": "น็อตติงแฮม ฟอเรสต์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "qpr",
@@ -499,7 +524,8 @@
   "understatName": "Queens Park Rangers",
   "capologySlug": "qpr",
   "color": "#1D5BA4",
-  "nameTh": "ควีนส์ พาร์ค เรนเจอส์"
+  "nameTh": "ควีนส์ พาร์ค เรนเจอส์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "sheffield-united",
@@ -514,7 +540,8 @@
   "understatName": "Sheffield United",
   "capologySlug": "sheffield-united",
   "color": "#EE2737",
-  "nameTh": "เชฟฟีลด์ ยูไนเต็ด"
+  "nameTh": "เชฟฟีลด์ ยูไนเต็ด",
+  "logoSource": "fotmob"
  },
  {
   "slug": "southampton",
@@ -536,7 +563,8 @@
   "understatName": "Southampton",
   "capologySlug": "southampton",
   "color": "#D71920",
-  "nameTh": "เซาแทมป์ตัน"
+  "nameTh": "เซาแทมป์ตัน",
+  "logoSource": "fotmob"
  },
  {
   "slug": "stoke-city",
@@ -552,7 +580,8 @@
   "understatName": "Stoke",
   "capologySlug": "stoke-city",
   "color": "#E03A3E",
-  "nameTh": "สโต๊ก ซิตี้"
+  "nameTh": "สโต๊ก ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "sunderland",
@@ -569,7 +598,8 @@
   "understatName": "Sunderland",
   "capologySlug": "sunderland",
   "color": "#EB172B",
-  "nameTh": "ซันเดอร์แลนด์"
+  "nameTh": "ซันเดอร์แลนด์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "swansea-city",
@@ -585,7 +615,8 @@
   "understatName": "Swansea",
   "capologySlug": "swansea",
   "color": "#121212",
-  "nameTh": "สวอนซี ซิตี้"
+  "nameTh": "สวอนซี ซิตี้",
+  "logoSource": "fotmob"
  },
  {
   "slug": "tottenham",
@@ -610,7 +641,8 @@
   "understatName": "Tottenham",
   "capologySlug": "tottenham",
   "color": "#132257",
-  "nameTh": "ท็อตแนม ฮอตสเปอร์"
+  "nameTh": "ท็อตแนม ฮอตสเปอร์",
+  "logoSource": "fotmob"
  },
  {
   "slug": "watford",
@@ -628,7 +660,8 @@
   "understatName": "Watford",
   "capologySlug": "watford",
   "color": "#FBEE23",
-  "nameTh": "วอตฟอร์ด"
+  "nameTh": "วอตฟอร์ด",
+  "logoSource": "fotmob"
  },
  {
   "slug": "west-brom",
@@ -645,7 +678,8 @@
   "understatName": "West Bromwich Albion",
   "capologySlug": "west-bromwich",
   "color": "#122F67",
-  "nameTh": "เวสต์บรอมวิช อัลเบียน"
+  "nameTh": "เวสต์บรอมวิช อัลเบียน",
+  "logoSource": "fotmob"
  },
  {
   "slug": "west-ham",
@@ -669,7 +703,8 @@
   "understatName": "West Ham",
   "capologySlug": "west-ham",
   "color": "#7A263A",
-  "nameTh": "เวสต์แฮม ยูไนเต็ด"
+  "nameTh": "เวสต์แฮม ยูไนเต็ด",
+  "logoSource": "fotmob"
  },
  {
   "slug": "wolves",
@@ -689,6 +724,7 @@
   "understatName": "Wolverhampton Wanderers",
   "capologySlug": "wolverhampton",
   "color": "#FDB913",
-  "nameTh": "วูล์ฟแฮมป์ตัน"
+  "nameTh": "วูล์ฟแฮมป์ตัน",
+  "logoSource": "fotmob"
  }
 ]

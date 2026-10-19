@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "serve": "python -m http.server 3002 -d out",
+    "serve": "python -X utf8 scripts/serve_out.py 3002",
     "lint": "eslint"
   },
   "dependencies": {

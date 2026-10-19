@@ -756,6 +756,249 @@ def short_name(club):
 CLUBS = {}
 
 
+def _opponent_map(clubs):
+    """display name -> slug: club names, understatNames, fbref squad names."""
+    m = {}
+    for c in clubs.values():
+        m[c["name"]] = c["slug"]
+        if c.get("understatName"):
+            m[c["understatName"]] = c["slug"]
+    for season_dir in (RAW / "league").iterdir():
+        tp = season_dir / "table.json"
+        if not tp.exists():
+            continue
+        fid2slug = {c["fbrefId"]: c["slug"] for c in clubs.values()}
+        for s in load_json(tp).get("squads", []):
+            if s["id"] in fid2slug:
+                m[s["name"]] = fid2slug[s["id"]]
+    return m
+
+
+def _table_notes_zones(season, clubs):
+    """zones from league table.json Notes column (completed seasons)."""
+    tp = RAW / "league" / season / "table.json"
+    zones = {}
+    if not tp.exists():
+        return zones
+    fid2slug = {c["fbrefId"]: c["slug"] for c in clubs.values()}
+    md = load_json(tp)["markdown"]
+    for line in md.split("\n"):
+        if "/squads/" not in line or "|" not in line:
+            continue
+        sm = re.search(r"/squads/([0-9a-f]+)/", line)
+        slug = fid2slug.get(sm.group(1)) if sm else None
+        if not slug or slug in zones:
+            continue
+        tail = line.rsplit("|", 2)[-2] if line.count("|") > 2 else line
+        if "Relegat" in tail:
+            zones[slug] = "rel"
+        elif "Champions League" in tail:
+            zones[slug] = "cl"
+        elif "Europa League" in tail:
+            zones[slug] = "el"
+        elif "Conference League" in tail:
+            zones[slug] = "ecl"
+    return zones
+
+
+def _understat_season(season, clubs):
+    """per-club {mp,xg,xga,xpts,ptsSide} from league understat.json."""
+    up = RAW / "league" / season / "understat.json"
+    out = {}
+    if not up.exists():
+        return out
+    name2slug = {}
+    for c in clubs.values():
+        if c.get("understatName"):
+            name2slug[c["understatName"]] = c["slug"]
+        name2slug[c["name"]] = c["slug"]
+    # fbref-ish names understat uses ("Manchester United", "Tottenham")
+    for m in load_json(up)["dates"]:
+        if not m.get("isResult"):
+            continue
+        for side, mine, opp, fkey in (
+                ("h", "h", "a", "w"), ("a", "a", "h", "l")):
+            slug = name2slug.get(m[side]["title"])
+            if not slug:
+                continue
+            e = out.setdefault(slug, {"mp": 0, "xg": 0.0, "xga": 0.0,
+                                      "xpts": 0.0})
+            e["mp"] += 1
+            e["xg"] += float(m["xG"][mine])
+            e["xga"] += float(m["xG"][opp])
+            f = m.get("forecast") or {}
+            e["xpts"] += 3 * float(f.get(fkey, 0)) + float(f.get("d", 0))
+    return out
+
+
+def _rounds(season, clubs, name2slug):
+    """latest completed MW + next MW from league fixtures.json markdown."""
+    fp = RAW / "league" / season / "fixtures.json"
+    if not fp.exists():
+        return {}
+    weeks = {}
+    fid2slug = {c["fbrefId"]: c["slug"] for c in clubs.values()}
+    for _h, header, rows in parse_tables(load_json(fp)["markdown"]):
+        if not header or header[0] != "Wk":
+            continue
+        idx = colmap(header)
+        for r in rows:
+            wk = r[idx.get("Wk", 0)] if len(r) > idx.get("Wk", 0) else ""
+            if not wk or not wk.strip().isdigit():
+                continue
+            def squad_slug(cell):
+                m = re.search(r"/squads/([0-9a-f]+)/", cell or "")
+                if m:
+                    return fid2slug.get(m.group(1))
+                txt = re.sub(r"[\[\]\(\)\*]", "", cell or "")
+                return name2slug.get(txt.strip())
+            home = squad_slug(r[idx["Home"]]) if "Home" in idx else None
+            away = squad_slug(r[idx["Away"]]) if "Away" in idx else None
+            score = strip_md(r[idx["Score"]]) if "Score" in idx else ""
+            date = strip_md(r[idx["Date"]]) if "Date" in idx else ""
+            weeks.setdefault(wk.strip(), []).append({
+                "date": date,
+                "time": strip_md(r[idx["Time"]]) if "Time" in idx else "",
+                "home": home, "away": away,
+                "score": score if score and score != "—" else None})
+    if not weeks:
+        return {}
+    played_wk = [int(w) for w, ms in weeks.items()
+                 if all(m["score"] for m in ms)]
+    last = max(played_wk) if played_wk else None
+    nxt = min((int(w) for w in weeks if last is None or int(w) > last),
+              default=None)
+    return {
+        "last": {"wk": last, "matches": weeks[str(last)]} if last else None,
+        "next": {"wk": nxt, "matches": weeks[str(nxt)]} if nxt else None}
+
+
+def league_season_files(all_club_matches, league, clubs):
+    """public/data/league/{season}.json — home page summary payload."""
+    name2slug = _opponent_map(clubs)
+    for season, rows in league.items():
+        clubs_s = {r["slug"] for r in rows}
+        views = {"all": [dict(r) for r in rows], "home": [], "away": [],
+                 "last5": [], "xg": []}
+        form, nxt = {}, {}
+        for slug in clubs_s:
+            pl = [m for m in all_club_matches[slug][1]
+                  if m["season"] == season
+                  and m["competition"] == "Premier League"]
+            played = [m for m in pl if m["result"] in ("W", "D", "L")]
+            unplayed = sorted(
+                (m for m in pl if m["result"] not in ("W", "D", "L")),
+                key=lambda m: m["date"])
+
+            def agg(ms):
+                w = sum(1 for m in ms if m["result"] == "W")
+                d = sum(1 for m in ms if m["result"] == "D")
+                l = sum(1 for m in ms if m["result"] == "L")
+                gf = sum(m["gf"] for m in ms)
+                ga = sum(m["ga"] for m in ms)
+                return {"slug": slug, "rank": None, "mp": len(ms),
+                        "w": w, "d": d, "l": l, "gf": gf, "ga": ga,
+                        "gd": gf - ga, "pts": 3 * w + d}
+            views["home"].append(
+                agg([m for m in played if m["venue"] == "Home"]))
+            views["away"].append(
+                agg([m for m in played if m["venue"] == "Away"]))
+            last5 = sorted(played, key=lambda m: m["date"])[-5:]
+            views["last5"].append(agg(last5))
+            form[slug] = [{
+                "result": m["result"], "gf": m["gf"], "ga": m["ga"],
+                "opponent": name2slug.get(m["opponent"], m["opponent"]),
+                "venue": "H" if m["venue"] == "Home" else "A",
+                "date": m["date"]} for m in last5]
+            if unplayed:
+                m = unplayed[0]
+                nxt[slug] = {
+                    "opponent": name2slug.get(m["opponent"], m["opponent"]),
+                    "venue": "H" if m["venue"] == "Home" else "A",
+                    "date": m["date"]}
+        key = lambda v: (-v["pts"], -v["gd"], -v["gf"], v["slug"])
+        for view in ("home", "away", "last5"):
+            views[view].sort(key=key)
+            for i, v in enumerate(views[view], 1):
+                v["rank"] = i
+        # xg view
+        xg_d = _understat_season(season, clubs)
+        pts_of = {r["slug"]: r["pts"] for r in rows}
+        for slug, e in xg_d.items():
+            if slug not in clubs_s:
+                continue
+            xpts = round(e["xpts"], 2)
+            views["xg"].append({
+                "slug": slug, "rank": None, "mp": e["mp"],
+                "xg": round(e["xg"], 2), "xga": round(e["xga"], 2),
+                "xgd": round(e["xg"] - e["xga"], 2), "xpts": xpts,
+                "pts": pts_of.get(slug),
+                "ptsMinusXpts": (round(pts_of[slug] - xpts, 2)
+                                 if slug in pts_of else None)})
+        views["xg"].sort(key=lambda v: (-v["xpts"], v["slug"]))
+        for i, v in enumerate(views["xg"], 1):
+            v["rank"] = i
+        # zones
+        completed = all(r["mp"] >= 38 for r in rows)
+        zones_projected = not completed
+        if completed:
+            zones = {s: _table_notes_zones(season, clubs).get(s)
+                     for s in clubs_s}
+        else:
+            zones = {r["slug"]: ("cl" if r["rank"] <= 4 else
+                                 "el" if r["rank"] == 5 else
+                                 "rel" if r["rank"] >= 18 else None)
+                     for r in rows}
+        # summary
+        def best(fn, vals=rows):
+            r = max(vals, key=fn)
+            return {"slug": r["slug"], "value": fn(r)}
+        xg_of = {v["slug"]: v for v in views["xg"]}
+        over = max(rows,
+                   key=lambda r: r["gf"] - (xg_of.get(r["slug"], {})
+                                            .get("xg") or r["gf"]))
+        under = min(rows,
+                    key=lambda r: r["gf"] - (xg_of.get(r["slug"], {})
+                                             .get("xg") or r["gf"]))
+        top_scorer = None
+        for slug in clubs_s:
+            pj = BUILT / slug / "players.json"
+            if not pj.exists():
+                continue
+            ps = (load_json(pj).get("seasons", {})
+                  .get(season, {}).get("players", []))
+            for p in ps:
+                g = p.get("gls")
+                if (g is not None and (top_scorer is None
+                                       or g > top_scorer["goals"])):
+                    top_scorer = {"slug": slug, "player": p.get("player"),
+                                  "goals": g}
+        summary = {
+            "leader": best(lambda r: r["pts"]),
+            "bestAttack": best(lambda r: r["gf"]),
+            "bestDefence": min(rows, key=lambda r: r["ga"]) and {
+                "slug": min(rows, key=lambda r: r["ga"])["slug"],
+                "value": min(rows, key=lambda r: r["ga"])["ga"]},
+            "mostXg": ({"slug": views["xg"][0]["slug"],
+                        "value": views["xg"][0]["xg"]}
+                       if views["xg"] else None),
+            "overPerformer": {"slug": over["slug"],
+                              "value": round(
+                                  over["gf"] - (xg_of.get(over["slug"], {})
+                                                .get("xg") or over["gf"]), 2)},
+            "underPerformer": {"slug": under["slug"],
+                               "value": round(
+                                   under["gf"] - (xg_of.get(under["slug"], {})
+                                                  .get("xg") or under["gf"]),
+                                   2)},
+            "topScorer": top_scorer}
+        write_json(PUBLIC / "league" / f"{season}.json", {
+            "season": season, "views": views, "form": form, "next": nxt,
+            "zones": zones, "zonesProjected": zones_projected,
+            "summary": summary,
+            "rounds": _rounds(season, clubs, name2slug)})
+
+
 def keepers_by_season(keepers):
     """Split KeepersData into per-season payloads for lazy loading."""
     seasons = sorted({r["season"] for r in keepers.get("matchLog", [])})
@@ -827,6 +1070,7 @@ def main():
             lm[slug] = (c, load_json(BUILT / slug / "matches.json"))
     league = league_rows(lm)
     write_json(BUILT / "league.json", {"seasons": league})
+    league_season_files(lm, league, CLUBS)
     # in-progress season: sync each club's seasons.json PL rank with the
     # aggregate-derived league rank (table.json may be stale)
     in_prog = max((s for s, rows in league.items()
@@ -857,6 +1101,7 @@ def main():
                           "latest": built[-1],
                           "shortName": short_name(c),
                           "nameTh": c.get("nameTh"),
+                          "logo": f"/logos/{slug}.png",
                           "brandLight": bl, "brandDark": bd})
     write_json(BUILT / "index.json", index, compact=False)
     mgr = DATA / "managers.json"

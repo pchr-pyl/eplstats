@@ -81,3 +81,10 @@ export const getLeague = cache((): LeagueData => {
   return readJson<{ seasons?: LeagueData }>(join(BUILT, 'league.json'), {})
     .seasons ?? {};
 });
+
+export const getLeagueSeason = cache((season: string) => {
+  return readJson<import('./types').LeagueSeasonData | null>(
+    join(process.cwd(), 'public', 'data', 'league', `${season}.json`),
+    null
+  );
+});

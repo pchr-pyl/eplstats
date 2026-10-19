@@ -71,6 +71,21 @@ export const loadPlayersSeason = (slug: string, season: string) =>
     season,
   );
 
+const leagueCache = new Map<string, Promise<import('@/lib/types').LeagueSeasonData | null>>();
+
+export function loadLeagueSeason(
+  season: string,
+): Promise<import('@/lib/types').LeagueSeasonData | null> {
+  let p = leagueCache.get(season);
+  if (!p) {
+    p = fetch(`${BASE_PATH}/data/league/${season}.json`)
+      .then((r) => (r.ok ? (r.json() as Promise<import('@/lib/types').LeagueSeasonData>) : null))
+      .catch(() => null);
+    leagueCache.set(season, p);
+  }
+  return p;
+}
+
 export function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-');
   return `${d}/${m}/${y.slice(-2)}`;

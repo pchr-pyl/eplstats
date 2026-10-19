@@ -258,7 +258,43 @@
   },
   "home": {
     "plSeasons": "ฤดูกาล PL",
-    "leagueTable": "ตารางคะแนน"
+    "leagueTable": "ตารางคะแนน",
+    "summary": {
+      "leader": "จ่าฝูง",
+      "bestAttack": "เกมรุกดีสุด",
+      "bestDefence": "เกมรับดีสุด",
+      "mostXg": "xG สูงสุด",
+      "overPerformer": "ทำเกินคาดสุด",
+      "underPerformer": "ทำต่ำกว่าคาดสุด",
+      "topScorer": "ดาวซัลโว (ทุกรายการ)"
+    },
+    "tabs": {
+      "all": "รวม",
+      "home": "เหย้า",
+      "away": "เยือน",
+      "last5": "5 นัดหลัง",
+      "xg": "xG"
+    },
+    "cols": {
+      "pl": "นัด",
+      "score": "+/-",
+      "next": "นัดต่อไป",
+      "form": "ฟอร์ม",
+      "xpts": "xPTS",
+      "ptsMinusXpts": "PTS−xPTS"
+    },
+    "zones": {
+      "cl": "ยูฟ่า แชมเปียนส์ลีก",
+      "el": "ยูโรปาลีก",
+      "ecl": "คอนเฟอเรนซ์ลีก",
+      "rel": "ตกชั้น",
+      "projected": "(คาดการณ์)"
+    },
+    "rounds": {
+      "results": "ผลการแข่งขัน",
+      "fixtures": "โปรแกรม",
+      "mw": "นัดที่"
+    }
   },
   "clubCompare": {
     "pickClubs": "เลือกได้สูงสุด 4 สโมสร",
