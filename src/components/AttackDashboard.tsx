@@ -18,6 +18,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import type { SeasonRow, AttackBySeason } from '@/lib/types';
 import { seasonShort } from '@/lib/stats';
 import { fmt, pct, dash } from '@/lib/format';
+import { useClubData } from './ClubProvider';
 
 type SortKey =
   | 'season' | 'mp' | 'gls' | 'gfPerMp' | 'xg' | 'sh' | 'sot'
@@ -43,13 +44,12 @@ interface Row {
 }
 
 export function AttackDashboard({
-  rows,
   attack,
 }: {
-  rows: SeasonRow[];
   attack: AttackBySeason;
 }) {
   const { t } = useI18n();
+  const { rows } = useClubData();
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
 
   const data = useMemo<Row[]>(() => {

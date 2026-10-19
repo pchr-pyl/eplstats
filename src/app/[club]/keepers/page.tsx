@@ -1,23 +1,23 @@
-import { getKeepers, getSeasonRows } from '@/lib/data';
-import { seasonShort } from '@/lib/stats';
-import { AppHeader } from '@/components/AppHeader';
+import { getKeepers } from '@/lib/data';
 import { KeepersDashboard } from '@/components/KeepersDashboard';
+import type { KeepersData } from '@/lib/types';
 
 export default async function KeepersPage({ params }: { params: Promise<{ club: string }> }) {
   const { club } = await params;
   const keepers = getKeepers(club);
-  const rows = getSeasonRows(club);
-  const allRows = rows.filter((r) => r.competition === 'All Competitions');
-  const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
-  const first = sorted[0]?.season ?? '';
-  const last = sorted[sorted.length - 1]?.season ?? '';
-  const seasonRange = first && last ? `${seasonShort(first)} – ${seasonShort(last)}` : '';
-
+  const seasons = [...new Set(keepers.matchLog.map((r) => r.season))].sort();
+  const latest = seasons[seasons.length - 1];
+  const inline: KeepersData = {
+    matchLog: keepers.matchLog.filter((r) => r.season === latest),
+    perGkSeason: keepers.perGkSeason.filter((r) => r.season === latest),
+    psxg: keepers.psxg.filter((r) => r.season === latest),
+    psxgPerGk: keepers.psxgPerGk.filter((r) => r.season === latest),
+  };
   return (
-    <div className="hero-glow relative flex min-h-screen flex-col bg-bg">
-      <AppHeader seasonRange={seasonRange} />
-      <KeepersDashboard data={keepers} />
-    </div>
+    <KeepersDashboard
+      data={inline}
+      lazySeasons={latest ? seasons.slice(0, -1) : []}
+    />
   );
 }
 

@@ -204,6 +204,7 @@ export interface SquadData {
   source?: string | null;
   players: SquadPlayer[];
   seasons?: Record<string, SquadSeason>;
+  availableSeasons?: string[];
 }
 
 export interface PlayerSeasonStats {

@@ -13,7 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import type { MatchRow, ManagerStint } from '@/lib/types';
+
 import {
   aggregateManagers,
   stintId,
@@ -24,15 +24,11 @@ import {
   type ManagerStats,
 } from '@/lib/managers';
 import { fmt, pct } from '@/lib/format';
+import { useClubData } from './ClubProvider';
 
-export function ManagersClient({
-  matches,
-  stints,
-}: {
-  matches: MatchRow[];
-  stints: ManagerStint[];
-}) {
+export function ManagersClient() {
   const { t, lang } = useI18n();
+  const { matches, stints } = useClubData();
   const stats = useMemo(() => aggregateManagers(stints, matches), [stints, matches]);
   const [selected, setSelected] = useState<string[]>(() =>
     stints.filter((m) => !m.interim).slice(-3).map(stintId)

@@ -1,25 +1,26 @@
-import { getSquad, getSeasonRows, getPlayers } from '@/lib/data';
-import { seasonShort } from '@/lib/stats';
-import { AppHeader } from '@/components/AppHeader';
+import { getPlayers, getSquad } from '@/lib/data';
 import { SquadDashboard } from '@/components/SquadDashboard';
+import type { PlayersData, SquadData } from '@/lib/types';
 
 export default async function SquadPage({ params }: { params: Promise<{ club: string }> }) {
   const { club } = await params;
   const squad = getSquad(club);
   const players = getPlayers(club);
-  const rows = getSeasonRows(club);
-  const allRows = rows.filter((r) => r.competition === 'All Competitions');
-  const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
-  const first = sorted[0]?.season ?? '';
-  const last = sorted[sorted.length - 1]?.season ?? '';
-  const seasonRange = first && last ? `${seasonShort(first)} – ${seasonShort(last)}` : '';
-
-  return (
-    <div className="hero-glow relative flex min-h-screen flex-col bg-bg">
-      <AppHeader seasonRange={seasonRange} />
-      <SquadDashboard data={squad} playersData={players} />
-    </div>
-  );
+  const squadSeasons = Object.keys(squad.seasons ?? {}).sort();
+  const latestSquad = squadSeasons[squadSeasons.length - 1];
+  const inline: SquadData = {
+    ...squad,
+    seasons: latestSquad ? { [latestSquad]: squad.seasons![latestSquad] } : {},
+    availableSeasons: squadSeasons,
+  };
+  const playersInline: PlayersData = {
+    latest: players.latest,
+    seasons:
+      players.latest && players.seasons[players.latest]
+        ? { [players.latest]: players.seasons[players.latest] }
+        : {},
+  };
+  return <SquadDashboard data={inline} playersData={playersInline} />;
 }
 
 export const dynamicParams = false;

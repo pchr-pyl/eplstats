@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import type { SeasonRow, MatchRow, CompGroup } from '@/lib/types';
+import type { CompGroup } from '@/lib/types';
 import { rowsForGroup } from '@/lib/stats';
 import { CompetitionTabs } from './CompetitionTabs';
 import { KpiCards } from './KpiCards';
@@ -9,8 +9,10 @@ import { TrendCharts } from './TrendCharts';
 import { SeasonTable } from './SeasonTable';
 import { DataNote } from './DataNote';
 import { useI18n } from '@/i18n/I18nContext';
+import { useClubData } from './ClubProvider';
 
-export function Dashboard({ rows, matches }: { rows: SeasonRow[]; matches: MatchRow[] }) {
+export function Dashboard() {
+  const { rows, matches } = useClubData();
   const { t } = useI18n();
   const [group, setGroup] = useState<CompGroup>('all');
   const [selected, setSelected] = useState<string | null>(null);

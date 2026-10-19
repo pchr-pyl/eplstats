@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
-import { useClub } from './ClubProvider';
-import type { MatchRow, CompGroup, SeasonMatchlogs } from '@/lib/types';
+import { useClub, useClubData } from './ClubProvider';
+import type { CompGroup, SeasonMatchlogs } from '@/lib/types';
 import { matchesForSeason, compInGroup } from '@/lib/stats';
 import { CompetitionTabs } from './CompetitionTabs';
 import {
@@ -15,17 +15,18 @@ import {
 
 export function MatchlogBrowser({
   type,
-  matches,
-  seasons,
   titleKey,
 }: {
   type: 'scores' | 'shooting' | 'misc';
-  matches: MatchRow[];
-  seasons: string[];
   titleKey: string;
 }) {
   const { t } = useI18n();
   const { club } = useClub();
+  const { matches } = useClubData();
+  const seasons = useMemo(
+    () => [...new Set(matches.map((m) => m.season))].sort(),
+    [matches]
+  );
   const [season, setSeason] = useState(seasons[seasons.length - 1] ?? '');
   const [group, setGroup] = useState<CompGroup>('all');
   const [side, setSide] = useState<'for' | 'against'>('for');

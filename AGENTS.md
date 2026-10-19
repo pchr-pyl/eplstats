@@ -81,9 +81,15 @@ Per-match PSxG is not available anywhere post-removal — don't promise it.
 ## Multi-club build + UI (2026-10)
 - Build: `python -X utf8 scripts/build/build_all.py [--club SLUG]` → writes
   `data/built/{slug}/{matches,seasons,keepers,players,attack,squad}.json`,
-  `public/data/{slug}/matchlogs-{season}.json`, `data/built/league.json`,
+  `public/data/{slug}/matchlogs-{season}.json` and per-season
+  `{keepers,squad,players}-{season}.json` (lazy-fetched by keepers/squad tabs),
+  `data/built/league.json`,
   `data/built/index.json` (slug,name,color,shortName,nameTh,brandLight,brandDark,
   seasons,latest), `data/built/managers.json`.
+- Perf: judge tab-nav speed with `npm run build && npm run serve` (production
+  static export on :3002, real prefetching). Dev mode compiles routes on first
+  hit — not representative. Shared club data (seasons/matches/managers) ships
+  once in the `[club]` layout segment via `useClubData()`; tab pages stay small.
 - Verify: `python -X utf8 scripts/build/verify_man_utd.py`.
 - Routes: `/` league home, `/{club}[/matches|/shooting|/keepers|/misc|/attack|
   /squad|/managers|/compare]`, `/clubs-compare`. `src/app/[club]` with

@@ -44,6 +44,33 @@ export function loadMatchlogs(
   return p;
 }
 
+const lazyCache = new Map<string, Promise<unknown>>();
+
+function loadLazy<T>(slug: string, kind: string, season: string): Promise<T> {
+  const key = `${slug}|${kind}|${season}`;
+  let p = lazyCache.get(key) as Promise<T> | undefined;
+  if (!p) {
+    p = fetch(`${BASE_PATH}/data/${slug}/${kind}-${season}.json`)
+      .then((r) => (r.ok ? (r.json() as Promise<T>) : (null as T)))
+      .catch(() => null as T);
+    lazyCache.set(key, p as Promise<unknown>);
+  }
+  return p;
+}
+
+export const loadKeepersSeason = (slug: string, season: string) =>
+  loadLazy<import('@/lib/types').KeepersData>(slug, 'keepers', season);
+
+export const loadSquadSeason = (slug: string, season: string) =>
+  loadLazy<import('@/lib/types').SquadSeason>(slug, 'squad', season);
+
+export const loadPlayersSeason = (slug: string, season: string) =>
+  loadLazy<{ players?: import('@/lib/types').PlayerSeasonStats[] }>(
+    slug,
+    'players',
+    season,
+  );
+
 export function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-');
   return `${d}/${m}/${y.slice(-2)}`;

@@ -756,6 +756,22 @@ def short_name(club):
 CLUBS = {}
 
 
+def keepers_by_season(keepers):
+    """Split KeepersData into per-season payloads for lazy loading."""
+    seasons = sorted({r["season"] for r in keepers.get("matchLog", [])})
+    out = {}
+    for s in seasons:
+        out[s] = {
+            "matchLog": [r for r in keepers["matchLog"] if r["season"] == s],
+            "perGkSeason": [r for r in keepers.get("perGkSeason", [])
+                            if r["season"] == s],
+            "psxg": [r for r in keepers.get("psxg", []) if r["season"] == s],
+            "psxgPerGk": [r for r in keepers.get("psxgPerGk", [])
+                          if r["season"] == s],
+        }
+    return out
+
+
 def build_club(club, league_xg):
     slug = club["slug"]
     print(f"== {slug} ({len(club['seasons'])} seasons)")
@@ -777,6 +793,13 @@ def build_club(club, league_xg):
     write_json(out / "players.json", players)
     write_json(out / "attack.json", attack)
     write_json(out / "squad.json", squad)
+    # per-season public files for lazy loading (squad/keepers/players)
+    for s, rows in keepers_by_season(keepers).items():
+        write_json(PUBLIC / slug / f"keepers-{s}.json", rows)
+    for s, ss in (squad.get("seasons") or {}).items():
+        write_json(PUBLIC / slug / f"squad-{s}.json", ss)
+    for s, ps in (players.get("seasons") or {}).items():
+        write_json(PUBLIC / slug / f"players-{s}.json", ps)
     if mismatches:
         print("  matchlog-vs-table mismatches:", *mismatches, sep="\n   ")
     return matches

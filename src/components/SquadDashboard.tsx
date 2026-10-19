@@ -16,9 +16,11 @@ import {
   Area,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import type { SquadData, SquadPlayer, PlayersData, PlayerSeasonStats } from '@/lib/types';
+import type { SquadData, SquadSeason, SquadPlayer, PlayersData, PlayerSeasonStats } from '@/lib/types';
 import { seasonShort } from '@/lib/stats';
 import { fmt, gbp, dash } from '@/lib/format';
+import { useClub } from './ClubProvider';
+import { loadSquadSeason } from './matchlog-shared';
 
 type SortKey = 'name' | 'pos' | 'age' | 'weeklyGross' | 'yearlyGross' | 'expires' | 'status';
 type SortDir = 'asc' | 'desc';
@@ -85,11 +87,21 @@ function compareValues(a: unknown, b: unknown, dir: SortDir | PerfSortDir): numb
 export function SquadDashboard({ data, playersData }: { data: SquadData; playersData: PlayersData }) {
   const { t } = useI18n();
   const { updated, source } = data;
-  const seasonKeys = useMemo(() => Object.keys(data.seasons ?? {}).sort(), [data.seasons]);
+  const { club } = useClub();
+  const [extraSeasons, setExtraSeasons] = useState<Record<string, SquadSeason>>({});
+  const [loadingSeason, setLoadingSeason] = useState<string | null>(null);
+  const seasonMap = useMemo<Record<string, SquadSeason>>(
+    () => ({ ...(data.seasons ?? {}), ...extraSeasons }),
+    [data.seasons, extraSeasons]
+  );
+  const seasonKeys = useMemo(
+    () => data.availableSeasons ?? Object.keys(seasonMap).sort(),
+    [data.availableSeasons, seasonMap]
+  );
   const latestSeason = seasonKeys[seasonKeys.length - 1] ?? null;
   const [season, setSeason] = useState<string | null>(null);
   const activeSeason = season ?? latestSeason;
-  const seasonData = activeSeason ? data.seasons?.[activeSeason] : undefined;
+  const seasonData = activeSeason ? seasonMap[activeSeason] : undefined;
   const players = seasonData?.players ?? data.players;
   const summary = seasonData?.summary;
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'weeklyGross', dir: 'desc' });
@@ -334,7 +346,17 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
               <select
                 id="squad-season"
                 value={activeSeason ?? ''}
-                onChange={(e) => setSeason(e.target.value)}
+                onChange={(e) => {
+                  const s = e.target.value;
+                  setSeason(s);
+                  if (s && !(s in seasonMap) && loadingSeason !== s) {
+                    setLoadingSeason(s);
+                    loadSquadSeason(club.slug, s).then((d) => {
+                      if (d) setExtraSeasons((p) => ({ ...p, [s]: d }));
+                      setLoadingSeason((cur) => (cur === s ? null : cur));
+                    });
+                  }
+                }}
                 className="rounded-lg border border-border bg-surface px-2 py-1.5 text-sm text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
               >
                 {seasonKeys.map((s) => (
@@ -343,6 +365,9 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                   </option>
                 ))}
               </select>
+              {loadingSeason === activeSeason && (
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-border border-t-brand" aria-label="loading" />
+              )}
             </div>
           )}
         </div>

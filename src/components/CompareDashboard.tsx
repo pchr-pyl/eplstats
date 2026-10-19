@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
 import type { MatchRow } from '@/lib/types';
+import { useClubData } from './ClubProvider';
 import { fmt, pct } from '@/lib/format';
 
 function pts(result: string | null): number {
@@ -39,8 +40,9 @@ interface SeasonStats {
   points: number | null;
 }
 
-export function CompareDashboard({ matches }: { matches: MatchRow[] }) {
+export function CompareDashboard() {
   const { t } = useI18n();
+  const { matches } = useClubData();
   const seasons = useMemo(() => {
     const set = new Set(
       matches

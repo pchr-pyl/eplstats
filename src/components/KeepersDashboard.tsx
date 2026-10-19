@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import {
@@ -19,6 +19,8 @@ import { useI18n } from '@/i18n/I18nContext';
 import type { KeepersData, GkSeasonRow } from '@/lib/types';
 import { seasonShort } from '@/lib/stats';
 import { fmt, pct, signed, dash } from '@/lib/format';
+import { useClub } from './ClubProvider';
+import { loadKeepersSeason } from './matchlog-shared';
 
 type SortKey = 'season' | 'player' | 'mp' | 'ga' | 'sota' | 'saves' | 'savePct' | 'cs';
 type SortDir = 'asc' | 'desc';
@@ -27,9 +29,52 @@ function sum(values: (number | null | undefined)[]): number {
   return values.reduce((acc: number, v) => acc + (v ?? 0), 0);
 }
 
-export function KeepersDashboard({ data }: { data: KeepersData }) {
+export function KeepersDashboard({
+  data,
+  lazySeasons,
+}: {
+  data: KeepersData;
+  lazySeasons?: string[];
+}) {
   const { t } = useI18n();
-  const { matchLog, perGkSeason, psxg } = data;
+  const { club } = useClub();
+  const [extra, setExtra] = useState<KeepersData[]>([]);
+  const [lazyLoading, setLazyLoading] = useState(
+    () => (lazySeasons?.length ?? 0) > 0
+  );
+
+  useEffect(() => {
+    if (!lazySeasons?.length) return;
+    let live = true;
+    Promise.all(
+      lazySeasons.map((s) => loadKeepersSeason(club.slug, s))
+    ).then((results) => {
+      if (!live) return;
+      setExtra(results.filter((r): r is KeepersData => r != null));
+      setLazyLoading(false);
+    });
+    return () => {
+      live = false;
+    };
+  }, [club.slug, lazySeasons]);
+
+  const merged = useMemo<KeepersData>(() => {
+    if (!extra.length) return data;
+    return {
+      matchLog: [...extra.map((d) => d.matchLog ?? []), data.matchLog].flat(),
+      perGkSeason: [
+        ...extra.map((d) => d.perGkSeason ?? []),
+        data.perGkSeason,
+      ].flat(),
+      psxg: [...extra.map((d) => d.psxg ?? []), data.psxg].flat(),
+      psxgPerGk: [
+        ...extra.map((d) => d.psxgPerGk ?? []),
+        data.psxgPerGk,
+      ].flat(),
+    };
+  }, [data, extra]);
+
+  const { matchLog, perGkSeason, psxg } = merged;
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
 
   const plBySeason = useMemo(() => {
@@ -221,7 +266,12 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
   return (
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-8 px-6 py-8 lg:px-10">
       <section className="flex min-w-0 flex-col gap-4">
-        <h2 className="font-display text-xl font-semibold text-primary">{t('keepers.title')}</h2>
+        <h2 className="flex items-center gap-3 font-display text-xl font-semibold text-primary">
+          {t('keepers.title')}
+          {lazyLoading && (
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-border border-t-brand" aria-label="loading" />
+          )}
+        </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {kpi.map((k) => (
             <div

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getClubIndex, getManagers } from '@/lib/data';
+import { getClubIndex, getManagers, getMatches, getSeasonRows } from '@/lib/data';
+import { seasonShort } from '@/lib/stats';
 import { ClubProvider } from '@/components/ClubProvider';
+import { AppHeader } from '@/components/AppHeader';
 
 export const dynamicParams = false;
 
@@ -30,9 +32,26 @@ export default async function ClubLayout({
   const { club } = await params;
   const entry = getClubIndex().find((c) => c.slug === club);
   if (!entry) notFound();
-  const hasManagers = getManagers(club).length > 0;
+  const stints = getManagers(club);
+  const rows = getSeasonRows(club);
+  const matches = getMatches(club);
+  const hasManagers = stints.length > 0;
+
+  const allRows = rows.filter((r) => r.competition === 'All Competitions');
+  const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
+  const first = sorted[0]?.season ?? '';
+  const last = sorted[sorted.length - 1]?.season ?? '';
+  const seasonRange = first && last ? `${seasonShort(first)} – ${seasonShort(last)}` : '';
+
   return (
-    <ClubProvider club={entry} clubs={getClubIndex()} hasManagers={hasManagers}>
+    <ClubProvider
+      club={entry}
+      clubs={getClubIndex()}
+      hasManagers={hasManagers}
+      rows={rows}
+      matches={matches}
+      stints={stints}
+    >
       <div
         className="club-theme"
         style={
@@ -43,7 +62,10 @@ export default async function ClubLayout({
         }
         data-has-managers={hasManagers}
       >
-        {children}
+        <div className="hero-glow relative flex min-h-screen flex-col bg-bg">
+          <AppHeader seasonRange={seasonRange} />
+          {children}
+        </div>
       </div>
     </ClubProvider>
   );
