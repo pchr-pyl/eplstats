@@ -1,0 +1,2789 @@
+{
+ "arsenal": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Arsenal_F.C._managers",
+  "stints": [
+   {
+    "name": "Arsène Wenger",
+    "from": "1996-10-01",
+    "to": "2018-05-13",
+    "interim": false
+   },
+   {
+    "name": "Unai Emery",
+    "from": "2018-05-23",
+    "to": "2019-11-29",
+    "interim": false
+   },
+   {
+    "name": "Freddie Ljungberg",
+    "from": "2019-11-29",
+    "to": "2019-12-21",
+    "interim": true
+   },
+   {
+    "name": "Mikel Arteta",
+    "from": "2019-12-22",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "aston-villa": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Aston_Villa_F.C._managers",
+  "stints": [
+   {
+    "name": "Paul Lambert",
+    "from": "2012-06-02",
+    "to": "2015-02-11",
+    "interim": false
+   },
+   {
+    "name": "Scott Marshall",
+    "from": "2015-02-11",
+    "to": "2015-02-14",
+    "interim": true
+   },
+   {
+    "name": "Tim Sherwood",
+    "from": "2015-02-14",
+    "to": "2015-10-25",
+    "interim": false
+   },
+   {
+    "name": "Kevin MacDonald",
+    "from": "2015-10-25",
+    "to": "2015-11-02",
+    "interim": true
+   },
+   {
+    "name": "Rémi Garde",
+    "from": "2015-11-02",
+    "to": "2016-03-29",
+    "interim": false
+   },
+   {
+    "name": "Eric Black",
+    "from": "2016-03-30",
+    "to": "2016-05-31",
+    "interim": true
+   },
+   {
+    "name": "Roberto Di Matteo",
+    "from": "2016-06-01",
+    "to": "2016-10-01",
+    "interim": false
+   },
+   {
+    "name": "Steve Bruce",
+    "from": "2016-10-01",
+    "to": "2018-10-01",
+    "interim": false
+   },
+   {
+    "name": "Dean Smith",
+    "from": "2018-10-10",
+    "to": "2021-11-07",
+    "interim": false
+   },
+   {
+    "name": "Steven Gerrard",
+    "from": "2021-11-11",
+    "to": "2022-10-20",
+    "interim": false
+   },
+   {
+    "name": "Aaron Danks",
+    "from": "2022-10-21",
+    "to": "2022-10-31",
+    "interim": true
+   },
+   {
+    "name": "Unai Emery",
+    "from": "2022-11-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "bournemouth": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_AFC_Bournemouth_managers",
+  "stints": [
+   {
+    "name": "Eddie Howe",
+    "from": "2012-10-12",
+    "to": "2020-08-01",
+    "interim": false
+   },
+   {
+    "name": "Jason Tindall",
+    "from": "2020-08-08",
+    "to": "2021-02-02",
+    "interim": false
+   },
+   {
+    "name": "Jonathan Woodgate",
+    "from": "2021-02-03",
+    "to": "2021-06-27",
+    "interim": false
+   },
+   {
+    "name": "Scott Parker",
+    "from": "2021-06-28",
+    "to": "2022-08-30",
+    "interim": false
+   },
+   {
+    "name": "Gary O'Neil",
+    "from": "2022-08-30",
+    "to": "2023-06-19",
+    "interim": false
+   },
+   {
+    "name": "Andoni Iraola",
+    "from": "2023-06-19",
+    "to": "2026-05-24",
+    "interim": false
+   },
+   {
+    "name": "Marco Rose",
+    "from": "2026-06-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "brentford": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Brentford_F.C._managers",
+  "stints": [
+   {
+    "name": "Mark Warburton",
+    "from": "2013-12-10",
+    "to": "2015-05-31",
+    "interim": false
+   },
+   {
+    "name": "Marinus Dijkhuizen",
+    "from": "2015-06-01",
+    "to": "2015-09-27",
+    "interim": false
+   },
+   {
+    "name": "Lee Carsley",
+    "from": "2015-09-28",
+    "to": "2015-11-30",
+    "interim": false
+   },
+   {
+    "name": "Dean Smith",
+    "from": "2015-11-30",
+    "to": "2018-10-10",
+    "interim": false
+   },
+   {
+    "name": "Thomas Frank",
+    "from": "2018-10-16",
+    "to": "2025-06-12",
+    "interim": false
+   },
+   {
+    "name": "Keith Andrews",
+    "from": "2025-06-27",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "brighton": {
+  "sourceURL": "https://en.wikipedia.org/wiki/Brighton_%26_Hove_Albion_F.C.",
+  "stints": [
+   {
+    "name": "Chris Hughton",
+    "from": "2014-12-31",
+    "to": "2019-05-13",
+    "interim": false
+   },
+   {
+    "name": "Graham Potter",
+    "from": "2019-05-20",
+    "to": "2022-09-08",
+    "interim": false
+   },
+   {
+    "name": "Roberto De Zerbi",
+    "from": "2022-09-18",
+    "to": "2024-05-19",
+    "interim": false
+   },
+   {
+    "name": "Fabian Hürzeler",
+    "from": "2024-07-02",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "burnley": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Burnley_F.C._managers",
+  "stints": [
+   {
+    "name": "Sean Dyche",
+    "from": "2012-10-30",
+    "to": "2022-04-15",
+    "interim": false
+   },
+   {
+    "name": "Mike Jackson",
+    "from": "2022-04-15",
+    "to": "2022-05-22",
+    "interim": true
+   },
+   {
+    "name": "Vincent Kompany",
+    "from": "2022-06-14",
+    "to": "2024-05-29",
+    "interim": false
+   },
+   {
+    "name": "Scott Parker",
+    "from": "2024-07-05",
+    "to": "2026-04-30",
+    "interim": false
+   },
+   {
+    "name": "Mike Jackson",
+    "from": "2026-04-30",
+    "to": "2026-05-24",
+    "interim": true
+   },
+   {
+    "name": "Nicky Hayen",
+    "from": "2026-07-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "cardiff-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Cardiff_City_F.C._managers",
+  "stints": [
+   {
+    "name": "Ole Gunnar Solskjær",
+    "from": "2014-01-02",
+    "to": "2014-09-18",
+    "interim": false
+   },
+   {
+    "name": "Danny Gabbidon & Scott Young",
+    "from": "2014-09-18",
+    "to": "2014-10-05",
+    "interim": false
+   },
+   {
+    "name": "Russell Slade",
+    "from": "2014-10-05",
+    "to": "2016-05-07",
+    "interim": false
+   },
+   {
+    "name": "Paul Trollope",
+    "from": "2016-05-18",
+    "to": "2016-10-04",
+    "interim": false
+   },
+   {
+    "name": "Neil Warnock",
+    "from": "2016-10-05",
+    "to": "2019-11-11",
+    "interim": false
+   },
+   {
+    "name": "Neil Harris",
+    "from": "2019-11-16",
+    "to": "2021-01-21",
+    "interim": false
+   },
+   {
+    "name": "Mick McCarthy",
+    "from": "2021-01-22",
+    "to": "2021-10-23",
+    "interim": false
+   },
+   {
+    "name": "Steve Morison",
+    "from": "2021-10-29",
+    "to": "2022-09-18",
+    "interim": false
+   },
+   {
+    "name": "Mark Hudson",
+    "from": "2022-09-18",
+    "to": "2023-01-14",
+    "interim": false
+   },
+   {
+    "name": "Dean Whitehead",
+    "from": "2023-01-14",
+    "to": "2023-01-27",
+    "interim": false
+   },
+   {
+    "name": "Sabri Lamouchi",
+    "from": "2023-01-27",
+    "to": "2023-05-16",
+    "interim": false
+   },
+   {
+    "name": "Erol Bulut",
+    "from": "2023-06-03",
+    "to": "2024-09-22",
+    "interim": false
+   },
+   {
+    "name": "Omer Riza",
+    "from": "2024-09-22",
+    "to": "2025-04-18",
+    "interim": false
+   },
+   {
+    "name": "Aaron Ramsey",
+    "from": "2025-04-19",
+    "to": "2025-07-01",
+    "interim": false
+   },
+   {
+    "name": "Brian Barry-Murphy",
+    "from": "2025-07-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "chelsea": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Chelsea_F.C._managers",
+  "stints": [
+   {
+    "name": "José Mourinho",
+    "from": "2013-06-03",
+    "to": "2015-12-17",
+    "interim": false
+   },
+   {
+    "name": "Steve Holland",
+    "from": "2015-12-17",
+    "to": "2015-12-19",
+    "interim": true
+   },
+   {
+    "name": "Guus Hiddink",
+    "from": "2015-12-19",
+    "to": "2016-05-15",
+    "interim": true
+   },
+   {
+    "name": "Antonio Conte",
+    "from": "2016-07-03",
+    "to": "2018-07-13",
+    "interim": false
+   },
+   {
+    "name": "Maurizio Sarri",
+    "from": "2018-07-14",
+    "to": "2019-06-16",
+    "interim": false
+   },
+   {
+    "name": "Frank Lampard",
+    "from": "2019-07-04",
+    "to": "2021-01-25",
+    "interim": false
+   },
+   {
+    "name": "Thomas Tuchel",
+    "from": "2021-01-26",
+    "to": "2022-09-07",
+    "interim": false
+   },
+   {
+    "name": "Graham Potter",
+    "from": "2022-09-08",
+    "to": "2023-04-02",
+    "interim": false
+   },
+   {
+    "name": "Bruno Saltor",
+    "from": "2023-04-02",
+    "to": "2023-04-06",
+    "interim": true
+   },
+   {
+    "name": "Frank Lampard",
+    "from": "2023-04-06",
+    "to": "2023-05-28",
+    "interim": true
+   },
+   {
+    "name": "Mauricio Pochettino",
+    "from": "2023-07-01",
+    "to": "2024-05-21",
+    "interim": false
+   },
+   {
+    "name": "Enzo Maresca",
+    "from": "2024-07-01",
+    "to": "2026-01-01",
+    "interim": false
+   },
+   {
+    "name": "Calum McFarlane",
+    "from": "2026-01-01",
+    "to": "2026-01-08",
+    "interim": true
+   },
+   {
+    "name": "Liam Rosenior",
+    "from": "2026-01-08",
+    "to": "2026-04-22",
+    "interim": false
+   },
+   {
+    "name": "Calum McFarlane",
+    "from": "2026-04-22",
+    "to": "2026-06-01",
+    "interim": true
+   },
+   {
+    "name": "Xabi Alonso",
+    "from": "2026-07-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "coventry-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Coventry_City_F.C._managers",
+  "stints": [
+   {
+    "name": "Steven Pressley",
+    "from": "2013-03-08",
+    "to": "2015-02-23",
+    "interim": false
+   },
+   {
+    "name": "Tony Mowbray",
+    "from": "2015-03-03",
+    "to": "2016-09-29",
+    "interim": false
+   },
+   {
+    "name": "Russell Slade",
+    "from": "2016-12-21",
+    "to": "2017-03-05",
+    "interim": false
+   },
+   {
+    "name": "Mark Robins",
+    "from": "2017-03-06",
+    "to": "2024-11-07",
+    "interim": false
+   },
+   {
+    "name": "Frank Lampard",
+    "from": "2024-11-28",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "crystal-palace": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Crystal_Palace_F.C._managers",
+  "stints": [
+   {
+    "name": "Tony Pulis",
+    "from": "2013-11-23",
+    "to": "2014-08-14",
+    "interim": false
+   },
+   {
+    "name": "Keith Millen",
+    "from": "2014-08-14",
+    "to": "2014-08-27",
+    "interim": true
+   },
+   {
+    "name": "Neil Warnock",
+    "from": "2014-08-27",
+    "to": "2014-12-27",
+    "interim": false
+   },
+   {
+    "name": "Keith Millen",
+    "from": "2014-12-27",
+    "to": "2015-01-02",
+    "interim": true
+   },
+   {
+    "name": "Alan Pardew",
+    "from": "2015-01-02",
+    "to": "2016-12-22",
+    "interim": false
+   },
+   {
+    "name": "Sam Allardyce",
+    "from": "2016-12-23",
+    "to": "2017-05-23",
+    "interim": false
+   },
+   {
+    "name": "Frank de Boer",
+    "from": "2017-06-26",
+    "to": "2017-09-11",
+    "interim": false
+   },
+   {
+    "name": "Roy Hodgson",
+    "from": "2017-09-12",
+    "to": "2021-05-24",
+    "interim": false
+   },
+   {
+    "name": "Patrick Vieira",
+    "from": "2021-07-04",
+    "to": "2023-03-17",
+    "interim": false
+   },
+   {
+    "name": "Paddy McCarthy",
+    "from": "2023-03-17",
+    "to": "2023-03-21",
+    "interim": true
+   },
+   {
+    "name": "Roy Hodgson",
+    "from": "2023-03-21",
+    "to": "2024-02-19",
+    "interim": false
+   },
+   {
+    "name": "Paddy McCarthy",
+    "from": "2024-02-19",
+    "to": "2024-02-19",
+    "interim": true
+   },
+   {
+    "name": "Oliver Glasner",
+    "from": "2024-02-19",
+    "to": "2026-05-27",
+    "interim": false
+   },
+   {
+    "name": "Pierre Sage",
+    "from": "2026-06-15",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "everton": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Everton_F.C._managers",
+  "stints": [
+   {
+    "name": "Roberto Martínez",
+    "from": "2013-06-05",
+    "to": "2016-05-12",
+    "interim": false
+   },
+   {
+    "name": "David Unsworth",
+    "from": "2016-05-12",
+    "to": "2016-06-14",
+    "interim": true
+   },
+   {
+    "name": "Ronald Koeman",
+    "from": "2016-06-14",
+    "to": "2017-10-23",
+    "interim": false
+   },
+   {
+    "name": "David Unsworth",
+    "from": "2017-10-23",
+    "to": "2017-11-30",
+    "interim": true
+   },
+   {
+    "name": "Sam Allardyce",
+    "from": "2017-11-30",
+    "to": "2018-05-16",
+    "interim": false
+   },
+   {
+    "name": "Marco Silva",
+    "from": "2018-05-31",
+    "to": "2019-12-05",
+    "interim": false
+   },
+   {
+    "name": "Duncan Ferguson",
+    "from": "2019-12-05",
+    "to": "2019-12-21",
+    "interim": true
+   },
+   {
+    "name": "Carlo Ancelotti",
+    "from": "2019-12-22",
+    "to": "2021-06-01",
+    "interim": false
+   },
+   {
+    "name": "Rafael Benítez",
+    "from": "2021-06-30",
+    "to": "2022-01-16",
+    "interim": false
+   },
+   {
+    "name": "Duncan Ferguson",
+    "from": "2022-01-18",
+    "to": "2022-01-31",
+    "interim": true
+   },
+   {
+    "name": "Frank Lampard",
+    "from": "2022-01-31",
+    "to": "2023-01-23",
+    "interim": false
+   },
+   {
+    "name": "Sean Dyche",
+    "from": "2023-01-30",
+    "to": "2025-01-09",
+    "interim": false
+   },
+   {
+    "name": "Leighton Baines",
+    "from": "2025-01-09",
+    "to": "2025-01-11",
+    "interim": true,
+    "coName": "Séamus Coleman"
+   },
+   {
+    "name": "David Moyes",
+    "from": "2025-01-11",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "fulham": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Fulham_F.C._managers",
+  "stints": [
+   {
+    "name": "Felix Magath",
+    "from": "2014-02-14",
+    "to": "2014-09-18",
+    "interim": false
+   },
+   {
+    "name": "Kit Symons",
+    "from": "2014-09-18",
+    "to": "2015-11-08",
+    "interim": false
+   },
+   {
+    "name": "Slaviša Jokanović",
+    "from": "2015-12-27",
+    "to": "2018-11-14",
+    "interim": false
+   },
+   {
+    "name": "Claudio Ranieri",
+    "from": "2018-11-14",
+    "to": "2019-02-28",
+    "interim": false
+   },
+   {
+    "name": "Scott Parker",
+    "from": "2019-02-28",
+    "to": "2021-06-28",
+    "interim": false
+   },
+   {
+    "name": "Marco Silva",
+    "from": "2021-07-01",
+    "to": "2026-06-02",
+    "interim": false
+   },
+   {
+    "name": "Álvaro Arbeloa",
+    "from": "2026-07-07",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "huddersfield-town": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Huddersfield_Town_A.F.C._managers",
+  "stints": [
+   {
+    "name": "Mark Robins",
+    "from": "2013-02-14",
+    "to": "2014-08-10",
+    "interim": false
+   },
+   {
+    "name": "Mark Lillis",
+    "from": "2014-08-10",
+    "to": "2014-09-03",
+    "interim": false
+   },
+   {
+    "name": "Chris Powell",
+    "from": "2014-09-03",
+    "to": "2015-11-04",
+    "interim": false
+   },
+   {
+    "name": "Mark Lillis",
+    "from": "2015-11-04",
+    "to": "2015-11-09",
+    "interim": false
+   },
+   {
+    "name": "David Wagner",
+    "from": "2015-11-09",
+    "to": "2019-01-14",
+    "interim": false
+   },
+   {
+    "name": "Mark Hudson",
+    "from": "2019-01-14",
+    "to": "2019-01-21",
+    "interim": true
+   },
+   {
+    "name": "Jan Siewert",
+    "from": "2019-01-21",
+    "to": "2019-08-16",
+    "interim": false
+   },
+   {
+    "name": "Mark Hudson",
+    "from": "2019-08-17",
+    "to": "2019-09-09",
+    "interim": false
+   },
+   {
+    "name": "Danny Cowley",
+    "from": "2019-09-09",
+    "to": "2020-07-19",
+    "interim": false
+   },
+   {
+    "name": "Danny Schofield",
+    "from": "2020-07-20",
+    "to": "2020-07-22",
+    "interim": false
+   },
+   {
+    "name": "Carlos Corberán",
+    "from": "2020-07-23",
+    "to": "2022-07-07",
+    "interim": false
+   },
+   {
+    "name": "Danny Schofield",
+    "from": "2022-07-07",
+    "to": "2022-09-14",
+    "interim": false
+   },
+   {
+    "name": "Paul Harsley",
+    "from": "2022-09-14",
+    "to": "2022-09-28",
+    "interim": true,
+    "coName": "Narcís Pèlach"
+   },
+   {
+    "name": "Mark Fotheringham",
+    "from": "2022-09-28",
+    "to": "2023-02-08",
+    "interim": false
+   },
+   {
+    "name": "Narcís Pèlach",
+    "from": "2023-02-08",
+    "to": "2023-02-15",
+    "interim": false
+   },
+   {
+    "name": "Neil Warnock",
+    "from": "2023-02-16",
+    "to": "2023-09-20",
+    "interim": false
+   },
+   {
+    "name": "Darren Moore",
+    "from": "2023-09-21",
+    "to": "2024-01-29",
+    "interim": false
+   },
+   {
+    "name": "Jon Worthington",
+    "from": "2024-01-29",
+    "to": "2024-02-19",
+    "interim": false
+   },
+   {
+    "name": "André Breitenreiter",
+    "from": "2024-02-20",
+    "to": "2024-05-10",
+    "interim": false
+   },
+   {
+    "name": "Michael Duff",
+    "from": "2024-05-13",
+    "to": "2025-03-09",
+    "interim": false
+   },
+   {
+    "name": "Jon Worthington",
+    "from": "2025-03-09",
+    "to": "2025-05-27",
+    "interim": true
+   },
+   {
+    "name": "Lee Grant",
+    "from": "2025-05-28",
+    "to": "2026-01-17",
+    "interim": false
+   },
+   {
+    "name": "Liam Manning",
+    "from": "2026-01-20",
+    "to": "2026-03-24",
+    "interim": false
+   },
+   {
+    "name": "Jon Stead",
+    "from": "2026-03-25",
+    "to": null,
+    "interim": true,
+    "coName": "Martin Drury"
+   }
+  ]
+ },
+ "hull-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Hull_City_A.F.C._managers",
+  "stints": [
+   {
+    "name": "Steve Bruce",
+    "from": "2012-06-08",
+    "to": "2016-07-22",
+    "interim": false
+   },
+   {
+    "name": "Mike Phelan",
+    "from": "2016-07-22",
+    "to": "2017-01-03",
+    "interim": false
+   },
+   {
+    "name": "Marco Silva",
+    "from": "2017-01-05",
+    "to": "2017-05-25",
+    "interim": false
+   },
+   {
+    "name": "Leonid Slutsky",
+    "from": "2017-06-01",
+    "to": "2017-12-01",
+    "interim": false
+   },
+   {
+    "name": "Nigel Adkins",
+    "from": "2017-12-01",
+    "to": "2019-06-01",
+    "interim": false
+   },
+   {
+    "name": "Grant McCann",
+    "from": "2019-06-01",
+    "to": "2022-01-01",
+    "interim": false
+   },
+   {
+    "name": "Shota Arveladze",
+    "from": "2022-01-01",
+    "to": "2022-09-01",
+    "interim": false
+   },
+   {
+    "name": "Andy Dawson",
+    "from": "2022-09-01",
+    "to": "2022-11-01",
+    "interim": false
+   },
+   {
+    "name": "Liam Rosenior",
+    "from": "2022-11-01",
+    "to": "2024-05-01",
+    "interim": false
+   },
+   {
+    "name": "Tim Walter",
+    "from": "2024-07-01",
+    "to": "2024-11-01",
+    "interim": false
+   },
+   {
+    "name": "Andy Dawson",
+    "from": "2024-11-01",
+    "to": "2024-12-01",
+    "interim": false
+   },
+   {
+    "name": "Rubén Sellés",
+    "from": "2024-12-01",
+    "to": "2025-05-01",
+    "interim": false
+   },
+   {
+    "name": "Sergej Jakirović",
+    "from": "2025-06-11",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "ipswich-town": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Ipswich_Town_F.C._managers",
+  "stints": [
+   {
+    "name": "Mick McCarthy",
+    "from": "2012-11-01",
+    "to": "2018-04-10",
+    "interim": false
+   },
+   {
+    "name": "Bryan Klug",
+    "from": "2018-04-11",
+    "to": "2018-05-29",
+    "interim": true
+   },
+   {
+    "name": "Paul Hurst",
+    "from": "2018-05-30",
+    "to": "2018-10-25",
+    "interim": false
+   },
+   {
+    "name": "Bryan Klug",
+    "from": "2018-10-25",
+    "to": "2018-10-27",
+    "interim": true
+   },
+   {
+    "name": "Paul Lambert",
+    "from": "2018-10-27",
+    "to": "2021-02-28",
+    "interim": false
+   },
+   {
+    "name": "Matt Gill",
+    "from": "2021-02-28",
+    "to": "2021-03-02",
+    "interim": true
+   },
+   {
+    "name": "Paul Cook",
+    "from": "2021-03-02",
+    "to": "2021-12-04",
+    "interim": false
+   },
+   {
+    "name": "John McGreal",
+    "from": "2021-12-06",
+    "to": "2021-12-16",
+    "interim": true
+   },
+   {
+    "name": "Kieran McKenna",
+    "from": "2021-12-16",
+    "to": "2026-06-10",
+    "interim": false
+   },
+   {
+    "name": "Gary O'Neil",
+    "from": "2026-06-23",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "leeds-united": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Leeds_United_F.C._managers",
+  "stints": [
+   {
+    "name": "Dave Hockaday",
+    "from": "2014-07-01",
+    "to": "2014-08-28",
+    "interim": false
+   },
+   {
+    "name": "Neil Redfearn",
+    "from": "2014-08-28",
+    "to": "2014-09-23",
+    "interim": false
+   },
+   {
+    "name": "Darko Milanič",
+    "from": "2014-09-23",
+    "to": "2014-10-25",
+    "interim": false
+   },
+   {
+    "name": "Neil Redfearn",
+    "from": "2014-11-01",
+    "to": "2015-06-30",
+    "interim": false
+   },
+   {
+    "name": "Uwe Rösler",
+    "from": "2015-07-01",
+    "to": "2015-10-18",
+    "interim": false
+   },
+   {
+    "name": "Steve Evans",
+    "from": "2015-10-19",
+    "to": "2016-05-31",
+    "interim": false
+   },
+   {
+    "name": "Garry Monk",
+    "from": "2016-06-02",
+    "to": "2017-05-25",
+    "interim": false
+   },
+   {
+    "name": "Thomas Christiansen",
+    "from": "2017-06-15",
+    "to": "2018-02-04",
+    "interim": false
+   },
+   {
+    "name": "Paul Heckingbottom",
+    "from": "2018-02-06",
+    "to": "2018-06-01",
+    "interim": false
+   },
+   {
+    "name": "Marcelo Bielsa",
+    "from": "2018-06-15",
+    "to": "2022-02-27",
+    "interim": false
+   },
+   {
+    "name": "Jesse Marsch",
+    "from": "2022-02-28",
+    "to": "2023-02-06",
+    "interim": false
+   },
+   {
+    "name": "Michael Skubala",
+    "from": "2023-02-06",
+    "to": "2023-02-21",
+    "interim": true
+   },
+   {
+    "name": "Javi Gracia",
+    "from": "2023-02-21",
+    "to": "2023-05-03",
+    "interim": false
+   },
+   {
+    "name": "Sam Allardyce",
+    "from": "2023-05-03",
+    "to": "2023-06-02",
+    "interim": false
+   },
+   {
+    "name": "Daniel Farke",
+    "from": "2023-07-04",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "leicester-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Leicester_City_F.C._managers",
+  "stints": [
+   {
+    "name": "Nigel Pearson",
+    "from": "2011-11-15",
+    "to": "2015-06-30",
+    "interim": false
+   },
+   {
+    "name": "Claudio Ranieri",
+    "from": "2015-07-13",
+    "to": "2017-02-23",
+    "interim": false
+   },
+   {
+    "name": "Craig Shakespeare",
+    "from": "2017-02-23",
+    "to": "2017-10-17",
+    "interim": false
+   },
+   {
+    "name": "Michael Appleton",
+    "from": "2017-10-17",
+    "to": "2017-10-25",
+    "interim": true
+   },
+   {
+    "name": "Claude Puel",
+    "from": "2017-10-25",
+    "to": "2019-02-24",
+    "interim": false
+   },
+   {
+    "name": "Mike Stowell",
+    "from": "2019-02-24",
+    "to": "2019-02-26",
+    "interim": true,
+    "coName": "Adam Sadler"
+   },
+   {
+    "name": "Brendan Rodgers",
+    "from": "2019-02-27",
+    "to": "2023-04-02",
+    "interim": false
+   },
+   {
+    "name": "Mike Stowell",
+    "from": "2023-04-02",
+    "to": "2023-04-10",
+    "interim": true,
+    "coName": "Adam Sadler"
+   },
+   {
+    "name": "Dean Smith",
+    "from": "2023-04-10",
+    "to": "2023-06-16",
+    "interim": false
+   },
+   {
+    "name": "Enzo Maresca",
+    "from": "2023-06-16",
+    "to": "2024-06-03",
+    "interim": false
+   },
+   {
+    "name": "Steve Cooper",
+    "from": "2024-06-20",
+    "to": "2024-11-24",
+    "interim": false
+   },
+   {
+    "name": "Ben Dawson",
+    "from": "2024-11-24",
+    "to": "2024-12-01",
+    "interim": true
+   },
+   {
+    "name": "Ruud van Nistelrooy",
+    "from": "2024-12-01",
+    "to": "2025-06-27",
+    "interim": false
+   },
+   {
+    "name": "Martí Cifuentes",
+    "from": "2025-07-15",
+    "to": "2026-01-25",
+    "interim": false
+   },
+   {
+    "name": "Andy King",
+    "from": "2026-01-25",
+    "to": "2026-02-18",
+    "interim": true
+   },
+   {
+    "name": "Gary Rowett",
+    "from": "2026-02-18",
+    "to": "2026-06-15",
+    "interim": false
+   },
+   {
+    "name": "Russell Martin",
+    "from": "2026-06-15",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "liverpool": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Liverpool_F.C._managers",
+  "stints": [
+   {
+    "name": "Brendan Rodgers",
+    "from": "2012-06-01",
+    "to": "2015-10-04",
+    "interim": false
+   },
+   {
+    "name": "Jürgen Klopp",
+    "from": "2015-10-08",
+    "to": "2024-05-19",
+    "interim": false
+   },
+   {
+    "name": "Arne Slot",
+    "from": "2024-06-01",
+    "to": "2026-05-30",
+    "interim": false
+   },
+   {
+    "name": "Andoni Iraola",
+    "from": "2026-06-04",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "luton-town": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Luton_Town_F.C._managers",
+  "stints": [
+   {
+    "name": "John Still",
+    "from": "2013-02-26",
+    "to": "2015-12-17",
+    "interim": false
+   },
+   {
+    "name": "Andy Awford",
+    "from": "2015-12-17",
+    "to": "2016-01-06",
+    "interim": false
+   },
+   {
+    "name": "Nathan Jones",
+    "from": "2016-01-06",
+    "to": "2019-01-09",
+    "interim": false
+   },
+   {
+    "name": "Mick Harford",
+    "from": "2019-01-10",
+    "to": "2019-05-07",
+    "interim": false
+   },
+   {
+    "name": "Graeme Jones",
+    "from": "2019-05-07",
+    "to": "2020-04-24",
+    "interim": false
+   },
+   {
+    "name": "Mick Harford",
+    "from": "2020-04-24",
+    "to": "2020-05-28",
+    "interim": false
+   },
+   {
+    "name": "Nathan Jones",
+    "from": "2020-05-28",
+    "to": "2022-11-10",
+    "interim": false
+   },
+   {
+    "name": "Rob Edwards",
+    "from": "2022-11-17",
+    "to": "2025-01-09",
+    "interim": false
+   },
+   {
+    "name": "Matt Bloomfield",
+    "from": "2025-01-14",
+    "to": "2025-10-06",
+    "interim": false
+   },
+   {
+    "name": "Jack Wilshere",
+    "from": "2025-10-13",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "man-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Manchester_City_F.C._managers",
+  "stints": [
+   {
+    "name": "Manuel Pellegrini",
+    "from": "2013-06-14",
+    "to": "2016-06-30",
+    "interim": false
+   },
+   {
+    "name": "Pep Guardiola",
+    "from": "2016-07-01",
+    "to": "2026-05-24",
+    "interim": false
+   },
+   {
+    "name": "Enzo Maresca",
+    "from": "2026-06-29",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "man-utd": {
+  "sourceURL": "src/lib/managers.ts",
+  "stints": [
+   {
+    "name": "Louis van Gaal",
+    "nameTh": "หลุยส์ ฟาน คาล",
+    "from": "2014-07-14",
+    "to": "2016-05-23",
+    "interim": false
+   },
+   {
+    "name": "José Mourinho",
+    "nameTh": "โชเซ่ มูรินโญ่",
+    "from": "2016-05-27",
+    "to": "2018-12-18",
+    "interim": false
+   },
+   {
+    "name": "Ole Gunnar Solskjær",
+    "nameTh": "โอเล่ กุนนาร์ โซลชาร์",
+    "from": "2018-12-19",
+    "to": "2021-11-21",
+    "interim": false
+   },
+   {
+    "name": "Michael Carrick",
+    "nameTh": "ไมเคิล คาร์ริค",
+    "from": "2021-11-22",
+    "to": "2021-12-02",
+    "interim": true
+   },
+   {
+    "name": "Ralf Rangnick",
+    "nameTh": "ราล์ฟ รังนิค",
+    "from": "2021-12-03",
+    "to": "2022-05-31",
+    "interim": true
+   },
+   {
+    "name": "Erik ten Hag",
+    "nameTh": "เอริค เทน ฮาก",
+    "from": "2022-06-01",
+    "to": "2024-10-28",
+    "interim": false
+   },
+   {
+    "name": "Ruud van Nistelrooy",
+    "nameTh": "รุด ฟาน นิสเตลรอย",
+    "from": "2024-10-29",
+    "to": "2024-11-10",
+    "interim": true
+   },
+   {
+    "name": "Ruben Amorim",
+    "nameTh": "รูเบน อาโมริม",
+    "from": "2024-11-11",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "middlesbrough": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Middlesbrough_F.C._managers",
+  "stints": [
+   {
+    "name": "Aitor Karanka",
+    "from": "2013-11-13",
+    "to": "2017-03-16",
+    "interim": false
+   },
+   {
+    "name": "Steve Agnew",
+    "from": "2017-03-16",
+    "to": "2017-06-09",
+    "interim": true
+   },
+   {
+    "name": "Garry Monk",
+    "from": "2017-06-09",
+    "to": "2017-12-23",
+    "interim": false
+   },
+   {
+    "name": "Craig Liddle",
+    "from": "2017-12-23",
+    "to": "2017-12-26",
+    "interim": false
+   },
+   {
+    "name": "Tony Pulis",
+    "from": "2017-12-26",
+    "to": "2019-05-17",
+    "interim": false
+   },
+   {
+    "name": "Jonathan Woodgate",
+    "from": "2019-06-14",
+    "to": "2020-06-23",
+    "interim": false
+   },
+   {
+    "name": "Neil Warnock",
+    "from": "2020-06-23",
+    "to": "2021-11-06",
+    "interim": false
+   },
+   {
+    "name": "Chris Wilder",
+    "from": "2021-11-07",
+    "to": "2022-10-03",
+    "interim": false
+   },
+   {
+    "name": "Leo Percovich",
+    "from": "2022-10-03",
+    "to": "2022-10-24",
+    "interim": false
+   },
+   {
+    "name": "Michael Carrick",
+    "from": "2022-10-24",
+    "to": "2025-06-04",
+    "interim": false
+   },
+   {
+    "name": "Rob Edwards",
+    "from": "2025-06-25",
+    "to": "2025-11-12",
+    "interim": false
+   },
+   {
+    "name": "Adi Viveash",
+    "from": "2025-11-12",
+    "to": "2025-11-26",
+    "interim": false
+   },
+   {
+    "name": "Kim Hellberg",
+    "from": "2025-11-26",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "newcastle-united": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Newcastle_United_F.C._managers",
+  "stints": [
+   {
+    "name": "Alan Pardew",
+    "from": "2010-12-09",
+    "to": "2015-01-02",
+    "interim": false
+   },
+   {
+    "name": "John Carver",
+    "from": "2015-01-02",
+    "to": "2015-06-10",
+    "interim": false
+   },
+   {
+    "name": "Steve McClaren",
+    "from": "2015-06-10",
+    "to": "2016-03-11",
+    "interim": false
+   },
+   {
+    "name": "Rafael Benítez",
+    "from": "2016-03-11",
+    "to": "2019-06-30",
+    "interim": false
+   },
+   {
+    "name": "Steve Bruce",
+    "from": "2019-07-17",
+    "to": "2021-10-20",
+    "interim": false
+   },
+   {
+    "name": "Graeme Jones",
+    "from": "2021-10-20",
+    "to": "2021-11-08",
+    "interim": true
+   },
+   {
+    "name": "Eddie Howe",
+    "from": "2021-11-08",
+    "to": "2026-07-30",
+    "interim": false
+   },
+   {
+    "name": "Jason Tindall",
+    "from": "2025-04-13",
+    "to": "2025-04-19",
+    "interim": true
+   },
+   {
+    "name": "Matthias Jaissle",
+    "from": "2026-08-05",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "norwich-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Norwich_City_F.C._managers",
+  "stints": [
+   {
+    "name": "Neil Adams",
+    "from": "2014-04-06",
+    "to": "2015-01-05",
+    "interim": false
+   },
+   {
+    "name": "Mike Phelan",
+    "from": "2015-01-05",
+    "to": "2015-01-09",
+    "interim": false
+   },
+   {
+    "name": "Alex Neil",
+    "from": "2015-01-09",
+    "to": "2017-03-10",
+    "interim": false
+   },
+   {
+    "name": "Alan Irvine",
+    "from": "2017-03-10",
+    "to": "2017-05-25",
+    "interim": false
+   },
+   {
+    "name": "Daniel Farke",
+    "from": "2017-05-25",
+    "to": "2021-11-06",
+    "interim": false
+   },
+   {
+    "name": "Dean Smith",
+    "from": "2021-11-15",
+    "to": "2022-12-27",
+    "interim": false
+   },
+   {
+    "name": "Allan Russell",
+    "from": "2022-12-27",
+    "to": "2023-01-06",
+    "interim": false
+   },
+   {
+    "name": "David Wagner",
+    "from": "2023-01-06",
+    "to": "2024-05-17",
+    "interim": false
+   },
+   {
+    "name": "Johannes Hoff Thorup",
+    "from": "2024-05-30",
+    "to": "2025-04-22",
+    "interim": false
+   },
+   {
+    "name": "Jack Wilshere",
+    "from": "2025-04-22",
+    "to": "2025-05-03",
+    "interim": false
+   },
+   {
+    "name": "Liam Manning",
+    "from": "2025-06-03",
+    "to": "2025-11-08",
+    "interim": false
+   },
+   {
+    "name": "Philippe Clement",
+    "from": "2025-11-18",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "nottingham-forest": {
+  "sourceURL": "https://en.wikipedia.org/wiki/Nottingham_Forest_F.C.",
+  "stints": [
+   {
+    "name": "Dougie Freedman",
+    "from": "2015-02-01",
+    "to": "2016-03-13",
+    "interim": false
+   },
+   {
+    "name": "Paul Williams",
+    "from": "2016-03-13",
+    "to": "2016-05-12",
+    "interim": false
+   },
+   {
+    "name": "Philippe Montanier",
+    "from": "2016-06-27",
+    "to": "2017-01-14",
+    "interim": false
+   },
+   {
+    "name": "Gary Brazil",
+    "from": "2017-01-14",
+    "to": "2017-03-14",
+    "interim": false
+   },
+   {
+    "name": "Mark Warburton",
+    "from": "2017-03-14",
+    "to": "2017-12-31",
+    "interim": false
+   },
+   {
+    "name": "Gary Brazil",
+    "from": "2017-12-31",
+    "to": "2018-01-08",
+    "interim": false
+   },
+   {
+    "name": "Aitor Karanka",
+    "from": "2018-01-08",
+    "to": "2019-01-11",
+    "interim": false
+   },
+   {
+    "name": "Simon Ireland",
+    "from": "2019-01-11",
+    "to": "2019-01-15",
+    "interim": false
+   },
+   {
+    "name": "Martin O'Neill",
+    "from": "2019-01-15",
+    "to": "2019-06-28",
+    "interim": false
+   },
+   {
+    "name": "Sabri Lamouchi",
+    "from": "2019-06-28",
+    "to": "2020-10-06",
+    "interim": false
+   },
+   {
+    "name": "Chris Hughton",
+    "from": "2020-10-06",
+    "to": "2021-09-16",
+    "interim": false
+   },
+   {
+    "name": "Steven Reid",
+    "from": "2021-09-16",
+    "to": "2021-09-21",
+    "interim": false
+   },
+   {
+    "name": "Steve Cooper",
+    "from": "2021-09-21",
+    "to": "2023-12-19",
+    "interim": false
+   },
+   {
+    "name": "Nuno Espírito Santo",
+    "from": "2023-12-20",
+    "to": "2025-09-09",
+    "interim": false
+   },
+   {
+    "name": "Ange Postecoglou",
+    "from": "2025-09-09",
+    "to": "2025-10-18",
+    "interim": false
+   },
+   {
+    "name": "Sean Dyche",
+    "from": "2025-10-21",
+    "to": "2026-02-12",
+    "interim": false
+   },
+   {
+    "name": "Vítor Pereira",
+    "from": "2026-02-15",
+    "to": "2026-07-02",
+    "interim": false
+   },
+   {
+    "name": "Oliver Glasner",
+    "from": "2026-07-06",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "qpr": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Queens_Park_Rangers_F.C._managers",
+  "stints": [
+   {
+    "name": "Harry Redknapp",
+    "from": "2012-11-24",
+    "to": "2015-02-03",
+    "interim": false
+   },
+   {
+    "name": "Chris Ramsey",
+    "from": "2015-02-03",
+    "to": "2015-11-04",
+    "interim": false
+   },
+   {
+    "name": "Kevin Bond",
+    "from": "2015-02-03",
+    "to": "2015-02-12",
+    "interim": true
+   },
+   {
+    "name": "Jimmy Floyd Hasselbaink",
+    "from": "2015-12-04",
+    "to": "2016-11-05",
+    "interim": false
+   },
+   {
+    "name": "Ian Holloway",
+    "from": "2016-11-11",
+    "to": "2018-05-10",
+    "interim": false
+   },
+   {
+    "name": "Steve McClaren",
+    "from": "2018-05-18",
+    "to": "2019-04-01",
+    "interim": false
+   },
+   {
+    "name": "Mark Warburton",
+    "from": "2019-05-08",
+    "to": "2022-06-01",
+    "interim": false
+   },
+   {
+    "name": "Michael Beale",
+    "from": "2022-06-01",
+    "to": "2022-11-28",
+    "interim": false
+   },
+   {
+    "name": "Neil Critchley",
+    "from": "2022-12-11",
+    "to": "2023-02-19",
+    "interim": false
+   },
+   {
+    "name": "Gareth Ainsworth",
+    "from": "2023-02-21",
+    "to": "2023-10-28",
+    "interim": false
+   },
+   {
+    "name": "Martí Cifuentes",
+    "from": "2023-10-30",
+    "to": "2025-06-24",
+    "interim": false
+   },
+   {
+    "name": "Julien Stéphan",
+    "from": "2025-06-25",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "sheffield-united": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Sheffield_United_F.C._managers",
+  "stints": [
+   {
+    "name": "Nigel Clough",
+    "from": "2013-10-23",
+    "to": "2015-05-25",
+    "interim": false
+   },
+   {
+    "name": "Nigel Adkins",
+    "from": "2015-06-02",
+    "to": "2016-05-12",
+    "interim": false
+   },
+   {
+    "name": "Chris Wilder",
+    "from": "2016-05-12",
+    "to": "2021-03-13",
+    "interim": false
+   },
+   {
+    "name": "Paul Heckingbottom",
+    "from": "2021-03-13",
+    "to": "2021-05-27",
+    "interim": true
+   },
+   {
+    "name": "Slaviša Jokanović",
+    "from": "2021-05-27",
+    "to": "2021-11-25",
+    "interim": false
+   },
+   {
+    "name": "Paul Heckingbottom",
+    "from": "2021-11-25",
+    "to": "2023-12-05",
+    "interim": false
+   },
+   {
+    "name": "Chris Wilder",
+    "from": "2023-12-05",
+    "to": "2025-06-18",
+    "interim": false
+   },
+   {
+    "name": "Rubén Sellés",
+    "from": "2025-06-18",
+    "to": "2025-09-14",
+    "interim": false
+   },
+   {
+    "name": "Chris Wilder",
+    "from": "2025-09-15",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "southampton": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Southampton_F.C._managers",
+  "stints": [
+   {
+    "name": "Ronald Koeman",
+    "from": "2014-06-16",
+    "to": "2016-06-14",
+    "interim": false
+   },
+   {
+    "name": "Claude Puel",
+    "from": "2016-06-30",
+    "to": "2017-06-14",
+    "interim": false
+   },
+   {
+    "name": "Mauricio Pellegrino",
+    "from": "2017-06-23",
+    "to": "2018-03-12",
+    "interim": false
+   },
+   {
+    "name": "Mark Hughes",
+    "from": "2018-03-14",
+    "to": "2018-12-03",
+    "interim": false
+   },
+   {
+    "name": "Kelvin Davis",
+    "from": "2018-12-03",
+    "to": "2018-12-05",
+    "interim": true
+   },
+   {
+    "name": "Ralph Hasenhüttl",
+    "from": "2018-12-06",
+    "to": "2022-11-07",
+    "interim": false
+   },
+   {
+    "name": "Rubén Sellés",
+    "from": "2022-11-07",
+    "to": "2022-11-10",
+    "interim": true
+   },
+   {
+    "name": "Nathan Jones",
+    "from": "2022-11-10",
+    "to": "2023-02-12",
+    "interim": false
+   },
+   {
+    "name": "Rubén Sellés",
+    "from": "2023-02-12",
+    "to": "2023-05-28",
+    "interim": false
+   },
+   {
+    "name": "Russell Martin",
+    "from": "2023-06-21",
+    "to": "2024-12-15",
+    "interim": false
+   },
+   {
+    "name": "Simon Rusk",
+    "from": "2024-12-15",
+    "to": "2024-12-23",
+    "interim": true
+   },
+   {
+    "name": "Ivan Jurić",
+    "from": "2024-12-23",
+    "to": "2025-04-07",
+    "interim": false
+   },
+   {
+    "name": "Simon Rusk",
+    "from": "2025-04-07",
+    "to": "2025-05-25",
+    "interim": true
+   },
+   {
+    "name": "Will Still",
+    "from": "2025-05-26",
+    "to": "2025-11-01",
+    "interim": false
+   },
+   {
+    "name": "Tonda Eckert",
+    "from": "2025-11-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "stoke-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Stoke_City_F.C._managers",
+  "stints": [
+   {
+    "name": "Mark Hughes",
+    "from": "2013-05-30",
+    "to": "2018-01-06",
+    "interim": false
+   },
+   {
+    "name": "Eddie Niedzwiecki",
+    "from": "2018-01-08",
+    "to": "2018-01-15",
+    "interim": true
+   },
+   {
+    "name": "Paul Lambert",
+    "from": "2018-01-15",
+    "to": "2018-05-18",
+    "interim": false
+   },
+   {
+    "name": "Gary Rowett",
+    "from": "2018-05-24",
+    "to": "2019-01-08",
+    "interim": false
+   },
+   {
+    "name": "Nathan Jones",
+    "from": "2019-01-09",
+    "to": "2019-11-01",
+    "interim": false
+   },
+   {
+    "name": "Rory Delap",
+    "from": "2019-11-01",
+    "to": "2019-11-08",
+    "interim": true
+   },
+   {
+    "name": "Michael O'Neill",
+    "from": "2019-11-08",
+    "to": "2022-08-28",
+    "interim": false
+   },
+   {
+    "name": "Dean Holden",
+    "from": "2022-08-28",
+    "to": "2022-09-11",
+    "interim": true
+   },
+   {
+    "name": "Alex Neil",
+    "from": "2022-09-11",
+    "to": "2023-12-10",
+    "interim": false
+   },
+   {
+    "name": "Paul Gallagher",
+    "from": "2023-12-10",
+    "to": "2023-12-19",
+    "interim": true
+   },
+   {
+    "name": "Steven Schumacher",
+    "from": "2023-12-19",
+    "to": "2024-09-16",
+    "interim": false
+   },
+   {
+    "name": "Alex Morris",
+    "from": "2024-09-16",
+    "to": "2024-09-18",
+    "interim": true,
+    "coName": "Ryan Shawcross"
+   },
+   {
+    "name": "Narcís Pèlach",
+    "from": "2024-09-18",
+    "to": "2024-12-27",
+    "interim": false
+   },
+   {
+    "name": "Ryan Shawcross",
+    "from": "2024-12-27",
+    "to": "2025-01-01",
+    "interim": true
+   },
+   {
+    "name": "Mark Robins",
+    "from": "2025-01-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "sunderland": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Sunderland_A.F.C._managers",
+  "stints": [
+   {
+    "name": "Gus Poyet",
+    "from": "2013-10-08",
+    "to": "2015-03-16",
+    "interim": false
+   },
+   {
+    "name": "Dick Advocaat",
+    "from": "2015-03-17",
+    "to": "2015-10-04",
+    "interim": false
+   },
+   {
+    "name": "Sam Allardyce",
+    "from": "2015-10-09",
+    "to": "2016-07-22",
+    "interim": false
+   },
+   {
+    "name": "David Moyes",
+    "from": "2016-07-23",
+    "to": "2017-05-22",
+    "interim": false
+   },
+   {
+    "name": "Simon Grayson",
+    "from": "2017-06-29",
+    "to": "2017-10-31",
+    "interim": false
+   },
+   {
+    "name": "Robbie Stockdale",
+    "from": "2017-10-31",
+    "to": "2017-11-19",
+    "interim": true,
+    "coName": "Billy McKinlay"
+   },
+   {
+    "name": "Chris Coleman",
+    "from": "2017-11-19",
+    "to": "2018-04-29",
+    "interim": false
+   },
+   {
+    "name": "Robbie Stockdale",
+    "from": "2018-04-29",
+    "to": "2018-05-25",
+    "interim": true
+   },
+   {
+    "name": "Jack Ross",
+    "from": "2018-05-25",
+    "to": "2019-10-08",
+    "interim": false
+   },
+   {
+    "name": "James Fowler",
+    "from": "2019-10-08",
+    "to": "2019-10-17",
+    "interim": true
+   },
+   {
+    "name": "Phil Parkinson",
+    "from": "2019-10-17",
+    "to": "2020-11-29",
+    "interim": false
+   },
+   {
+    "name": "Andrew Taylor",
+    "from": "2020-11-30",
+    "to": "2020-12-05",
+    "interim": true
+   },
+   {
+    "name": "Lee Johnson",
+    "from": "2020-12-05",
+    "to": "2022-01-30",
+    "interim": false
+   },
+   {
+    "name": "Mike Dodds",
+    "from": "2022-02-02",
+    "to": "2022-02-11",
+    "interim": true
+   },
+   {
+    "name": "Alex Neil",
+    "from": "2022-02-11",
+    "to": "2022-08-28",
+    "interim": false
+   },
+   {
+    "name": "Martin Canning",
+    "from": "2022-08-29",
+    "to": "2022-08-30",
+    "interim": true
+   },
+   {
+    "name": "Tony Mowbray",
+    "from": "2022-08-30",
+    "to": "2023-12-04",
+    "interim": false
+   },
+   {
+    "name": "Mike Dodds",
+    "from": "2023-12-04",
+    "to": "2023-12-18",
+    "interim": true
+   },
+   {
+    "name": "Michael Beale",
+    "from": "2023-12-18",
+    "to": "2024-02-19",
+    "interim": false
+   },
+   {
+    "name": "Mike Dodds",
+    "from": "2024-02-19",
+    "to": "2024-05-04",
+    "interim": true
+   },
+   {
+    "name": "Régis Le Bris",
+    "from": "2024-07-01",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "swansea-city": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Swansea_City_A.F.C._managers",
+  "stints": [
+   {
+    "name": "Garry Monk",
+    "from": "2014-02-04",
+    "to": "2015-12-09",
+    "interim": false
+   },
+   {
+    "name": "Alan Curtis",
+    "from": "2015-12-09",
+    "to": "2016-01-18",
+    "interim": true
+   },
+   {
+    "name": "Francesco Guidolin",
+    "from": "2016-01-18",
+    "to": "2016-10-03",
+    "interim": false
+   },
+   {
+    "name": "Bob Bradley",
+    "from": "2016-10-03",
+    "to": "2016-12-27",
+    "interim": false
+   },
+   {
+    "name": "Alan Curtis",
+    "from": "2016-12-27",
+    "to": "2017-01-03",
+    "interim": true
+   },
+   {
+    "name": "Paul Clement",
+    "from": "2017-01-03",
+    "to": "2017-12-20",
+    "interim": false
+   },
+   {
+    "name": "Leon Britton",
+    "from": "2017-12-20",
+    "to": "2017-12-28",
+    "interim": true
+   },
+   {
+    "name": "Carlos Carvalhal",
+    "from": "2017-12-28",
+    "to": "2018-05-18",
+    "interim": false
+   },
+   {
+    "name": "Graham Potter",
+    "from": "2018-06-11",
+    "to": "2019-05-20",
+    "interim": false
+   },
+   {
+    "name": "Steve Cooper",
+    "from": "2019-06-13",
+    "to": "2021-07-21",
+    "interim": false
+   },
+   {
+    "name": "Russell Martin",
+    "from": "2021-08-01",
+    "to": "2023-06-21",
+    "interim": false
+   },
+   {
+    "name": "Michael Duff",
+    "from": "2023-06-22",
+    "to": "2023-12-04",
+    "interim": false
+   },
+   {
+    "name": "Alan Sheehan",
+    "from": "2023-12-04",
+    "to": "2024-01-05",
+    "interim": false
+   },
+   {
+    "name": "Luke Williams",
+    "from": "2024-01-05",
+    "to": "2025-02-17",
+    "interim": false
+   },
+   {
+    "name": "Alan Sheehan",
+    "from": "2025-02-17",
+    "to": "2025-11-11",
+    "interim": false
+   },
+   {
+    "name": "Darren O'Dea",
+    "from": "2025-11-11",
+    "to": "2025-11-24",
+    "interim": false
+   },
+   {
+    "name": "Vítor Matos",
+    "from": "2025-11-24",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "tottenham": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Tottenham_Hotspur_F.C._managers",
+  "stints": [
+   {
+    "name": "Mauricio Pochettino",
+    "from": "2014-05-27",
+    "to": "2019-11-19",
+    "interim": false
+   },
+   {
+    "name": "José Mourinho",
+    "from": "2019-11-20",
+    "to": "2021-04-19",
+    "interim": false
+   },
+   {
+    "name": "Ryan Mason",
+    "from": "2021-04-19",
+    "to": "2021-06-30",
+    "interim": true
+   },
+   {
+    "name": "Nuno Espírito Santo",
+    "from": "2021-06-30",
+    "to": "2021-11-01",
+    "interim": false
+   },
+   {
+    "name": "Antonio Conte",
+    "from": "2021-11-02",
+    "to": "2023-03-26",
+    "interim": false
+   },
+   {
+    "name": "Cristian Stellini",
+    "from": "2023-03-26",
+    "to": "2023-04-24",
+    "interim": true
+   },
+   {
+    "name": "Ryan Mason",
+    "from": "2023-04-24",
+    "to": "2023-05-28",
+    "interim": true
+   },
+   {
+    "name": "Ange Postecoglou",
+    "from": "2023-06-06",
+    "to": "2025-06-06",
+    "interim": false
+   },
+   {
+    "name": "Thomas Frank",
+    "from": "2025-06-12",
+    "to": "2026-02-11",
+    "interim": false
+   },
+   {
+    "name": "Igor Tudor",
+    "from": "2026-02-14",
+    "to": "2026-03-29",
+    "interim": false
+   },
+   {
+    "name": "Roberto De Zerbi",
+    "from": "2026-03-31",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "watford": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Watford_F.C._managers",
+  "stints": [
+   {
+    "name": "Giuseppe Sannino",
+    "from": "2013-12-01",
+    "to": "2014-08-01",
+    "interim": false
+   },
+   {
+    "name": "Óscar García Junyent",
+    "from": "2014-09-01",
+    "to": "2014-09-01",
+    "interim": false
+   },
+   {
+    "name": "Billy McKinlay",
+    "from": "2014-09-01",
+    "to": "2014-10-01",
+    "interim": false
+   },
+   {
+    "name": "Slaviša Jokanović",
+    "from": "2014-10-01",
+    "to": "2015-06-01",
+    "interim": false
+   },
+   {
+    "name": "Quique Sánchez Flores",
+    "from": "2015-06-05",
+    "to": "2016-05-15",
+    "interim": false
+   },
+   {
+    "name": "Walter Mazzarri",
+    "from": "2016-07-01",
+    "to": "2017-05-21",
+    "interim": false
+   },
+   {
+    "name": "Marco Silva",
+    "from": "2017-05-27",
+    "to": "2018-01-21",
+    "interim": false
+   },
+   {
+    "name": "Javi Gracia",
+    "from": "2018-01-21",
+    "to": "2019-09-07",
+    "interim": false
+   },
+   {
+    "name": "Quique Sánchez Flores",
+    "from": "2019-09-07",
+    "to": "2019-12-01",
+    "interim": false
+   },
+   {
+    "name": "Hayden Mullins",
+    "from": "2019-12-02",
+    "to": "2019-12-07",
+    "interim": true
+   },
+   {
+    "name": "Nigel Pearson",
+    "from": "2019-12-08",
+    "to": "2020-07-19",
+    "interim": false
+   },
+   {
+    "name": "Hayden Mullins",
+    "from": "2020-07-19",
+    "to": "2020-08-15",
+    "interim": true
+   },
+   {
+    "name": "Vladimir Ivić",
+    "from": "2020-08-15",
+    "to": "2020-12-01",
+    "interim": false
+   },
+   {
+    "name": "Xisco Muñoz",
+    "from": "2020-12-20",
+    "to": "2021-10-03",
+    "interim": false
+   },
+   {
+    "name": "Claudio Ranieri",
+    "from": "2021-10-04",
+    "to": "2022-01-24",
+    "interim": false
+   },
+   {
+    "name": "Roy Hodgson",
+    "from": "2022-01-25",
+    "to": "2022-05-22",
+    "interim": false
+   },
+   {
+    "name": "Rob Edwards",
+    "from": "2022-05-23",
+    "to": "2022-09-01",
+    "interim": false
+   },
+   {
+    "name": "Slaven Bilić",
+    "from": "2022-09-01",
+    "to": "2023-03-01",
+    "interim": false
+   },
+   {
+    "name": "Chris Wilder",
+    "from": "2023-03-01",
+    "to": "2023-05-01",
+    "interim": false
+   },
+   {
+    "name": "Valérien Ismaël",
+    "from": "2023-05-01",
+    "to": "2024-03-01",
+    "interim": false
+   },
+   {
+    "name": "Tom Cleverley",
+    "from": "2024-03-01",
+    "to": "2025-05-01",
+    "interim": false
+   },
+   {
+    "name": "Paulo Pezzolano",
+    "from": "2025-05-13",
+    "to": "2025-10-08",
+    "interim": false
+   },
+   {
+    "name": "Javi Gracia",
+    "from": "2025-10-08",
+    "to": "2026-02-01",
+    "interim": false
+   },
+   {
+    "name": "Charlie Daniels",
+    "from": "2026-02-01",
+    "to": "2026-02-09",
+    "interim": true
+   },
+   {
+    "name": "Edward Still",
+    "from": "2026-02-09",
+    "to": "2026-05-03",
+    "interim": false
+   },
+   {
+    "name": "Alessio Dionisi",
+    "from": "2026-06-05",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "west-brom": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_West_Bromwich_Albion_F.C._managers",
+  "stints": [
+   {
+    "name": "Alan Irvine",
+    "from": "2014-06-14",
+    "to": "2014-12-29",
+    "interim": false
+   },
+   {
+    "name": "Rob Kelly",
+    "from": "2014-12-29",
+    "to": "2015-01-01",
+    "interim": true
+   },
+   {
+    "name": "Tony Pulis",
+    "from": "2015-01-01",
+    "to": "2017-11-20",
+    "interim": false
+   },
+   {
+    "name": "Gary Megson",
+    "from": "2017-11-20",
+    "to": "2017-11-29",
+    "interim": true
+   },
+   {
+    "name": "Alan Pardew",
+    "from": "2017-11-29",
+    "to": "2018-04-02",
+    "interim": false
+   },
+   {
+    "name": "Darren Moore",
+    "from": "2018-04-02",
+    "to": "2019-03-09",
+    "interim": false
+   },
+   {
+    "name": "Jimmy Shan",
+    "from": "2019-03-10",
+    "to": "2019-06-13",
+    "interim": false
+   },
+   {
+    "name": "Slaven Bilić",
+    "from": "2019-06-13",
+    "to": "2020-12-16",
+    "interim": false
+   },
+   {
+    "name": "Sam Allardyce",
+    "from": "2020-12-16",
+    "to": "2021-05-23",
+    "interim": false
+   },
+   {
+    "name": "Valérien Ismaël",
+    "from": "2021-06-24",
+    "to": "2022-02-02",
+    "interim": false
+   },
+   {
+    "name": "Steve Bruce",
+    "from": "2022-02-03",
+    "to": "2022-10-10",
+    "interim": false
+   },
+   {
+    "name": "Richard Beale",
+    "from": "2022-10-10",
+    "to": "2022-10-24",
+    "interim": false
+   },
+   {
+    "name": "Carlos Corberán",
+    "from": "2022-10-25",
+    "to": "2024-12-24",
+    "interim": false
+   },
+   {
+    "name": "Chris Brunt",
+    "from": "2024-12-24",
+    "to": "2025-01-17",
+    "interim": false
+   },
+   {
+    "name": "Tony Mowbray",
+    "from": "2025-01-17",
+    "to": "2025-04-21",
+    "interim": false
+   },
+   {
+    "name": "James Morrison",
+    "from": "2025-04-21",
+    "to": "2025-05-03",
+    "interim": false
+   },
+   {
+    "name": "Ryan Mason",
+    "from": "2025-06-02",
+    "to": "2026-01-06",
+    "interim": false
+   },
+   {
+    "name": "James Morrison",
+    "from": "2026-01-06",
+    "to": "2026-01-11",
+    "interim": false
+   },
+   {
+    "name": "Eric Ramsay",
+    "from": "2026-01-11",
+    "to": "2026-02-24",
+    "interim": false
+   },
+   {
+    "name": "James Morrison",
+    "from": "2026-03-04",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "west-ham": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_West_Ham_United_F.C._managers",
+  "stints": [
+   {
+    "name": "Sam Allardyce",
+    "from": "2011-06-01",
+    "to": "2015-05-24",
+    "interim": false
+   },
+   {
+    "name": "Slaven Bilić",
+    "from": "2015-06-09",
+    "to": "2017-11-06",
+    "interim": false
+   },
+   {
+    "name": "David Moyes",
+    "from": "2017-11-07",
+    "to": "2018-05-16",
+    "interim": false
+   },
+   {
+    "name": "Manuel Pellegrini",
+    "from": "2018-05-22",
+    "to": "2019-12-28",
+    "interim": false
+   },
+   {
+    "name": "David Moyes",
+    "from": "2019-12-29",
+    "to": "2024-05-19",
+    "interim": false
+   },
+   {
+    "name": "Julen Lopetegui",
+    "from": "2024-07-01",
+    "to": "2025-01-08",
+    "interim": false
+   },
+   {
+    "name": "Graham Potter",
+    "from": "2025-01-09",
+    "to": "2025-09-27",
+    "interim": false
+   },
+   {
+    "name": "Nuno Espírito Santo",
+    "from": "2025-09-27",
+    "to": null,
+    "interim": false
+   }
+  ]
+ },
+ "wolves": {
+  "sourceURL": "https://en.wikipedia.org/wiki/List_of_Wolverhampton_Wanderers_F.C._managers",
+  "stints": [
+   {
+    "name": "Kenny Jackett",
+    "from": "2013-06-01",
+    "to": "2016-07-29",
+    "interim": false
+   },
+   {
+    "name": "Walter Zenga",
+    "from": "2016-07-30",
+    "to": "2016-10-25",
+    "interim": false
+   },
+   {
+    "name": "Paul Lambert",
+    "from": "2016-11-05",
+    "to": "2017-05-30",
+    "interim": false
+   },
+   {
+    "name": "Nuno Espírito Santo",
+    "from": "2017-05-31",
+    "to": "2021-05-23",
+    "interim": false
+   },
+   {
+    "name": "Bruno Lage",
+    "from": "2021-06-09",
+    "to": "2022-10-02",
+    "interim": false
+   },
+   {
+    "name": "Steve Davis",
+    "from": "2022-10-03",
+    "to": "2022-11-13",
+    "interim": true
+   },
+   {
+    "name": "Julen Lopetegui",
+    "from": "2022-11-14",
+    "to": "2023-08-08",
+    "interim": false
+   },
+   {
+    "name": "Gary O'Neil",
+    "from": "2023-08-09",
+    "to": "2024-12-15",
+    "interim": false
+   },
+   {
+    "name": "Vítor Pereira",
+    "from": "2024-12-19",
+    "to": "2025-11-02",
+    "interim": false
+   },
+   {
+    "name": "James Collins",
+    "from": "2025-11-02",
+    "to": "2025-11-12",
+    "interim": true
+   },
+   {
+    "name": "Rob Edwards",
+    "from": "2025-11-12",
+    "to": "2026-06-11",
+    "interim": false
+   },
+   {
+    "name": "César Peixoto",
+    "from": "2026-06-15",
+    "to": null,
+    "interim": false
+   }
+  ]
+ }
+}

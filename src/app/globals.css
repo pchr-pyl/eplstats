@@ -50,6 +50,19 @@
   --chart-neutral: #7d7578;
 }
 
+/* Per-club brand override: [club] layout sets --club-brand-light/dark inline. */
+.club-theme {
+  --brand: var(--club-brand-light);
+  --brand-hover: color-mix(in srgb, var(--club-brand-light) 82%, #000000);
+  --brand-soft: color-mix(in srgb, var(--club-brand-light) 10%, var(--surface));
+}
+
+[data-theme='dark'] .club-theme {
+  --brand: var(--club-brand-dark);
+  --brand-hover: color-mix(in srgb, var(--club-brand-dark) 84%, #ffffff);
+  --brand-soft: color-mix(in srgb, var(--club-brand-dark) 20%, var(--surface));
+}
+
 @theme {
   --color-bg: var(--bg);
   --color-bg-secondary: var(--bg-secondary);

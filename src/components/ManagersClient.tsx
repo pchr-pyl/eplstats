@@ -13,10 +13,10 @@ import {
   YAxis,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import type { MatchRow } from '@/lib/types';
+import type { MatchRow, ManagerStint } from '@/lib/types';
 import {
-  MANAGERS,
   aggregateManagers,
+  stintId,
   ptsOf,
   perMp,
   winPct,
@@ -25,10 +25,18 @@ import {
 } from '@/lib/managers';
 import { fmt, pct } from '@/lib/format';
 
-export function ManagersClient({ matches }: { matches: MatchRow[] }) {
+export function ManagersClient({
+  matches,
+  stints,
+}: {
+  matches: MatchRow[];
+  stints: ManagerStint[];
+}) {
   const { t, lang } = useI18n();
-  const stats = useMemo(() => aggregateManagers(matches), [matches]);
-  const [selected, setSelected] = useState<string[]>(['ferguson', 'mourinho', 'ten-hag']);
+  const stats = useMemo(() => aggregateManagers(stints, matches), [stints, matches]);
+  const [selected, setSelected] = useState<string[]>(() =>
+    stints.filter((m) => !m.interim).slice(-3).map(stintId)
+  );
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const toggle = (id: string) =>
@@ -36,16 +44,17 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
 
-  const chosen = MANAGERS.filter((m) => selected.includes(m.id));
+  const chosen = stints.filter((m) => selected.includes(stintId(m)));
   const name = (id: string) => {
-    const m = MANAGERS.find((x) => x.id === id)!;
-    return lang === 'th' ? m.nameTh : m.name;
+    const m = stints.find((x) => stintId(x) === id)!;
+    const base = lang === 'th' && m.nameTh ? m.nameTh : m.name;
+    return m.coName ? `${base} & ${m.coName}` : base;
   };
 
   const chartData = chosen.map((m) => {
-    const s = stats.get(m.id)!.total;
+    const s = stats.get(stintId(m))!.total;
     return {
-      name: name(m.id),
+      name: name(stintId(m)),
       [t('managers.ptsPerMp')]: perMp(ptsOf(s), s.mp) ?? 0,
       [t('managers.winPct')]: (winPct(s) ?? 0) * 100,
     };
@@ -85,19 +94,19 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
           {t('managers.pick')}
         </h2>
         <div className="flex flex-wrap gap-2">
-          {MANAGERS.map((m) => (
+          {stints.map((m) => (
             <button
-              key={m.id}
+              key={stintId(m)}
               type="button"
-              onClick={() => toggle(m.id)}
+              onClick={() => toggle(stintId(m))}
               className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
-                selected.includes(m.id)
+                selected.includes(stintId(m))
                   ? 'border-brand bg-brand-soft text-brand'
                   : 'border-border bg-surface text-secondary hover:bg-bg-secondary'
               }`}
-              aria-pressed={selected.includes(m.id)}
+              aria-pressed={selected.includes(stintId(m))}
             >
-              {name(m.id)}
+              {name(stintId(m))}
               {m.interim && (
                 <span className="ml-1 text-xs text-muted">
                   ({t('managers.interim')})
@@ -193,19 +202,20 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
             </thead>
             <tbody>
               {chosen.map((m) => {
-                const agg = stats.get(m.id)!;
+                const mid = stintId(m);
+                const agg = stats.get(mid)!;
                 const s = agg.total;
-                const isOpen = expanded === m.id;
+                const isOpen = expanded === mid;
                 return [
                   <tr
-                    key={m.id}
-                    onClick={() => setExpanded(isOpen ? null : m.id)}
+                    key={mid}
+                    onClick={() => setExpanded(isOpen ? null : mid)}
                     className="cursor-pointer border-b border-border transition-colors hover:bg-bg-secondary"
                   >
                     <td className="px-3 py-2.5 text-sm font-medium text-primary">
                       <span className="flex items-center gap-1.5">
                         {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                        {name(m.id)}
+                        {name(mid)}
                         {m.interim && (
                           <span className="text-xs text-muted">
                             ({t('managers.interim')})
@@ -221,7 +231,7 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
                   ...(isOpen
                     ? agg.seasons.map((ss) => (
                         <tr
-                          key={`${m.id}-${ss.season}`}
+                          key={`${mid}-${ss.season}`}
                           className="border-b border-border-light bg-bg-secondary/50"
                         >
                           <td className="px-3 py-2 pl-9 text-sm text-muted">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
+import { useClub } from './ClubProvider';
 import type { MatchRow, CompGroup, SeasonMatchlogs } from '@/lib/types';
 import { matchesForSeason, compInGroup } from '@/lib/stats';
 import { CompetitionTabs } from './CompetitionTabs';
@@ -24,6 +25,7 @@ export function MatchlogBrowser({
   titleKey: string;
 }) {
   const { t } = useI18n();
+  const { club } = useClub();
   const [season, setSeason] = useState(seasons[seasons.length - 1] ?? '');
   const [group, setGroup] = useState<CompGroup>('all');
   const [side, setSide] = useState<'for' | 'against'>('for');
@@ -32,13 +34,13 @@ export function MatchlogBrowser({
   useEffect(() => {
     if (type === 'scores') return;
     let live = true;
-    loadMatchlogs(season).then((data) => {
+    loadMatchlogs(club.slug, season).then((data) => {
       if (live) setLoaded({ season, data });
     });
     return () => {
       live = false;
     };
-  }, [season, type]);
+  }, [club.slug, season, type]);
 
   const rows = type === 'scores' ? matchesForSeason(matches, season, group) : [];
   const showComp = group === 'all' || group === 'europe';

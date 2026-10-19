@@ -50,8 +50,12 @@ export function CompareDashboard({ matches }: { matches: MatchRow[] }) {
     return Array.from(set).sort();
   }, [matches]);
 
-  const [seasonA, setSeasonA] = useState('2023-2024');
-  const [seasonB, setSeasonB] = useState('2025-2026');
+  const [seasonA, setSeasonA] = useState(
+    () => seasons[seasons.length - 2] ?? '',
+  );
+  const [seasonB, setSeasonB] = useState(
+    () => seasons[seasons.length - 1] ?? '',
+  );
 
   const plA = useMemo(
     () =>
@@ -161,9 +165,9 @@ export function CompareDashboard({ matches }: { matches: MatchRow[] }) {
     { key: 'w', value: (s: SeasonStats) => fmt(s.w, 0) },
     { key: 'd', value: (s: SeasonStats) => fmt(s.d, 0) },
     { key: 'l', value: (s: SeasonStats) => fmt(s.l, 0) },
-    { key: 'winRate', value: (s: SeasonStats) => pct(s.winRate, 1) },
-    { key: 'drawRate', value: (s: SeasonStats) => pct(s.drawRate, 1) },
-    { key: 'lossRate', value: (s: SeasonStats) => pct(s.lossRate, 1) },
+    { key: 'winRate', value: (s: SeasonStats) => pct(s.winRate, 2) },
+    { key: 'drawRate', value: (s: SeasonStats) => pct(s.drawRate, 2) },
+    { key: 'lossRate', value: (s: SeasonStats) => pct(s.lossRate, 2) },
     { key: 'points', value: (s: SeasonStats) => fmt(s.points, 0) },
   ];
 

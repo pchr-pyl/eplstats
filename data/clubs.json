@@ -21,7 +21,8 @@
   ],
   "understatName": "Arsenal",
   "capologySlug": "arsenal",
-  "color": "#EF0107"
+  "color": "#EF0107",
+  "nameTh": "อาร์เซนอล"
  },
  {
   "slug": "aston-villa",
@@ -42,7 +43,8 @@
   ],
   "understatName": "Aston Villa",
   "capologySlug": "aston-villa",
-  "color": "#95BFE5"
+  "color": "#95BFE5",
+  "nameTh": "แอสตัน วิลลา"
  },
  {
   "slug": "bournemouth",
@@ -63,7 +65,8 @@
   ],
   "understatName": "Bournemouth",
   "capologySlug": "bournemouth",
-  "color": "#DA291C"
+  "color": "#DA291C",
+  "nameTh": "บอร์นมัธ"
  },
  {
   "slug": "brentford",
@@ -80,11 +83,12 @@
   ],
   "understatName": "Brentford",
   "capologySlug": "brentford",
-  "color": "#E30613"
+  "color": "#E30613",
+  "nameTh": "เบรนท์ฟอร์ด"
  },
  {
   "slug": "brighton",
-  "name": "Brighton And Hove Albion",
+  "name": "Brighton & Hove Albion",
   "fbrefId": "d07537b9",
   "fbrefSlug": "Brighton-and-Hove-Albion",
   "seasons": [
@@ -101,7 +105,8 @@
   ],
   "understatName": "Brighton",
   "capologySlug": "brighton",
-  "color": "#0057B8"
+  "color": "#0057B8",
+  "nameTh": "ไบรท์ตัน"
  },
  {
   "slug": "burnley",
@@ -121,7 +126,8 @@
   ],
   "understatName": "Burnley",
   "capologySlug": "burnley",
-  "color": "#6C1D45"
+  "color": "#6C1D45",
+  "nameTh": "เบิร์นลีย์"
  },
  {
   "slug": "cardiff-city",
@@ -133,7 +139,8 @@
   ],
   "understatName": "Cardiff",
   "capologySlug": "cardiff",
-  "color": "#0070B5"
+  "color": "#0070B5",
+  "nameTh": "คาร์ดิฟฟ์ ซิตี้"
  },
  {
   "slug": "chelsea",
@@ -157,7 +164,8 @@
   ],
   "understatName": "Chelsea",
   "capologySlug": "chelsea",
-  "color": "#034694"
+  "color": "#034694",
+  "nameTh": "เชลซี"
  },
  {
   "slug": "coventry-city",
@@ -169,7 +177,8 @@
   ],
   "understatName": "Coventry",
   "capologySlug": "coventry",
-  "color": "#059DD9"
+  "color": "#059DD9",
+  "nameTh": "โคเวนทรี ซิตี้"
  },
  {
   "slug": "crystal-palace",
@@ -193,7 +202,8 @@
   ],
   "understatName": "Crystal Palace",
   "capologySlug": "crystal-palace",
-  "color": "#1B458F"
+  "color": "#1B458F",
+  "nameTh": "คริสตัล พาเลซ"
  },
  {
   "slug": "everton",
@@ -217,7 +227,8 @@
   ],
   "understatName": "Everton",
   "capologySlug": "everton",
-  "color": "#003399"
+  "color": "#003399",
+  "nameTh": "เอฟเวอร์ตัน"
  },
  {
   "slug": "fulham",
@@ -235,7 +246,8 @@
   ],
   "understatName": "Fulham",
   "capologySlug": "fulham",
-  "color": "#000000"
+  "color": "#000000",
+  "nameTh": "ฟูแลม"
  },
  {
   "slug": "huddersfield-town",
@@ -248,7 +260,8 @@
   ],
   "understatName": "Huddersfield",
   "capologySlug": "huddersfield",
-  "color": "#0E63AD"
+  "color": "#0E63AD",
+  "nameTh": "ฮัดเดอร์สฟีลด์ ทาวน์"
  },
  {
   "slug": "hull-city",
@@ -262,7 +275,8 @@
   ],
   "understatName": "Hull",
   "capologySlug": "hull-city",
-  "color": "#F18A01"
+  "color": "#F18A01",
+  "nameTh": "ฮัลล์ ซิตี้"
  },
  {
   "slug": "ipswich-town",
@@ -275,7 +289,8 @@
   ],
   "understatName": "Ipswich",
   "capologySlug": "ipswich-town",
-  "color": "#3A64A3"
+  "color": "#3A64A3",
+  "nameTh": "อิปสวิช ทาวน์"
  },
  {
   "slug": "leeds-united",
@@ -291,7 +306,8 @@
   ],
   "understatName": "Leeds",
   "capologySlug": "leeds",
-  "color": "#FFCD00"
+  "color": "#FFCD00",
+  "nameTh": "ลีดส์ ยูไนเต็ด"
  },
  {
   "slug": "leicester-city",
@@ -312,7 +328,8 @@
   ],
   "understatName": "Leicester",
   "capologySlug": "leicester",
-  "color": "#003090"
+  "color": "#003090",
+  "nameTh": "เลสเตอร์ ซิตี้"
  },
  {
   "slug": "liverpool",
@@ -336,7 +353,8 @@
   ],
   "understatName": "Liverpool",
   "capologySlug": "liverpool",
-  "color": "#C8102E"
+  "color": "#C8102E",
+  "nameTh": "ลิเวอร์พูล"
  },
  {
   "slug": "luton-town",
@@ -348,7 +366,8 @@
   ],
   "understatName": "Luton",
   "capologySlug": "luton-town",
-  "color": "#F78F1E"
+  "color": "#F78F1E",
+  "nameTh": "ลูตัน ทาวน์"
  },
  {
   "slug": "man-city",
@@ -372,7 +391,8 @@
   ],
   "understatName": "Manchester City",
   "capologySlug": "manchester-city",
-  "color": "#6CABDD"
+  "color": "#6CABDD",
+  "nameTh": "แมนเชสเตอร์ ซิตี้"
  },
  {
   "slug": "man-utd",
@@ -396,7 +416,8 @@
   ],
   "understatName": "Manchester United",
   "capologySlug": "manchester-united",
-  "color": "#DA291C"
+  "color": "#DA291C",
+  "nameTh": "แมนเชสเตอร์ ยูไนเต็ด"
  },
  {
   "slug": "middlesbrough",
@@ -408,7 +429,8 @@
   ],
   "understatName": "Middlesbrough",
   "capologySlug": "middlesbrough",
-  "color": "#E31937"
+  "color": "#E31937",
+  "nameTh": "มิดเดิลส์เบรอ"
  },
  {
   "slug": "newcastle-united",
@@ -431,7 +453,8 @@
   ],
   "understatName": "Newcastle United",
   "capologySlug": "newcastle",
-  "color": "#241F20"
+  "color": "#241F20",
+  "nameTh": "นิวคาสเซิล ยูไนเต็ด"
  },
  {
   "slug": "norwich-city",
@@ -445,7 +468,8 @@
   ],
   "understatName": "Norwich",
   "capologySlug": "norwich",
-  "color": "#FFF200"
+  "color": "#FFF200",
+  "nameTh": "นอริช ซิตี้"
  },
  {
   "slug": "nottingham-forest",
@@ -461,7 +485,8 @@
   ],
   "understatName": "Nottingham Forest",
   "capologySlug": "nottingham-forest",
-  "color": "#DD0000"
+  "color": "#DD0000",
+  "nameTh": "น็อตติงแฮม ฟอเรสต์"
  },
  {
   "slug": "qpr",
@@ -473,7 +498,8 @@
   ],
   "understatName": "Queens Park Rangers",
   "capologySlug": "qpr",
-  "color": "#1D5BA4"
+  "color": "#1D5BA4",
+  "nameTh": "ควีนส์ พาร์ค เรนเจอส์"
  },
  {
   "slug": "sheffield-united",
@@ -487,7 +513,8 @@
   ],
   "understatName": "Sheffield United",
   "capologySlug": "sheffield-united",
-  "color": "#EE2737"
+  "color": "#EE2737",
+  "nameTh": "เชฟฟีลด์ ยูไนเต็ด"
  },
  {
   "slug": "southampton",
@@ -508,7 +535,8 @@
   ],
   "understatName": "Southampton",
   "capologySlug": "southampton",
-  "color": "#D71920"
+  "color": "#D71920",
+  "nameTh": "เซาแทมป์ตัน"
  },
  {
   "slug": "stoke-city",
@@ -523,7 +551,8 @@
   ],
   "understatName": "Stoke",
   "capologySlug": "stoke-city",
-  "color": "#E03A3E"
+  "color": "#E03A3E",
+  "nameTh": "สโต๊ก ซิตี้"
  },
  {
   "slug": "sunderland",
@@ -539,7 +568,8 @@
   ],
   "understatName": "Sunderland",
   "capologySlug": "sunderland",
-  "color": "#EB172B"
+  "color": "#EB172B",
+  "nameTh": "ซันเดอร์แลนด์"
  },
  {
   "slug": "swansea-city",
@@ -554,7 +584,8 @@
   ],
   "understatName": "Swansea",
   "capologySlug": "swansea",
-  "color": "#121212"
+  "color": "#121212",
+  "nameTh": "สวอนซี ซิตี้"
  },
  {
   "slug": "tottenham",
@@ -578,7 +609,8 @@
   ],
   "understatName": "Tottenham",
   "capologySlug": "tottenham",
-  "color": "#132257"
+  "color": "#132257",
+  "nameTh": "ท็อตแนม ฮอตสเปอร์"
  },
  {
   "slug": "watford",
@@ -595,7 +627,8 @@
   ],
   "understatName": "Watford",
   "capologySlug": "watford",
-  "color": "#FBEE23"
+  "color": "#FBEE23",
+  "nameTh": "วอตฟอร์ด"
  },
  {
   "slug": "west-brom",
@@ -611,7 +644,8 @@
   ],
   "understatName": "West Bromwich Albion",
   "capologySlug": "west-bromwich",
-  "color": "#122F67"
+  "color": "#122F67",
+  "nameTh": "เวสต์บรอมวิช อัลเบียน"
  },
  {
   "slug": "west-ham",
@@ -634,7 +668,8 @@
   ],
   "understatName": "West Ham",
   "capologySlug": "west-ham",
-  "color": "#7A263A"
+  "color": "#7A263A",
+  "nameTh": "เวสต์แฮม ยูไนเต็ด"
  },
  {
   "slug": "wolves",
@@ -653,6 +688,7 @@
   ],
   "understatName": "Wolverhampton Wanderers",
   "capologySlug": "wolverhampton",
-  "color": "#FDB913"
+  "color": "#FDB913",
+  "nameTh": "วูล์ฟแฮมป์ตัน"
  }
 ]

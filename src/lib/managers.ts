@@ -1,33 +1,32 @@
-import type { MatchRow } from './types';
+import type { MatchRow, ManagerStint } from './types';
 
-export interface ManagerStint {
-  id: string;
-  name: string;
-  nameTh: string;
-  from: string; // ISO date, inclusive
-  to: string | null; // ISO date, inclusive; null = present
-  interim: boolean;
+export type { ManagerStint };
+
+export function stintId(stint: ManagerStint): string {
+  const slug = stint.name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `${slug}-${stint.from}`;
 }
 
-export const MANAGERS: ManagerStint[] = [
-  { id: 'ferguson', name: 'Alex Ferguson', nameTh: 'อเล็กซ์ เฟอร์กูสัน', from: '1986-11-06', to: '2013-05-19', interim: false },
-  { id: 'moyes', name: 'David Moyes', nameTh: 'เดวิด มอยส์', from: '2013-07-01', to: '2014-04-22', interim: false },
-  { id: 'giggs', name: 'Ryan Giggs', nameTh: 'ไรอัน กิ๊กส์', from: '2014-04-23', to: '2014-05-11', interim: true },
-  { id: 'van-gaal', name: 'Louis van Gaal', nameTh: 'หลุยส์ ฟาน คาล', from: '2014-07-14', to: '2016-05-23', interim: false },
-  { id: 'mourinho', name: 'José Mourinho', nameTh: 'โชเซ่ มูรินโญ่', from: '2016-05-27', to: '2018-12-18', interim: false },
-  { id: 'solskjaer', name: 'Ole Gunnar Solskjær', nameTh: 'โอเล่ กุนนาร์ โซลชาร์', from: '2018-12-19', to: '2021-11-21', interim: false },
-  { id: 'carrick', name: 'Michael Carrick', nameTh: 'ไมเคิล คาร์ริค', from: '2021-11-22', to: '2021-12-02', interim: true },
-  { id: 'rangnick', name: 'Ralf Rangnick', nameTh: 'ราล์ฟ รังนิค', from: '2021-12-03', to: '2022-05-31', interim: true },
-  { id: 'ten-hag', name: 'Erik ten Hag', nameTh: 'เอริค เทน ฮาก', from: '2022-06-01', to: '2024-10-28', interim: false },
-  { id: 'van-nistelrooy', name: 'Ruud van Nistelrooy', nameTh: 'รุด ฟาน นิสเตลรอย', from: '2024-10-29', to: '2024-11-10', interim: true },
-  { id: 'amorim', name: 'Ruben Amorim', nameTh: 'รูเบน อาโมริม', from: '2024-11-11', to: null, interim: false },
-];
-
-export function managerForDate(date: string): ManagerStint | null {
-  for (const m of MANAGERS) {
-    if (date >= m.from && (m.to === null || date <= m.to)) return m;
+export function managerForDate(
+  stints: ManagerStint[],
+  date: string,
+): ManagerStint | null {
+  let best: ManagerStint | null = null;
+  for (const m of stints) {
+    if (date < m.from || (m.to != null && date > m.to)) continue;
+    if (
+      !best ||
+      m.from > best.from ||
+      (m.from === best.from && (m.to ?? '9999') < (best.to ?? '9999'))
+    )
+      best = m;
   }
-  return null;
+  return best;
 }
 
 export interface ManagerStats {
@@ -65,22 +64,26 @@ function addMatch(s: ManagerStats, m: MatchRow) {
 }
 
 /** Aggregate matches into per-stint stats plus per-season breakdowns. */
-export function aggregateManagers(matches: MatchRow[]): Map<string, { total: ManagerStats; seasons: ManagerStats[] }> {
+export function aggregateManagers(
+  stints: ManagerStint[],
+  matches: MatchRow[],
+): Map<string, { total: ManagerStats; seasons: ManagerStats[] }> {
   const out = new Map<string, { total: ManagerStats; seasons: ManagerStats[] }>();
-  for (const stint of MANAGERS) {
-    out.set(stint.id, { total: blank(stint.id, null), seasons: [] });
+  for (const stint of stints) {
+    out.set(stintId(stint), { total: blank(stintId(stint), null), seasons: [] });
   }
   const seasonMap = new Map<string, ManagerStats>();
   for (const m of matches) {
-    const stint = managerForDate(m.date);
+    const stint = managerForDate(stints, m.date);
     if (!stint) continue;
-    addMatch(out.get(stint.id)!.total, m);
-    const key = `${stint.id}|${m.season}`;
+    const id = stintId(stint);
+    addMatch(out.get(id)!.total, m);
+    const key = `${id}|${m.season}`;
     let s = seasonMap.get(key);
     if (!s) {
-      s = blank(stint.id, m.season);
+      s = blank(id, m.season);
       seasonMap.set(key, s);
-      out.get(stint.id)!.seasons.push(s);
+      out.get(id)!.seasons.push(s);
     }
     addMatch(s, m);
   }

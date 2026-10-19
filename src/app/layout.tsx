@@ -27,8 +27,8 @@ const sarabun = Sarabun({
 });
 
 export const metadata: Metadata = {
-  title: 'Manchester United — Season Analytics',
-  description: 'Season-by-season Manchester United analytics dashboard',
+  title: 'Premier League — Club Analytics',
+  description: 'Premier League club analytics dashboard',
 };
 
 const themeInitScript = `

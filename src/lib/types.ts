@@ -241,3 +241,45 @@ export interface PlayersData {
   seasons: Record<string, PlayersSeason>;
   latest: string;
 }
+
+export interface ManagerStint {
+  name: string;
+  nameTh?: string | null;
+  coName?: string;
+  from: string;
+  to: string | null;
+  interim?: boolean;
+}
+
+export interface ClubIndexEntry {
+  slug: string;
+  name: string;
+  color: string;
+  shortName: string | null;
+  nameTh: string | null;
+  brandLight: string | null;
+  brandDark: string | null;
+  seasons: string[];
+  latest: string;
+}
+
+export interface LeagueSeasonRow {
+  slug: string;
+  name: string;
+  color: string;
+  rank: number | null;
+  mp: number;
+  w: number;
+  d: number;
+  l: number;
+  gf: number;
+  ga: number;
+  gd: number;
+  pts: number;
+  xg: number | null;
+  xga: number | null;
+  xgd: number | null;
+  cs: number;
+}
+
+export type LeagueData = Record<string, LeagueSeasonRow[]>;

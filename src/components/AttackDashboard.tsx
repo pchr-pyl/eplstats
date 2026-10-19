@@ -126,7 +126,7 @@ export function AttackDashboard({
             const text =
               typeof v === 'number' && !Number.isNaN(v)
                 ? dk === 'sotPct'
-                  ? pct(v, 1)
+                  ? pct(v, 2)
                   : fmt(v, 2)
                 : '—';
             return (
@@ -147,7 +147,7 @@ export function AttackDashboard({
   const kpi = [
     { label: t('attack.kpi.gfPerMp'), value: fmt(latest?.gfPerMp ?? null, 2) },
     { label: t('attack.kpi.shPerMp'), value: fmt(latest?.shPerMp ?? null, 2) },
-    { label: t('attack.kpi.sotPct'), value: latest?.sotPct != null ? pct(latest.sotPct, 1) : '—' },
+    { label: t('attack.kpi.sotPct'), value: latest?.sotPct != null ? pct(latest.sotPct, 2) : '—' },
     { label: t('attack.kpi.gPerSh'), value: fmt(latest?.gPerSh ?? null, 2) },
   ];
 
@@ -288,10 +288,10 @@ export function AttackDashboard({
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.mp, 0)}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.gls, 0)}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.gfPerMp, 2)}</td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.xg, 1)}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.xg)}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.sh, 0)}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.sot, 0)}</td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">{r.sotPct != null ? pct(r.sotPct, 1) : '—'}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{r.sotPct != null ? pct(r.sotPct, 2) : '—'}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.gPerSh, 2)}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.pk, 0)}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.pkatt, 0)}</td>

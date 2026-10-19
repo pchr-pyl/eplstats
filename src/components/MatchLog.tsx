@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { useClub } from './ClubProvider';
 import type { MatchRow, CompGroup, MatchlogType, SeasonMatchlogs } from '@/lib/types';
 import { matchesForSeason } from '@/lib/stats';
 import {
@@ -27,6 +28,7 @@ export function MatchLog({
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  const { club } = useClub();
   const [tab, setTab] = useState<TabKey>('scores');
   const [side, setSide] = useState<'for' | 'against'>('for');
   const [matchlogs, setMatchlogs] = useState<SeasonMatchlogs | null>(null);
@@ -41,13 +43,13 @@ export function MatchLog({
   useEffect(() => {
     if (tab === 'scores' || matchlogs != null) return;
     let live = true;
-    loadMatchlogs(season).then((data) => {
+    loadMatchlogs(club.slug, season).then((data) => {
       if (live) setMatchlogs(data);
     });
     return () => {
       live = false;
     };
-  }, [tab, season, matchlogs]);
+  }, [tab, club.slug, season, matchlogs]);
 
   const loading = tab !== 'scores' && matchlogs == null;
   const statTable = tab !== 'scores' ? matchlogs?.[tab]?.[side] : undefined;

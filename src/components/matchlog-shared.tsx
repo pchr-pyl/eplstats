@@ -3,6 +3,7 @@
 import { useI18n } from '@/i18n/I18nContext';
 import type { MatchRow, CompGroup, MatchlogTable, SeasonMatchlogs } from '@/lib/types';
 import { compInGroup, canonicalComp } from '@/lib/stats';
+import { useClubOptional } from './ClubProvider';
 import { fmt, dash } from '@/lib/format';
 
 export const COMP_SHORT: Record<string, string> = {
@@ -28,13 +29,17 @@ const matchlogCache = new Map<string, Promise<SeasonMatchlogs>>();
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
-export function loadMatchlogs(season: string): Promise<SeasonMatchlogs> {
-  let p = matchlogCache.get(season);
+export function loadMatchlogs(
+  slug: string,
+  season: string,
+): Promise<SeasonMatchlogs> {
+  const key = `${slug}|${season}`;
+  let p = matchlogCache.get(key);
   if (!p) {
-    p = fetch(`${BASE_PATH}/data/matchlogs-${season}.json`)
+    p = fetch(`${BASE_PATH}/data/${slug}/matchlogs-${season}.json`)
       .then((r) => (r.ok ? (r.json() as Promise<SeasonMatchlogs>) : {}))
       .catch(() => ({}));
-    matchlogCache.set(season, p);
+    matchlogCache.set(key, p);
   }
   return p;
 }
@@ -59,6 +64,8 @@ export function SideToggle({
   onChange: (s: 'for' | 'against') => void;
 }) {
   const { t } = useI18n();
+  const ctx = useClubOptional();
+  const forLabel = ctx?.club.shortName ?? t('matchLog.side.for');
   return (
     <span className="ml-auto flex shrink-0 gap-1 rounded-full bg-bg-secondary p-0.5">
       {(['for', 'against'] as const).map((s) => {
@@ -73,7 +80,7 @@ export function SideToggle({
               active ? 'bg-surface text-primary shadow-sm' : 'text-muted hover:text-primary'
             }`}
           >
-            {t(`matchLog.side.${s}`)}
+            {s === 'for' ? forLabel : t('matchLog.side.against')}
           </button>
         );
       })}

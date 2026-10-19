@@ -77,3 +77,20 @@ Per-match PSxG is not available anywhere post-removal — don't promise it.
 
 ## Display rules
 - **ทศนิยม 2 ตำแหน่งเท่านั้น** — all displayed decimals (per-match stats, xG, %, deltas) use exactly 2 decimal places; rounding is fine. Default `dec = 2` in `src/lib/format.ts`. Integers stay integers.
+
+## Multi-club build + UI (2026-10)
+- Build: `python -X utf8 scripts/build/build_all.py [--club SLUG]` → writes
+  `data/built/{slug}/{matches,seasons,keepers,players,attack,squad}.json`,
+  `public/data/{slug}/matchlogs-{season}.json`, `data/built/league.json`,
+  `data/built/index.json` (slug,name,color,shortName,nameTh,brandLight,brandDark,
+  seasons,latest), `data/built/managers.json`.
+- Verify: `python -X utf8 scripts/build/verify_man_utd.py`.
+- Routes: `/` league home, `/{club}[/matches|/shooting|/keepers|/misc|/attack|
+  /squad|/managers|/compare]`, `/clubs-compare`. `src/app/[club]` with
+  generateStaticParams + `dynamicParams = false`.
+- `src/lib/data.ts` reads `data/built/` per club (react cache); club branding via
+  ClubProvider + `--club-brand-light/dark` → `--brand` in `.club-theme` (globals.css).
+- `data/managers.json` stints (Wikipedia; man-utd has nameTh).
+- Legacy `scripts/*.py` + `data/man-utd-*.json` + old `public/data/matchlogs-*.json`
+  remain but nothing in `src` imports them.
+- Dev: `npm run dev` → http://localhost:3000

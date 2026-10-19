@@ -376,7 +376,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                 axisLine={false}
                 tickLine={false}
                 width={48}
-                tickFormatter={(v: number) => `£${v.toFixed(1)}M`}
+                tickFormatter={(v: number) => `£${v.toFixed(2)}M`}
                 domain={['dataMin - 0.5', 'dataMax + 0.5']}
               />
               <Tooltip

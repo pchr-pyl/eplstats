@@ -1,7 +1,10 @@
 {
   "app": {
-    "title": "Manchester United",
-    "subtitle": "Season-by-Season Analytics"
+    "title": "Premier League",
+    "subtitle": "Club-by-Club Analytics",
+    "clubSwitcher": "Switch club",
+    "compareClubs": "Compare clubs",
+    "home": "All clubs"
   },
   "filter": {
     "from": "From",
@@ -76,7 +79,8 @@
     "topScorer": "Top scorer",
     "goalkeeper": "Goalkeeper",
     "notes": "Notes",
-    "hint": "Click a season row to see match-by-match detail"
+    "hint": "Click a season row to see match-by-match detail",
+    "club": "Club"
   },
   "matchLog": {
     "matches": "matches",
@@ -91,7 +95,7 @@
       "misc": "Miscellaneous"
     },
     "side": {
-      "for": "Man Utd",
+      "for": "Club",
       "against": "Opponents"
     },
     "poss": "Poss",
@@ -251,5 +255,15 @@
     "points": "Pts",
     "matchweek": "Matchweek",
     "note": "Premier League matches played only"
+  },
+  "home": {
+    "plSeasons": "PL seasons",
+    "leagueTable": "League table"
+  },
+  "clubCompare": {
+    "pickClubs": "Select up to 4 clubs",
+    "compareTitle": "Club comparison",
+    "forSeason": "Season",
+    "rank": "Rank"
   }
 }
