@@ -145,3 +145,12 @@ body {
     transition: none;
   }
 }
+
+@keyframes matchcard-in {
+  from { opacity: 0; transform: translateY(24px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.matchcard-in { animation: matchcard-in .18s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .matchcard-in { animation: none; }
+}

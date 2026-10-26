@@ -50,6 +50,7 @@ export interface MatchRow {
   referee: string | null;
   notes: string | null;
   reportUrl?: string | null;
+  matchId?: string | null;
   xg: number | null;
   xga: number | null;
 }
@@ -358,4 +359,52 @@ export interface LeagueSeasonData {
     last?: { wk: number; matches: LeagueRoundMatch[] } | null;
     next?: { wk: number; matches: LeagueRoundMatch[] } | null;
   };
+}
+
+/* ------------------------------------------------- match detail (public) */
+export interface MatchEvent {
+  minute: string | null;
+  sort: number | null;
+  type: string;
+  side: 'home' | 'away';
+  score: string | null;
+  player: string | null;
+  assist?: string;
+  playerIn?: string;
+  playerOut?: string;
+}
+export interface MatchPlayer {
+  name: string; number: string; pos?: string | null; min?: string | null;
+  gls?: string | null; ast?: string | null; crdY?: string | null; crdR?: string | null;
+  subInMin?: string; subOutMin?: string; goals?: string[];
+}
+export interface MatchSide {
+  slug: string | null; name: string | null; score: number | null;
+  pens: number | null; formation: string | null; xg?: number;
+  manager?: string | null; captain?: string | null;
+}
+export interface MatchShot {
+  minute: number; side: 'home' | 'away'; player: string;
+  x: number; y: number; xg: number;
+  result: string; situation: string; shotType?: string;
+}
+export interface MatchDetailData {
+  id: string; season: string; date: string | null; kickoff: string | null;
+  competition: string | null; round: string | null; venue: string | null;
+  attendance: string | number | null; referee: string | null;
+  home: MatchSide; away: MatchSide;
+  events: MatchEvent[];
+  lineups: { home: { xi: MatchPlayer[]; bench: MatchPlayer[] };
+             away: { xi: MatchPlayer[]; bench: MatchPlayer[] } };
+  teamStats: Record<string, { home: number | string | null; away: number | string | null } | null>;
+  shots: MatchShot[] | null;
+  xgFlow: { minute: number; home: number; away: number; goal?: boolean; side?: string; player?: string }[] | null;
+  playerStats: { home: { columns: { stat: string; label: string }[]; rows: Record<string, string>[] } | null;
+                 away: { columns: { stat: string; label: string }[]; rows: Record<string, string>[] } | null } | null;
+  keepers: { home: unknown; away: unknown } | null;
+  pitch?: { home: { name: string; number: string; top: number | null; left: number | null; right: number | null }[];
+            away: { name: string; number: string; top: number | null; left: number | null; right: number | null }[] };
+  h2h: { date: string; venue: string | null; gf: number | null; ga: number | null;
+         home: string | null; competition: string; matchId?: string | null }[];
+  reportUrl?: string;
 }

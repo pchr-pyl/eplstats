@@ -90,6 +90,10 @@ def build_matches(club, league_xg):
                 "opponent": strip_cc(strip_md(g("Opponent"))) or None,
                 "reportUrl": (lambda m: m.group(1) if m else None)(
                     re.search(r"\((https?://[^)]+)\)", g("Match Report"))),
+                "matchId": (lambda u: (lambda m: m.group(1) if m else None)(
+                    re.search(r"/en/matches/([0-9a-f]{8})/", u or "")))(
+                    (lambda m: m.group(1) if m else "")(
+                        re.search(r"\((https?://[^)]+)\)", g("Match Report")))),
                 "possession": num(g("Poss")),
                 "attendance": num(g("Attendance")),
                 "captain": strip_md(g("Captain")) or None,
@@ -1134,9 +1138,321 @@ def main():
     mgr = DATA / "managers.json"
     if mgr.exists():
         write_json(BUILT / "managers.json", load_json(mgr), compact=False)
+    build_match_files(lm, CLUBS)
     print(f"done: {len(index)} clubs in index")
     if STRIPPED_CC:
         print(f"opponent cc-prefixes stripped: {sorted(STRIPPED_CC)}")
+
+
+# ------------------------------------------------------- match detail files
+def _norm_name(s):
+    return "".join(c for c in unicodedata.normalize("NFKD", s or "")
+                   if not unicodedata.combining(c)).lower()
+
+
+def _num_or_none(v):
+    m = re.search(r"-?\d+(?:\.\d+)?", v or "")
+    return float(m.group(0)) if m else None
+
+
+def build_match_files(lm, clubs):
+    """public/data/match/{matchId}.json — merged fbref report + understat."""
+    rawm = RAW / "matches"
+    if not rawm.exists():
+        return
+    fid2slug = {c["fbrefId"]: c["slug"] for c in clubs.values()}
+    name2slug = {}
+    for c in clubs.values():
+        name2slug[c["name"]] = c["slug"]
+        if c.get("understatName"):
+            name2slug[c["understatName"]] = c["slug"]
+
+    registry = {}  # matchId -> [(slug, MatchRow)]
+    for slug, (c, matches) in lm.items():
+        for m in matches:
+            if m.get("matchId"):
+                registry.setdefault(m["matchId"], []).append((slug, m))
+
+    uindex = {}  # (date, hUname, aUname) -> (season, understatId)
+    for sf in (RAW / "league").glob("*/understat.json"):
+        season = sf.parent.name
+        for d in load_json(sf).get("dates", []):
+            if d.get("isResult"):
+                uindex[(d["datetime"][:10], d["h"]["title"],
+                        d["a"]["title"])] = (season, str(d["id"]))
+
+    sizes, unmatched = [], 0
+    for fp in sorted(rawm.glob("*/*.json")):
+        season, mid = fp.parent.name, fp.stem
+        raw = load_json(fp)
+        rows = registry.get(mid, [])
+        row = rows[0][1] if rows else {}
+        sb = raw.get("scorebox", {})
+        comps = {r["competition"] for _, r in rows}
+        comp = row.get("competition") or sb.get("competition")
+        is_pl = comp == "Premier League" or "Premier League" in comps
+
+        def side(key):
+            t = sb.get(key, {})
+            return {
+                "slug": fid2slug.get(t.get("fbrefId")),
+                "name": t.get("name"), "score": t.get("score"),
+                "manager": t.get("manager"), "captain": t.get("captain"),
+            }
+
+        home, away = side("home"), side("away")
+        home["score"] = _num_or_none(str(home["score"] or ""))
+        away["score"] = _num_or_none(str(away["score"] or ""))
+        home["formation"] = raw["lineups"]["home"]["formation"]
+        away["formation"] = raw["lineups"]["away"]["formation"]
+        home["pens"] = away["pens"] = None
+        if sb.get("pens"):
+            pm = re.match(r"(\d+)-(\d+)", sb["pens"])
+            if pm:
+                home["pens"], away["pens"] = int(pm.group(1)), int(pm.group(2))
+
+        # understat join (PL only)
+        udata = None
+        if is_pl and home["slug"] and away["slug"]:
+            hu = next((c.get("understatName") for c in clubs.values()
+                       if c["slug"] == home["slug"]), home["name"])
+            au = next((c.get("understatName") for c in clubs.values()
+                       if c["slug"] == away["slug"]), away["name"])
+            d0 = sb.get("date") or row.get("date")
+            for dd in (0, 1, -1):
+                d1 = str(date(*map(int, d0.split("-"))) + timedelta(days=dd)) \
+                    if d0 else None
+                hit = d1 and uindex.get((d1, hu, au))
+                if hit:
+                    up = RAW / "understat-matches" / hit[0] / f"{hit[1]}.json"
+                    if up.exists():
+                        udata = load_json(up)
+                    break
+            if udata is None:
+                unmatched += 1
+
+        mi = (udata or {}).get("match_info") or {}
+        if udata:
+            home["xg"] = round(float(mi.get("h_xg", 0) or 0), 2)
+            away["xg"] = round(float(mi.get("a_xg", 0) or 0), 2)
+
+        # events
+        events = sorted(raw.get("events", []),
+                        key=lambda e: e.get("sort") or 0)
+        for e in events:
+            e.pop("icon", None)
+
+        # lineups: XI = first 11, bench = rest; enrich from player stats+events
+        def lineup(side_key):
+            lu = raw["lineups"][side_key]["players"]
+            stats = {p["player"]: p for p in
+                     (raw["players"].get(side_key) or {}).get("rows", [])}
+            subs_in = {e.get("playerIn"): e["minute"] for e in events
+                       if e["type"] == "sub" and e["side"] == side_key}
+            subs_out = {e.get("playerOut"): e["minute"] for e in events
+                        if e["type"] == "sub" and e["side"] == side_key}
+            cards = {}
+            for e in events:
+                if e["side"] != side_key:
+                    continue
+                p = e.get("player") or e.get("playerOut")
+                if p and e["type"] in ("yellow", "second_yellow", "red"):
+                    cards[p] = max(cards.get(p, 0),
+                                   1 if e["type"] == "yellow" else 2)
+            goals = {}
+            for e in events:
+                if e["side"] == side_key and e.get("player") and \
+                        e["type"] in ("goal", "pen_goal", "own_goal"):
+                    goals.setdefault(e["player"], []).append(
+                        e["minute"] + ("" if e["type"] == "goal" else
+                                       " (P)" if e["type"] == "pen_goal"
+                                       else " (OG)"))
+
+            def player(i, p):
+                st = stats.get(p["name"], {})
+                out = {"name": p["name"], "number": p["number"],
+                       "pos": st.get("position"), "min": st.get("minutes"),
+                       "gls": st.get("goals"), "ast": st.get("assists"),
+                       "crdY": st.get("cards_yellow"),
+                       "crdR": st.get("cards_red")}
+                if p["name"] in subs_out:
+                    out["subOutMin"] = subs_out[p["name"]]
+                if p["name"] in subs_in:
+                    out["subInMin"] = subs_in[p["name"]]
+                if p["name"] in goals:
+                    out["goals"] = goals[p["name"]]
+                return out
+
+            return {"xi": [player(i, p) for i, p in enumerate(lu[:11])],
+                    "bench": [player(i, p) for i, p in enumerate(lu[11:])]}
+
+        # team stats pairs
+        ts = raw.get("teamStats", {})
+        tx = raw.get("teamStatsExtra", {})
+
+        def pair(src, key, num="first"):
+            v = (src or {}).get(key)
+            if not v:
+                return None
+            return v
+
+        def sot_pair():
+            v = ts.get("Shots on Target")
+            if not v:
+                return None, None
+            mh = re.match(r"(\d+) of (\d+)", v["home"])
+            ma = re.search(r"(\d+) of (\d+)", v["away"])
+            shots = {"home": int(mh.group(2)) if mh else None,
+                     "away": int(ma.group(2)) if ma else None}
+            sots = {"home": int(mh.group(1)) if mh else None,
+                    "away": int(ma.group(1)) if ma else None}
+            return shots, sots
+
+        def of_pair(key):
+            """'2 of 3 — 66%' / '60% — 3 of 5' -> {home,away} counts."""
+            v = ts.get(key)
+            if not v:
+                return None
+            out = {}
+            for sk in ("home", "away"):
+                m = re.search(r"(\d+)\s+of\s+(\d+)", v.get(sk) or "")
+                out[sk] = int(m.group(1)) if m else \
+                    _num_or_none(v.get(sk))
+            return out
+
+        shots_t, sot_t = sot_pair()
+        cards_y = {"home": 0, "away": 0}
+        cards_r = {"home": 0, "away": 0}
+        for e in events:
+            if e["type"] in ("yellow", "second_yellow"):
+                cards_y[e["side"]] += 1
+            elif e["type"] == "red":
+                cards_r[e["side"]] += 1
+        team_stats = {
+            "possession": pair(ts, "Possession"),
+            "shots": shots_t, "sot": sot_t,
+            "saves": of_pair("Saves"),
+            "fouls": pair(tx, "Fouls"), "corners": pair(tx, "Corners"),
+            "crosses": pair(tx, "Crosses"),
+            "interceptions": pair(tx, "Interceptions"),
+            "offsides": pair(tx, "Offsides"),
+            "tackles": pair(tx, "Tackles"), "aerials": pair(tx, "Aerials Won"),
+            "clearances": pair(tx, "Clearances"),
+            "touches": pair(tx, "Touches"),
+            "yellow": {"home": cards_y["home"], "away": cards_y["away"]},
+            "red": {"home": cards_r["home"], "away": cards_r["away"]},
+        }
+        if udata:
+            team_stats["xg"] = {"home": home["xg"], "away": away["xg"]}
+            team_stats["deep"] = {"home": _num_or_none(mi.get("h_deep")),
+                                  "away": _num_or_none(mi.get("a_deep"))}
+            team_stats["ppda"] = {"home": _num_or_none(mi.get("h_ppda")),
+                                  "away": _num_or_none(mi.get("a_ppda"))}
+            team_stats["sot"] = {"home": _num_or_none(mi.get("h_shotOnTarget")),
+                                 "away": _num_or_none(mi.get("a_shotOnTarget"))}
+            team_stats["shots"] = {"home": _num_or_none(mi.get("h_shot")),
+                                   "away": _num_or_none(mi.get("a_shot"))}
+
+        # understat shots + xgFlow
+        shots = xgflow = None
+        if udata and udata.get("shotsData"):
+            shots = []
+            for side_key, skey in (("home", "h"), ("away", "a")):
+                for sh in udata["shotsData"].get(skey, []):
+                    shots.append({
+                        "minute": int(sh["minute"]), "side": side_key,
+                        "player": sh["player"], "x": float(sh["X"]),
+                        "y": float(sh["Y"]), "xg": round(float(sh["xG"]), 3),
+                        "result": sh["result"], "situation": sh["situation"],
+                        "shotType": sh.get("shotType")})
+            shots.sort(key=lambda s: s["minute"])
+            cum = {"home": 0.0, "away": 0.0}
+            xgflow = []
+            for sh in shots:
+                cum[sh["side"]] += sh["xg"]
+                xgflow.append({"minute": sh["minute"],
+                               "home": round(cum["home"], 2),
+                               "away": round(cum["away"], 2),
+                               "goal": sh["result"] == "Goal",
+                               "side": sh["side"], "player": sh["player"]})
+
+        # player stats + understat join
+        player_stats = raw.get("players")
+        if udata and player_stats:
+            rost = {}
+            for skey in ("h", "a"):
+                for pid, pr in (udata.get("rostersData", {})
+                                .get(skey, {}).items()):
+                    rost[_norm_name(pr["player"])] = {
+                        "xg": round(float(pr.get("xG") or 0), 2),
+                        "xa": round(float(pr.get("xA") or 0), 2),
+                        "keyPasses": pr.get("key_passes")}
+            for sk in ("home", "away"):
+                ps = player_stats.get(sk)
+                if not ps:
+                    continue
+                ps["columns"] = list(ps["columns"]) + [
+                    {"stat": "xg", "label": "xG"},
+                    {"stat": "xa", "label": "xA"},
+                    {"stat": "key_passes", "label": "KP"}]
+                for r in ps["rows"]:
+                    hit = rost.get(_norm_name(r.get("player", "")))
+                    r["xg"] = str(hit["xg"]) if hit else ""
+                    r["xa"] = str(hit["xa"]) if hit else ""
+                    r["key_passes"] = str(hit["keyPasses"]) if hit else ""
+
+        # h2h: last 5 meetings between the two PL clubs before this date
+        h2h = []
+        if home["slug"] and away["slug"]:
+            d0 = sb.get("date") or row.get("date")
+            seen = set()
+            opp_names = {clubs[away["slug"]]["name"],
+                         clubs[away["slug"]].get("understatName"),
+                         short_name(clubs[away["slug"]])}
+            for m in lm.get(home["slug"], ({}, []))[1]:
+                if m.get("date") and d0 and m["date"] < d0 and \
+                        m.get("opponent") in opp_names:
+                    key = (m["date"], m["gf"], m["ga"])
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    h2h.append({"date": m["date"], "venue": m["venue"],
+                                "gf": m["gf"], "ga": m["ga"],
+                                "home": (home["slug"]
+                                         if m["venue"] == "Home"
+                                         else away["slug"]),
+                                "competition": m["competition"],
+                                "matchId": m.get("matchId")})
+            h2h = h2h[-5:][::-1]
+
+        referee = None
+        for o in sb.get("officials", []):
+            if "(Referee)" in o:
+                referee = o.replace("(Referee)", "").strip()
+
+        out = {
+            "id": mid, "season": season,
+            "date": sb.get("date") or row.get("date"),
+            "kickoff": sb.get("kickoff") or row.get("time"),
+            "competition": comp,
+            "round": sb.get("round") or row.get("round"),
+            "venue": sb.get("venue") or row.get("venue"),
+            "attendance": sb.get("attendance") or row.get("attendance"),
+            "referee": referee or row.get("referee"),
+            "home": home, "away": away, "events": events,
+            "pitch": raw.get("pitch"),
+            "lineups": {"home": lineup("home"), "away": lineup("away")},
+            "teamStats": team_stats, "shots": shots, "xgFlow": xgflow,
+            "playerStats": player_stats, "keepers": raw.get("keepers"),
+            "h2h": h2h, "reportUrl": raw["metadata"]["sourceURL"],
+        }
+        outp = PUBLIC / "match" / f"{mid}.json"
+        write_json(outp, out)
+        sizes.append(outp.stat().st_size)
+    if sizes:
+        print(f"match files: {len(sizes)} written, "
+              f"total {sum(sizes)//1024} KB, avg {sum(sizes)//len(sizes)//1024} KB, "
+              f"max {max(sizes)//1024} KB, understat-unmatched {unmatched}")
 
 
 if __name__ == "__main__":
