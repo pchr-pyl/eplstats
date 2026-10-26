@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "serve": "python -X utf8 scripts/serve_out.py 3002",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postbuild": "node scripts/flatten_prefetch.mjs",
+    "deploy": "npm run build && wrangler pages deploy out --project-name eplstats --branch main"
   },
   "dependencies": {
     "lucide-react": "^1.46.0",
@@ -25,6 +27,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "4.151.1"
   }
 }
