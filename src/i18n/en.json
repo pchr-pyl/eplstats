@@ -30,6 +30,14 @@
   "europe": "Europe"
  },
  "kpi": {
+  "gdPerMp": "Goal difference / MP",
+  "failedToScore": "Failed to score",
+  "last5": "Last 5 matches",
+  "points": "points",
+  "oldestFirst": "Oldest → newest",
+  "latestSeason": "Latest selected season",
+  "averageRange": "Season averages over",
+  "pp": "pp",
   "ptsPerMp": "Pts / MP",
   "gfPerMp": "Goals for / MP",
   "gaPerMp": "Goals against / MP",
@@ -320,6 +328,8 @@
   "summary": {
    "leader": "Leader",
    "bestAttack": "Best attack",
+   "mostCleanSheets": "Most clean sheets",
+   "cleanSheetUnit": "CS",
    "bestDefence": "Best defence",
    "mostXg": "Most xG",
    "overPerformer": "Biggest over-performer",
@@ -361,6 +371,13 @@
   "rank": "Rank"
  },
  "match": {
+  "events": "Match events",
+  "glance": "At a glance",
+  "scorers": "Goalscorers",
+  "assist": "Assisted by",
+  "noEvents": "No events available",
+  "eventFilter": {"all": "All events", "goals": "Goals", "cards": "Cards"},
+  "eventType": {"goal": "Goal", "pen_goal": "Penalty goal", "own_goal": "Own goal", "pen_miss": "Penalty missed", "yellow": "Yellow card", "second_yellow": "Second yellow card", "red": "Red card", "sub": "Substitution"},
   "title": "Match",
   "prev": "Previous match",
   "next": "Next match",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { useClubOptional } from '@/components/ClubProvider';
@@ -71,49 +71,57 @@ const EV_BADGE: Record<string, string> = {
 };
 
 /* ---------------------------------------------------------------- tabs */
+const GOAL_TYPES = ['goal', 'pen_goal', 'own_goal'];
 function FactsTab({ d }: { d: MatchDetailData }) {
   const { t } = useI18n();
-  const evs = [...d.events].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+  const [filter, setFilter] = useState('all');
+  const events = [...d.events].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+  const visible = events.filter((e) => filter === 'all' || (filter === 'goals' ? GOAL_TYPES.includes(e.type) : ['yellow', 'second_yellow', 'red'].includes(e.type)));
+  const goals = events.filter((e) => GOAL_TYPES.includes(e.type));
   return (
-    <div className="mx-auto max-w-lg py-2">
-      <div className="grid grid-cols-[1fr_3.5rem_1fr] items-center text-[11px] font-semibold uppercase tracking-wider text-muted">
-        <span>{d.home.name}</span>
-        <span />
-        <span className="text-right">{d.away.name}</span>
-      </div>
-      <div className="relative mt-2">
-        <div className="absolute inset-y-0 left-1/2 w-px bg-border" aria-hidden />
-        <ul className="flex flex-col gap-3">
-          <li className="grid grid-cols-[1fr_3.5rem_1fr] items-center text-[10px] font-semibold text-muted">
-            <span /><span className="text-center">{t('match.ko')}</span><span />
-          </li>
-          {evs.map((e, i) => {
-            const home = e.side === 'home';
-            const label = e.type === 'sub'
-              ? `${e.playerIn} → ${e.playerOut}`
-              : `${e.player}${e.assist ? ` (${e.assist})` : ''}${EV_BADGE[e.type] ?? ''}`;
-            return (
-              <li key={i} className="grid grid-cols-[1fr_3.5rem_1fr] items-center gap-x-1">
-                <span className={`text-xs ${home ? 'text-right font-medium text-primary' : 'text-muted'}`}>
-                  {home ? `${label} ` : ''}
-                  {home && <span className="ml-1">{EV_ICON[e.type]}</span>}
-                </span>
-                <span className="flex flex-col items-center text-[10px] tabular-nums text-muted">
-                  <span className="font-semibold text-primary">{e.minute}’</span>
-                  {e.score && <span>{e.score}</span>}
-                </span>
-                <span className={`text-xs ${!home ? 'font-medium text-primary' : 'text-muted'}`}>
-                  {!home && <span className="mr-1">{EV_ICON[e.type]}</span>}
-                  {!home ? ` ${label}` : ''}
-                </span>
-              </li>
-            );
-          })}
-          <li className="grid grid-cols-[1fr_3.5rem_1fr] items-center text-[10px] font-semibold text-muted">
-            <span /><span className="text-center">{t('match.ft')}</span><span />
-          </li>
+    <div className="grid gap-8 py-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
+      <section className="min-w-0">
+        <h3 className="text-xl font-bold text-primary">{t('match.events')}</h3>
+        <div className="my-4 flex flex-wrap gap-2">
+          {['all', 'goals', 'cards'].map((f) => <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)}
+            className={`rounded-full px-4 py-2 text-xs font-semibold ${filter === f ? 'bg-brand text-white' : 'bg-bg-secondary text-secondary hover:bg-border'}`}>
+            {t(`match.eventFilter.${f}`)}
+          </button>)}
+        </div>
+        <ul className="divide-y divide-border">
+          {visible.map((e, i) => (
+            <li key={i} className="flex items-center gap-3 py-4 sm:gap-4">
+              <span className="w-10 shrink-0 text-sm font-bold tabular-nums text-primary">{e.minute ?? '—'}′</span>
+              <span className="w-5 shrink-0 text-center" aria-label={t(`match.eventType.${e.type}`)}>{EV_ICON[e.type] ?? '•'}</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-primary">{e.type === 'sub' ? `${e.playerOut ?? '—'} → ${e.playerIn ?? '—'}` : `${e.player ?? '—'}${EV_BADGE[e.type] ?? ''}`}</div>
+                <div className="mt-1 flex items-center gap-1.5 text-xs text-muted"><Crest slug={d[e.side].slug} size={14} />{d[e.side].name}</div>
+                {e.assist && <div className="mt-1 text-xs text-muted">{t('match.assist')}: {e.assist}</div>}
+              </div>
+              {GOAL_TYPES.includes(e.type) && e.score && <span className="shrink-0 rounded-full bg-brand/10 px-3 py-1 text-sm font-bold tabular-nums text-brand">{e.score}</span>}
+            </li>
+          ))}
         </ul>
-      </div>
+        {!visible.length && <p className="py-8 text-sm text-muted">{t('match.noEvents')}</p>}
+      </section>
+      <aside className="min-w-0 border-t border-border pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7">
+        <h3 className="text-xl font-bold text-primary">{t('match.glance')}</h3>
+        <div className="mt-5 space-y-5">
+          {[{label: t('match.eventFilter.goals'), home: d.home.score, away: d.away.score},
+            {label: t('match.stat.yellow'), home: events.filter(e => e.side === 'home' && ['yellow', 'second_yellow'].includes(e.type)).length, away: events.filter(e => e.side === 'away' && ['yellow', 'second_yellow'].includes(e.type)).length}].map((stat) => (
+            <div key={stat.label}>
+              <div className="flex items-center justify-between gap-2 text-primary"><Crest slug={d.home.slug} size={28}/><strong>{stat.home ?? '—'}</strong><span className="text-xs text-muted">{stat.label}</span><strong>{stat.away ?? '—'}</strong><Crest slug={d.away.slug} size={28}/></div>
+              {stat.home != null && stat.away != null && stat.home + stat.away > 0 && <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-border" aria-hidden><span className="bg-brand" style={{width: `${stat.home / (stat.home + stat.away) * 100}%`}}/><span className="flex-1 bg-muted/40"/></div>}
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 border-t border-border pt-5">
+          <h4 className="font-bold text-primary">{t('match.scorers')}</h4>
+          <ul className="mt-3 divide-y divide-border">{goals.map((e, i) => <li key={i} className="flex items-center gap-2 py-3 text-xs text-primary"><Crest slug={d[e.side].slug} size={20}/><span className="flex-1">{e.player}{EV_BADGE[e.type]}</span><span className="tabular-nums text-muted">{e.minute}′</span></li>)}</ul>
+          {!goals.length && <p className="mt-3 text-sm text-muted">—</p>}
+        </div>
+        {d.referee && <div className="mt-5 border-t border-border pt-5"><h4 className="font-bold text-primary">{t('match.ref')}</h4><p className="mt-2 text-sm text-muted">{d.referee}</p></div>}
+      </aside>
     </div>
   );
 }
@@ -428,6 +436,7 @@ export function MatchCard({
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  const clubContext = useClubOptional();
   const [data, setData] = useState<MatchDetailData | null>(null);
   const [failed, setFailed] = useState(false);
   const [tab, setTab] = useState<Tab>('facts');
@@ -470,6 +479,9 @@ export function MatchCard({
   }, [onClose]);
 
   const d = data;
+  const headerColor = clubContext?.club.color ?? clubContext?.clubs.find(c => c.slug === d?.home.slug)?.color ?? '#15345b';
+  const rgb = /^#[0-9a-f]{6}$/i.test(headerColor) ? [1, 3, 5].map(i => parseInt(headerColor.slice(i, i + 2), 16) / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4) : [0, 0, 0];
+  const headerText = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722 > 0.179 ? '#111827' : '#ffffff';
   const row = rows[index];
   const hasShots = !!(d?.shots?.length);
   const tabs = TABS.filter((tb) => tb !== 'shots' || hasShots || !d);
@@ -480,16 +492,17 @@ export function MatchCard({
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
+        style={{ '--brand': clubContext?.club.brandLight ?? headerColor } as CSSProperties}
         ref={cardRef}
         role="dialog"
         aria-modal="true"
         aria-label={t('match.title')}
         tabIndex={-1}
-        className="matchcard-in flex h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-bg shadow-2xl outline-none sm:h-auto sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl"
+        className="matchcard-in flex h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-surface shadow-2xl outline-none sm:h-auto sm:max-h-[90vh] sm:max-w-6xl sm:rounded-2xl"
       >
         {/* header */}
-        <div className="shrink-0 border-b border-border px-4 py-3">
-          <div className="flex items-center gap-2 text-[11px] text-muted">
+        <div className="shrink-0 px-4 py-4 sm:px-8 sm:py-5" style={{ backgroundColor: headerColor, color: headerText }}>
+          <div className="flex items-center gap-2 text-xs">
             <span className="min-w-0 truncate">
               {d?.competition ?? row?.competition}
               {(d?.round ?? row?.round) ? ` · ${d?.round ?? row?.round}` : ''}
@@ -498,58 +511,59 @@ export function MatchCard({
             <span className="ml-auto flex items-center gap-1">
               <button type="button" aria-label={t('match.prev')}
                 disabled={index <= 0} onClick={() => onNavigate(index - 1)}
-                className="rounded p-1 text-muted hover:bg-bg-secondary disabled:opacity-30">
+                className="rounded-lg p-2 hover:bg-black/10 disabled:opacity-30">
                 <ChevronLeft size={16} />
               </button>
               <button type="button" aria-label={t('match.next')}
                 disabled={index < 0 || index >= rows.length - 1} onClick={() => onNavigate(index + 1)}
-                className="rounded p-1 text-muted hover:bg-bg-secondary disabled:opacity-30">
+                className="rounded-lg p-2 hover:bg-black/10 disabled:opacity-30">
                 <ChevronRight size={16} />
               </button>
               <button type="button" aria-label={t('match.close')} onClick={onClose}
-                className="rounded p-1 text-muted hover:bg-bg-secondary">
+                className="rounded-lg p-2 hover:bg-black/10">
                 <X size={16} />
               </button>
             </span>
           </div>
-          <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-            <div className="flex items-center justify-end gap-2 text-right">
+          <div className="my-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:my-7 sm:gap-6">
+            <div className="flex flex-col-reverse items-center gap-3 text-center sm:flex-row-reverse sm:justify-end sm:text-left">
               <div>
-                <div className="text-sm font-semibold text-primary sm:text-base">{d?.home.name ?? '…'}</div>
-                <Scorers d={d} side="home" />
+                <div className="text-xs font-bold sm:text-xl">{d?.home.name ?? '…'}</div>
+
               </div>
-              <Crest slug={d?.home.slug ?? null} size={28} />
+              <Crest slug={d?.home.slug ?? null} size={56} />
             </div>
-            <div className="px-2 text-center font-display text-2xl font-bold tabular-nums text-primary">
+            <div className="text-center text-3xl font-bold tabular-nums sm:text-6xl">
               {d ? `${d.home.score ?? '–'} – ${d.away.score ?? '–'}` : row ? `${row.gf}–${row.ga}` : '…'}
+              {d?.home.score != null && d?.away.score != null && <span className="mt-2 block text-[10px] font-semibold tracking-widest opacity-80 sm:text-xs">{t('match.ft')}</span>}
               {d?.home.pens != null && (
-                <span className="block text-xs font-normal text-muted">
+                <span className="mt-2 block text-xs font-normal opacity-80">
                   ({d.home.pens}–{d.away.pens} {t('match.pens')})
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <Crest slug={d?.away.slug ?? null} size={28} />
+            <div className="flex flex-col items-center gap-3 text-center sm:flex-row-reverse sm:justify-start sm:text-right">
+              <Crest slug={d?.away.slug ?? null} size={56} />
               <div>
-                <div className="text-sm font-semibold text-primary sm:text-base">{d?.away.name ?? '…'}</div>
-                <Scorers d={d} side="away" />
+                <div className="text-xs font-bold sm:text-xl">{d?.away.name ?? '…'}</div>
+
               </div>
             </div>
           </div>
-          <div className="mt-1 text-center text-[11px] text-muted">
+          <div className="text-center text-xs opacity-80">
             {[d?.venue, d?.attendance && `${t('match.att')}: ${d.attendance}`,
               d?.referee && `${t('match.ref')}: ${d.referee}`].filter(Boolean).join(' · ')}
           </div>
         </div>
 
         {/* tabs */}
-        <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-border px-3 py-1.5" role="tablist">
+        <div className="flex shrink-0 gap-2 overflow-x-auto border-b border-border bg-surface px-4 sm:px-8" role="tablist">
           {tabs.map((tb) => (
             <button
               key={tb} role="tab" aria-selected={tab === tb}
               onClick={() => setTab(tb)}
-              className={`rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap ${
-                tab === tb ? 'bg-brand text-white' : 'text-muted hover:bg-bg-secondary'
+              className={`border-b-2 px-3 py-4 text-sm font-semibold whitespace-nowrap ${
+                tab === tb ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-primary'
               }`}
             >
               {t(`match.tab.${tb}`)}
@@ -558,7 +572,7 @@ export function MatchCard({
         </div>
 
         {/* body */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-8">
           {!d && !failed && (
             <div className="animate-pulse py-6">
               <div className="mx-auto h-4 w-40 rounded bg-bg-secondary" />
@@ -598,20 +612,5 @@ export function MatchCard({
       </div>
     </div>,
     document.body,
-  );
-}
-
-function Scorers({ d, side }: { d: MatchDetailData | null; side: 'home' | 'away' }) {
-  if (!d) return null;
-  const evs = d.events.filter((e) => e.side === side && ['goal', 'pen_goal', 'own_goal', 'red', 'second_yellow'].includes(e.type));
-  if (!evs.length) return <div className="h-3" />;
-  return (
-    <div className="text-[10px] leading-tight text-muted">
-      {evs.map((e, i) => (
-        <div key={i}>
-          {e.type === 'red' || e.type === 'second_yellow' ? '🟥' : '⚽'} {e.player} {e.minute}’{e.type === 'pen_goal' ? ' (P)' : e.type === 'own_goal' ? ' (OG)' : ''}
-        </div>
-      ))}
-    </div>
   );
 }

@@ -75,7 +75,7 @@ export function Dashboard() {
             </select>
           </div>
         </div>
-        <KpiCards rows={rangedRows} />
+        <KpiCards rows={rangedRows} matches={matches} group={group} />
       </section>
 
       <section className="flex min-w-0 flex-col gap-4">

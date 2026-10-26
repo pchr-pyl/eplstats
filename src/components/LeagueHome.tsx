@@ -101,6 +101,10 @@ export function LeagueHome({
     [data]
   );
 
+  // Keep the season table order when clubs share the highest clean-sheet count.
+  const mostCleanSheets = data?.views.all
+    .filter((r) => r.mp > 0 && r.cs != null)
+    .reduce<(typeof data.views.all)[number] | null>((best, r) => !best || r.cs > best.cs ? r : best, null);
   const summary = data?.summary;
   const cards: { key: string; label: string; slug?: string; value?: string; who?: string }[] = summary
     ? [
@@ -110,6 +114,7 @@ export function LeagueHome({
         { key: 'mostXg', label: t('home.summary.mostXg'), slug: summary.mostXg?.slug, value: fmt(summary.mostXg?.value ?? null) },
         { key: 'overPerformer', label: t('home.summary.overPerformer'), slug: summary.overPerformer?.slug, value: signed(summary.overPerformer?.value ?? null) },
         { key: 'underPerformer', label: t('home.summary.underPerformer'), slug: summary.underPerformer?.slug, value: signed(summary.underPerformer?.value ?? null) },
+        { key: 'mostCleanSheets', label: t('home.summary.mostCleanSheets'), slug: mostCleanSheets?.slug, value: `${mostCleanSheets?.cs ?? '—'} ${t('home.summary.cleanSheetUnit')}` },
         { key: 'topScorer', label: t('home.summary.topScorer'), slug: summary.topScorer?.slug, value: `${summary.topScorer?.goals ?? '—'}`, who: summary.topScorer?.player },
       ]
     : [];
