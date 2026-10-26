@@ -485,10 +485,10 @@ export function MatchCard({
         aria-modal="true"
         aria-label={t('match.title')}
         tabIndex={-1}
-        className="matchcard-in flex h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-bg-primary shadow-2xl outline-none sm:h-auto sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl"
+        className="matchcard-in flex h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-bg shadow-2xl outline-none sm:h-auto sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl"
       >
         {/* header */}
-        <div className="border-b border-border px-4 py-3">
+        <div className="shrink-0 border-b border-border px-4 py-3">
           <div className="flex items-center gap-2 text-[11px] text-muted">
             <span className="min-w-0 truncate">
               {d?.competition ?? row?.competition}
@@ -543,7 +543,7 @@ export function MatchCard({
         </div>
 
         {/* tabs */}
-        <div className="flex gap-1 overflow-x-auto border-b border-border px-3 py-1.5" role="tablist">
+        <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-border px-3 py-1.5" role="tablist">
           {tabs.map((tb) => (
             <button
               key={tb} role="tab" aria-selected={tab === tb}

@@ -88,6 +88,7 @@
   "noData": "No match-level data for this selection",
   "loading": "Loading…",
   "noStatData": "No detailed stats for this selection",
+  "total": "Total",
   "tabs": {
    "scores": "Scores & Fixtures",
    "shooting": "Shooting",
@@ -290,8 +291,7 @@
  },
  "compare": {
   "title": "Compare seasons",
-  "seasonA": "Season A",
-  "seasonB": "Season B",
+  "seasons": "Seasons",
   "chartTitle": "Cumulative points",
   "statTitle": "After {matchweek} matches",
   "w": "W",
@@ -302,7 +302,17 @@
   "lossRate": "Loss %",
   "points": "Pts",
   "matchweek": "Matchweek",
-  "note": "Premier League matches played only"
+  "note": "Premier League matches played only",
+  "gf": "GF",
+  "ga": "GA",
+  "gd": "GD",
+  "sh": "Sh",
+  "sot": "SoT",
+  "sota": "SoTA",
+  "saves": "Saves",
+  "groupResults": "Results",
+  "groupAttack": "Attack",
+  "groupDefence": "Defence"
  },
  "home": {
   "plSeasons": "PL seasons",

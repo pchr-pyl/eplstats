@@ -177,6 +177,110 @@ export function SideToggle({
   );
 }
 
+function totalsRow(view: string[], rows: string[][], totalLabel: string): string[] {
+  const resIdx = view.indexOf('Result');
+  let w = 0;
+  let d = 0;
+  let l = 0;
+  if (resIdx >= 0) {
+    for (const r of rows) {
+      const v = r[resIdx] ?? '';
+      if (v === 'W') w += 1;
+      else if (v === 'D') d += 1;
+      else if (v === 'L') l += 1;
+    }
+  }
+  const record = `${w}W ${d}D ${l}L`;
+
+  const ratioDefs: [string, string, string, boolean][] = [
+    ['SoT%', 'SoT', 'Sh', true],
+    ['G/Sh', 'Gls', 'Sh', false],
+    ['G/SoT', 'Gls', 'SoT', false],
+    ['Save%', 'Saves', 'SoTA', true],
+  ];
+
+  const sums: (number | null)[] = view.map(() => null);
+
+  for (let ci = 0; ci < view.length; ci += 1) {
+    const col = view[ci];
+    if (
+      col === 'Date' ||
+      col === 'Result' ||
+      col === 'Time' ||
+      col === 'Comp' ||
+      col === 'Round' ||
+      col === 'Day' ||
+      col === 'Venue' ||
+      col === 'Opponent' ||
+      ratioDefs.some(([name]) => name === col)
+    ) {
+      continue;
+    }
+    let sum = 0;
+    let count = 0;
+    for (const r of rows) {
+      const v = r[ci] ?? '';
+      if (v === '') continue;
+      const n = parseFloat(v);
+      if (Number.isNaN(n)) continue;
+      sum += n;
+      count += 1;
+    }
+    sums[ci] = count > 0 ? sum : null;
+  }
+
+  for (const [name, numName, denName, asPct] of ratioDefs) {
+    const ri = view.indexOf(name);
+    if (ri < 0) continue;
+    const ni = view.indexOf(numName);
+    const di = view.indexOf(denName);
+    if (ni < 0 || di < 0) {
+      sums[ri] = null;
+      continue;
+    }
+    let numSum = 0;
+    let denSum = 0;
+    let usable = 0;
+    for (const r of rows) {
+      const nv = r[ni] ?? '';
+      const dv = r[di] ?? '';
+      if (nv === '' || dv === '') continue;
+      const n = parseFloat(nv);
+      const d = parseFloat(dv);
+      if (Number.isNaN(n) || Number.isNaN(d)) continue;
+      numSum += n;
+      denSum += d;
+      usable += 1;
+    }
+    if (usable === 0 || denSum === 0) {
+      sums[ri] = null;
+    } else {
+      const ratio = numSum / denSum;
+      sums[ri] = asPct ? ratio * 100 : ratio;
+    }
+  }
+
+  const out: string[] = view.map((col, ci) => {
+    if (col === 'Date') return totalLabel;
+    if (col === 'Result') return record;
+    if (
+      col === 'Time' ||
+      col === 'Comp' ||
+      col === 'Round' ||
+      col === 'Day' ||
+      col === 'Venue' ||
+      col === 'Opponent'
+    ) {
+      return '';
+    }
+    const sum = sums[ci];
+    if (sum === null) return '—';
+    return Number.isInteger(sum) ? fmt(sum, 0) : fmt(sum, 2);
+  });
+
+  return out;
+}
+
 export function StatTable({ table, group }: { table: MatchlogTable; group: CompGroup }) {
   const { t } = useI18n();
   const cols = table.columns;
@@ -191,6 +295,8 @@ export function StatTable({ table, group }: { table: MatchlogTable; group: CompG
   if (rows.length === 0) {
     return <p className="px-4 py-6 text-sm text-muted">{t('matchLog.noStatData')}</p>;
   }
+
+  const totalRow = totalsRow(view, rows, t('matchLog.total'));
 
   return (
     <div className="max-h-[560px] overflow-auto">
@@ -264,6 +370,20 @@ export function StatTable({ table, group }: { table: MatchlogTable; group: CompG
             </tr>
           ))}
         </tbody>
+        <tfoot className="sticky bottom-0 z-10 bg-surface-elevated">
+          <tr className="border-t-2 border-border">
+            {view.map((_, ci) => (
+              <td
+                key={ci}
+                className={`whitespace-nowrap px-2.5 py-2 text-xs tabular-nums font-semibold text-primary ${
+                  ci > oppIdx ? 'text-right' : 'text-left'
+                }`}
+              >
+                {totalRow[ci] ?? ''}
+              </td>
+            ))}
+          </tr>
+        </tfoot>
       </table>
     </div>
   );
