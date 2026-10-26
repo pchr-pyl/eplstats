@@ -110,10 +110,16 @@ understat) with maxAge:0 on firecrawl calls, then run build_all.py. Schedules
 alone leave stale stat rows.
 
 ## Deploy (Cloudflare Pages)
-- Project `eplstats` → https://eplstats.pages.dev
-- `npm run deploy` = `next build` + postbuild `scripts/flatten_prefetch.py` +
-  `wrangler pages deploy out --project-name eplstats --branch main`.
-- flatten_prefetch copies the RSC prefetch payload dirs (`__next.<seg>/...`)
-  to their flat dot-joined names — static hosts can't remap like serve_out.py.
+- Project `eplstats` → https://eplstats.pages.dev — git-connected to
+  github.com/pchr-pyl/eplstats (public); every push to `main` triggers a
+  Cloudflare build (`npm run build`, output `out/`, Node from `.nvmrc`).
+- `npm run deploy` = local `next build` + postbuild + `wrangler pages deploy`
+  — still works as an immediate manual deploy without pushing.
+- postbuild `scripts/flatten_prefetch.mjs` copies the RSC prefetch payload
+  dirs (`__next.<seg>/...`) to their flat dot-joined names — static hosts
+  can't remap like serve_out.py.
 - Free-plan limits: ≤20,000 files, ≤25 MiB per file.
-- Refresh flow: scrape → `python -X utf8 scripts/build/build_all.py` → `npm run deploy`.
+- Cloudflare builds run npm@10 — if you touch package-lock.json, regenerate
+  it with `npx npm@10 install --package-lock-only` or `npm ci` fails there.
+- Refresh flow: scrape → `python -X utf8 scripts/build/build_all.py` → commit
+  + push (auto-deploys) or `npm run deploy` to skip git.
