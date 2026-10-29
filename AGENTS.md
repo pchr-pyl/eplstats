@@ -158,3 +158,8 @@ alone leave stale stat rows.
   `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SECRET` (token signing).
 - Local test: `wrangler d1 execute eplstats-feedback --local --file=scripts/schema-feedback.sql`
   then `npx wrangler pages dev out`.
+- Agent workflow ("check feedback"): read items straight from prod —
+  `wrangler d1 execute eplstats-feedback --remote --command="SELECT id,type,status,message,page,image,created_at FROM feedback WHERE status='new' ORDER BY id"`;
+  attached image via `wrangler kv key get <image-key> --binding IMG --remote > file.png`.
+  After fixing + deploying, close out with
+  `UPDATE feedback SET status='done' WHERE id IN (...)` (in-progress/done/wontfix).
