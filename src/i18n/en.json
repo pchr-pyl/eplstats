@@ -229,6 +229,9 @@
   "note": "Shots/shots on target/saves from fbref matchlogs — xGA is Premier League only (Understat)",
   "allCompsNote": "All-competition totals (no per-competition split yet)",
   "psxgNote": "PSxG: Premier League only",
+  "totals": "Totals",
+  "perMatch": "Per match",
+  "noPsxg": "No PSxG data for this club — fbref removed PSxG site-wide; only Man Utd has legacy data.",
   "kpi": {
    "gaPerMp": "Goals against / MP",
    "shAPerMp": "Shots against / MP",

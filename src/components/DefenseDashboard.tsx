@@ -48,6 +48,7 @@ interface DefRow {
   sota: number | null;
   sotaPerMp: number | null;
   saves: number | null;
+  savesPerMp: number | null;
   savePct: number | null;
   cs: number | null;
   csPct: number | null;
@@ -119,6 +120,7 @@ export function DefenseDashboard({
   }, [group, perGkSeason, perGkComp]);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
   const [defSort, setDefSort] = useState<{ key: DefSortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
+  const [perMatch, setPerMatch] = useState(false);
 
   const defRows = useMemo<DefRow[]>(() => {
     const groupMap = new Map(
@@ -150,6 +152,8 @@ export function DefenseDashboard({
         sotaPerMp:
           kCovered && r.sota != null && r.kN ? r.sota / r.kN : null,
         saves: kCovered ? r.saves : null,
+        savesPerMp:
+          kCovered && r.saves != null && r.kN ? r.saves / r.kN : null,
         savePct:
           kCovered && r.saves != null && r.sota ? r.saves / r.sota : null,
         cs: r.cs,
@@ -321,6 +325,14 @@ export function DefenseDashboard({
         return t('keepers.psxg');
       case 'psxgPlusMinus':
         return t('keepers.goalsPrevented');
+      case 'sotaPerMp':
+        return `${t('keepers.sota')}/MP`;
+      case 'savesPerMp':
+        return `${t('keepers.saves')}/MP`;
+      case 'gaPerMp':
+        return `${t('keepers.ga')}/MP`;
+      case 'xgaPerMp':
+        return 'xGA/MP';
       default:
         return name;
     }
@@ -436,7 +448,35 @@ export function DefenseDashboard({
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={t('keepers.chart.bySeason')}>
+        <ChartCard
+          title={t('keepers.chart.bySeason')}
+          action={
+            <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setPerMatch(false)}
+                className={`rounded-md px-3 py-1 transition ${
+                  !perMatch
+                    ? 'bg-brand text-surface'
+                    : 'text-muted hover:text-primary'
+                }`}
+              >
+                {t('defense.totals')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPerMatch(true)}
+                className={`rounded-md px-3 py-1 transition ${
+                  perMatch
+                    ? 'bg-brand text-surface'
+                    : 'text-muted hover:text-primary'
+                }`}
+              >
+                {t('defense.perMatch')}
+              </button>
+            </div>
+          }
+        >
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={defRows} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -450,8 +490,8 @@ export function DefenseDashboard({
               <Tooltip content={ChartTooltip} />
               <Area
                 type="monotone"
-                dataKey="sota"
-                name="sota"
+                dataKey={perMatch ? 'sotaPerMp' : 'sota'}
+                name={perMatch ? 'sotaPerMp' : 'sota'}
                 stroke="#0d9488"
                 fill="#0d9488"
                 fillOpacity={0.15}
@@ -460,8 +500,8 @@ export function DefenseDashboard({
               />
               <Line
                 type="monotone"
-                dataKey="saves"
-                name="saves"
+                dataKey={perMatch ? 'savesPerMp' : 'saves'}
+                name={perMatch ? 'savesPerMp' : 'saves'}
                 stroke="#8b5cf6"
                 strokeWidth={2.5}
                 dot={{ r: 3, fill: '#8b5cf6' }}
@@ -470,8 +510,8 @@ export function DefenseDashboard({
               />
               <Line
                 type="monotone"
-                dataKey="ga"
-                name="ga"
+                dataKey={perMatch ? 'gaPerMp' : 'ga'}
+                name={perMatch ? 'gaPerMp' : 'ga'}
                 stroke="var(--danger)"
                 strokeWidth={2.5}
                 dot={{ r: 3, fill: 'var(--danger)' }}
@@ -539,6 +579,11 @@ export function DefenseDashboard({
         <ChartCard title={t('keepers.chart.goalsPrevented')}>
           <p className="mb-3 text-xs text-muted">{t('keepers.goalsPreventedNote')}</p>
           <p className="mb-3 text-xs text-muted">{t('defense.psxgNote')}</p>
+          {goalsPrevented.length === 0 ? (
+            <div className="flex h-[280px] items-center justify-center text-sm text-muted">
+              {t('defense.noPsxg')}
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={goalsPrevented} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -584,6 +629,7 @@ export function DefenseDashboard({
               />
             </ComposedChart>
           </ResponsiveContainer>
+          )}
         </ChartCard>
       </section>
 
@@ -723,15 +769,20 @@ export function DefenseDashboard({
 function ChartCard({
   title,
   note,
+  action,
   children,
 }: {
   title: string;
   note?: ReactNode;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
-      <h3 className="mb-3 font-display text-lg font-semibold text-primary">{title}</h3>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="font-display text-lg font-semibold text-primary">{title}</h3>
+        {action}
+      </div>
       {note}
       {children}
     </div>

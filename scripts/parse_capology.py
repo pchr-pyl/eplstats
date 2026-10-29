@@ -29,6 +29,7 @@ FILES = {
 BASE = "https://www.capology.com/club/manchester-united/salaries"
 NAME_RE = re.compile(r"flags/[^)]*\)([^\]]+)\]")
 MONEY_RE = re.compile(r"^-?\d+(\.\d+)?$")
+DATE_RE = re.compile(r"^[A-Z][a-z]{2} \d{1,2}, \d{4}$")
 
 
 def money(cell: str):
@@ -80,10 +81,12 @@ def parse_season(md: str) -> dict:
             j += 1
         block = cells[i:j]
         i = j
-        # block: [name, verified-icon, w, y, bonus, total, (adj), status, pos, age, country, ...]
+        # block: [name, verified-icon, w, y, bonus, total, (adj), status, ...tail]
+        # old tail: [pos, age, country]
+        # new tail (~2024+): [signed, expires, yrsRem, grossRem, clause,
+        #                     pos, posDetail, age, squadStatus, country]
         b = block[1:]
         verified = b and "verified-green" in b[0]
-        nums = [k for k, x in enumerate(b) if money(x) is not None or x == "-"]
         status_i = next((k for k, x in enumerate(b) if x in ("Active", "Inactive", "Loan")), None)
         p = {
             "name": NAME_RE.search(block[0]).group(1).strip(),
@@ -92,6 +95,7 @@ def parse_season(md: str) -> dict:
             "totalYearly": None, "adjTotalYearly": None,
             "status": b[status_i] if status_i is not None else None,
             "pos": None, "posDetail": None, "age": None, "country": None,
+            "signed": None, "expires": None, "grossRemaining": None,
         }
         if status_i is not None:
             mons = [money(x) for x in b[1:status_i]]
@@ -99,14 +103,28 @@ def parse_season(md: str) -> dict:
                 p["weeklyGross"], p["yearlyGross"], p["bonusYearly"], p["totalYearly"] = mons[:4]
             if len(mons) >= 5:
                 p["adjTotalYearly"] = mons[4]
-            tail = b[status_i + 1:]
-            tail = [x for x in tail if x and x != "\\n"]
-            if len(tail) >= 3:
-                p["pos"], p["age"], p["country"] = tail[0], money(tail[1]), tail[2]
-            elif len(tail) == 2:
-                p["pos"], p["age"] = tail[0], money(tail[1])
-            elif len(tail) == 1:
-                p["pos"] = tail[0]
+            tail = [x for x in b[status_i + 1:] if x and x != "\\n"]
+            if tail and DATE_RE.match(tail[0]):
+                p["signed"] = tail[0]
+                p["expires"] = tail[1] if len(tail) > 1 else None
+                p["grossRemaining"] = money(tail[3]) if len(tail) > 3 else None
+                tail = tail[5:]
+                if len(tail) >= 5:
+                    p["pos"], p["posDetail"], p["age"], p["country"] = (
+                        tail[0], tail[1], money(tail[2]), tail[4])
+                elif len(tail) >= 3:
+                    p["pos"], p["posDetail"], p["age"] = tail[0], tail[1], money(tail[2])
+                elif len(tail) == 2:
+                    p["pos"], p["posDetail"] = tail[0], tail[1]
+                elif len(tail) == 1:
+                    p["pos"] = tail[0]
+            else:
+                if len(tail) >= 3:
+                    p["pos"], p["age"], p["country"] = tail[0], money(tail[1]), tail[2]
+                elif len(tail) == 2:
+                    p["pos"], p["age"] = tail[0], money(tail[1])
+                elif len(tail) == 1:
+                    p["pos"] = tail[0]
         players.append(p)
     return {"summary": summary, "players": players}
 
