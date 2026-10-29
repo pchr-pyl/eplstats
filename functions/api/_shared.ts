@@ -71,3 +71,19 @@ export function str(v: unknown, max = 4000): string | null {
   const s = v.trim();
   return s ? s.slice(0, max) : null;
 }
+
+/** Salt for the daily visitor hash — never the raw IP. */
+export const visitorSalt = (env: Env) => env.ADMIN_SECRET ?? adminPassword(env);
+
+/** YYYY-MM-DD in UTC+7 (site timezone). */
+export function thaiDate(ms = Date.now()): string {
+  return new Date(ms + 7 * 3600_000).toISOString().slice(0, 10);
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+export { sha256Hex };

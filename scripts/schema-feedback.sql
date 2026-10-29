@@ -15,8 +15,14 @@ CREATE TABLE IF NOT EXISTS pageviews (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   path TEXT NOT NULL,
   club TEXT,
-  referrer TEXT
+  referrer TEXT,
+  visitor TEXT,
+  device TEXT,
+  country TEXT,
+  lang TEXT,
+  theme TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_pageviews_created ON pageviews(created_at);
 CREATE INDEX IF NOT EXISTS idx_pageviews_path ON pageviews(path);
+CREATE INDEX IF NOT EXISTS idx_pageviews_visitor ON pageviews(visitor);

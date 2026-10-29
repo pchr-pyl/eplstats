@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import type { Stats } from '@/components/admin/types';
+import type { SiteStats } from '@/lib/siteStats';
+import { UsageTab } from '@/components/admin/UsageTab';
+import { AudienceTab } from '@/components/admin/AudienceTab';
+import { DataTab } from '@/components/admin/DataTab';
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 const TOKEN_KEY = 'eplstats_admin_token';
@@ -16,20 +21,6 @@ interface FeedbackRow {
   ua: string | null;
   image: string | null;
   status: string;
-}
-
-interface Stats {
-  totals: {
-    views: number;
-    views30d: number;
-    views7d: number;
-    viewsToday: number;
-    feedback: number;
-  } | null;
-  byDay: { day: string; n: number }[];
-  topPaths: { path: string; n: number }[];
-  topClubs: { club: string; n: number }[];
-  feedbackByType: { type: string; n: number }[];
 }
 
 const TYPE_STYLE: Record<string, string> = {
@@ -112,8 +103,9 @@ export default function AdminPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginErr, setLoginErr] = useState(false);
-  const [tab, setTab] = useState<'stats' | 'feedback'>('stats');
+  const [tab, setTab] = useState<'usage' | 'audience' | 'data' | 'feedback'>('usage');
   const [stats, setStats] = useState<Stats | null>(null);
+  const [site, setSite] = useState<SiteStats | null>(null);
   const [feedback, setFeedback] = useState<FeedbackRow[] | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [loadErr, setLoadErr] = useState(false);
@@ -154,6 +146,11 @@ export default function AdminPage() {
       if (!s.ok || !f.ok) throw new Error('load failed');
       setStats(await s.json());
       setFeedback((await f.json()).feedback);
+      // site data is public + optional — a failure must not break other tabs
+      fetch(`${BASE_PATH}/admin/site-data.json`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => d && setSite(d))
+        .catch(() => {});
     } catch {
       setLoadErr(true);
     }
@@ -201,7 +198,7 @@ export default function AdminPage() {
       <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center px-6">
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <h1 className="mb-1 font-display text-xl font-semibold text-primary">Admin</h1>
-          <p className="mb-4 text-sm text-muted">eplstats feedback & usage</p>
+          <p className="mb-4 text-sm text-muted">eplstats — หลังบ้าน</p>
           <div className="flex flex-col gap-3">
             <input
               type="email"
@@ -237,13 +234,11 @@ export default function AdminPage() {
     );
   }
 
-  const maxDay = Math.max(1, ...(stats?.byDay.map((d) => d.n) ?? [1]));
-
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-8">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-xl font-semibold text-primary">
-          Admin — feedback & usage
+          หลังบ้าน — feedback &amp; การใช้งาน
         </h1>
         <div className="flex items-center gap-3">
           <Link href="/" className="text-sm text-muted hover:text-primary">
@@ -260,7 +255,7 @@ export default function AdminPage() {
       </div>
 
       <div className="flex gap-2">
-        {(['stats', 'feedback'] as const).map((k) => (
+        {(['usage', 'audience', 'data', 'feedback'] as const).map((k) => (
           <button
             key={k}
             type="button"
@@ -272,7 +267,13 @@ export default function AdminPage() {
                 : 'border border-border bg-surface text-secondary hover:text-primary'
             }`}
           >
-            {k === 'stats' ? 'Usage' : `Feedback (${feedback?.length ?? 0})`}
+            {k === 'usage'
+              ? 'การใช้งาน'
+              : k === 'audience'
+                ? 'ผู้เข้าชม'
+                : k === 'data'
+                  ? 'ข้อมูลเว็บ'
+                  : `Feedback (${feedback?.length ?? 0})`}
           </button>
         ))}
       </div>
@@ -286,97 +287,11 @@ export default function AdminPage() {
         </p>
       )}
 
-      {tab === 'stats' && stats && (
-        <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {[
-              ['Today', stats.totals?.viewsToday],
-              ['7 days', stats.totals?.views7d],
-              ['30 days', stats.totals?.views30d],
-              ['All time', stats.totals?.views],
-              ['Feedback', stats.totals?.feedback],
-            ].map(([label, v]) => (
-              <div
-                key={label}
-                className="rounded-2xl border border-border bg-surface p-4 shadow-sm"
-              >
-                <div className="text-xs uppercase tracking-wider text-muted">{label}</div>
-                <div className="mt-1 font-display text-2xl font-semibold text-primary">
-                  {v ?? 0}
-                </div>
-              </div>
-            ))}
-          </div>
+      {tab === 'usage' && stats && <UsageTab stats={stats} site={site} />}
 
-          <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
-            <h2 className="mb-3 font-display text-lg font-semibold text-primary">
-              Pageviews — last 30 days
-            </h2>
-            {stats.byDay.length === 0 ? (
-              <p className="text-sm text-muted">No data yet</p>
-            ) : (
-              <div className="flex h-32 items-end gap-1">
-                {stats.byDay.map((d) => (
-                  <div
-                    key={d.day}
-                    title={`${d.day}: ${d.n}`}
-                    className="min-w-0 flex-1 rounded-t bg-brand/70"
-                    style={{ height: `${Math.max(4, (d.n / maxDay) * 100)}%` }}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+      {tab === 'audience' && stats && <AudienceTab stats={stats} />}
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
-              <h2 className="mb-2 font-display text-lg font-semibold text-primary">
-                Top pages
-              </h2>
-              <table className="w-full">
-                <tbody>
-                  {stats.topPaths.map((p) => (
-                    <tr key={p.path} className="border-b border-border-light last:border-0">
-                      <td className="py-1.5 pr-3 text-sm text-secondary">{p.path}</td>
-                      <td className="py-1.5 text-right text-sm tabular-nums text-primary">
-                        {p.n}
-                      </td>
-                    </tr>
-                  ))}
-                  {stats.topPaths.length === 0 && (
-                    <tr>
-                      <td className="py-3 text-sm text-muted">No data yet</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </section>
-
-            <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
-              <h2 className="mb-2 font-display text-lg font-semibold text-primary">
-                Top clubs
-              </h2>
-              <table className="w-full">
-                <tbody>
-                  {stats.topClubs.map((c) => (
-                    <tr key={c.club} className="border-b border-border-light last:border-0">
-                      <td className="py-1.5 pr-3 text-sm text-secondary">{c.club}</td>
-                      <td className="py-1.5 text-right text-sm tabular-nums text-primary">
-                        {c.n}
-                      </td>
-                    </tr>
-                  ))}
-                  {stats.topClubs.length === 0 && (
-                    <tr>
-                      <td className="py-3 text-sm text-muted">No data yet</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </section>
-          </div>
-        </>
-      )}
+      {tab === 'data' && <DataTab site={site} />}
 
       {tab === 'feedback' && (
         <>

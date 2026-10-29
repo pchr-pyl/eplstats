@@ -163,3 +163,14 @@ alone leave stale stat rows.
   attached image via `wrangler kv key get <image-key> --binding IMG --remote > file.png`.
   After fixing + deploying, close out with
   `UPDATE feedback SET status='done' WHERE id IN (...)` (in-progress/done/wontfix).
+- pageviews v2 columns (visitor/device/country/lang/theme):
+  `scripts/migrate-pageviews-v2.sql`. Deploy order matters — run it on
+  `--remote` BEFORE deploying code that reads/writes the new columns,
+  otherwise /api/track inserts and /api/admin/stats queries fail.
+- visitor hash: first 16 hex of SHA-256(`${thaiDate}|${CF-Connecting-IP}|${ua}|${visitorSalt}`)
+  — daily-rotating on the Thai date, so "visitors" are per-day uniques;
+  the raw IP is never stored.
+- `/admin/site-data.json` — build-time static JSON from `src/lib/siteStats.ts`
+  (route `src/app/admin/site-data.json/route.ts`, `dynamic = 'force-static'`):
+  club counts, played/upcoming rows, xG coverage, stale-club and
+  past-unplayed checks. Public, no secrets.
