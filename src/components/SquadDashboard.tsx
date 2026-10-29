@@ -17,6 +17,7 @@ import {
   LabelList,
 } from 'recharts';
 import { LabelsBtn } from './LabelsBtn';
+import { ShareBtn } from './ShareBtn';
 import { useI18n } from '@/i18n/I18nContext';
 import type { SquadData, SquadSeason, SquadPlayer, PlayersData, PlayerSeasonStats, CompGroup } from '@/lib/types';
 import { mergedPlayersForGroup, seasonShort } from '@/lib/stats';
@@ -684,7 +685,10 @@ function ChartCard({ title, action, children }: { title: string; action?: ReactN
     <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="font-display text-lg font-semibold text-primary">{title}</h3>
-        {action}
+        <div className="flex items-center gap-1.5">
+          {action}
+          <ShareBtn />
+        </div>
       </div>
       {children}
     </div>

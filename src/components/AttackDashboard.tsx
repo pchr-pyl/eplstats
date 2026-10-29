@@ -24,6 +24,7 @@ import { CompetitionTabs } from './CompetitionTabs';
 import { MatchlogPanel } from './MatchlogBrowser';
 import { SeasonPace } from './SeasonPace';
 import { LabelsBtn } from './LabelsBtn';
+import { ShareBtn } from './ShareBtn';
 
 type SortKey =
   | 'season' | 'mp' | 'gls' | 'gfPerMp' | 'xg' | 'sh' | 'sot'
@@ -355,7 +356,10 @@ function ChartCard({ title, action, children }: { title: string; action?: ReactN
     <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="font-display text-lg font-semibold text-primary">{title}</h3>
-        {action}
+        <div className="flex items-center gap-1.5">
+          {action}
+          <ShareBtn />
+        </div>
       </div>
       {children}
     </div>

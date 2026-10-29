@@ -584,6 +584,8 @@
     "deltaPts": "Δpts"
   },
   "chart": {
-    "labels": "Show value labels on chart"
+    "labels": "Show value labels on chart",
+    "share": "Copy link to this page",
+    "copied": "Copied"
   }
 }

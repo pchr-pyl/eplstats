@@ -16,6 +16,7 @@ import {
   LabelList,
 } from 'recharts';
 import { LabelsBtn } from './LabelsBtn';
+import { ShareBtn } from './ShareBtn';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { ClubIndexEntry, LeagueData, SquadCompareData } from '@/lib/types';
@@ -110,7 +111,10 @@ export function ClubsCompare({
         <h3 className="font-display text-lg font-semibold text-primary">
           {title}
         </h3>
-        <LabelsBtn on={lblOn(field)} onClick={() => toggleLbl(field)} />
+        <div className="flex items-center gap-1.5">
+          <LabelsBtn on={lblOn(field)} onClick={() => toggleLbl(field)} />
+          <ShareBtn />
+        </div>
       </div>
       <div className="h-56 w-full">
         <ResponsiveContainer>
@@ -246,7 +250,10 @@ export function ClubsCompare({
         <h4 className="font-display text-sm font-semibold text-primary">
           {title}
         </h4>
-        <LabelsBtn on={lblOn(field)} onClick={() => toggleLbl(field)} />
+        <div className="flex items-center gap-1.5">
+          <LabelsBtn on={lblOn(field)} onClick={() => toggleLbl(field)} />
+          <ShareBtn />
+        </div>
       </div>
       <div className="h-48 w-full">
         <ResponsiveContainer>
