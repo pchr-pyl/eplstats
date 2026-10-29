@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import { getKeepers, getTeamStats } from '@/lib/data';
+import { tabMeta } from '@/lib/seo';
 import { DefenseDashboard } from '@/components/DefenseDashboard';
 import type { KeepersData } from '@/lib/types';
+
+export async function generateMetadata({ params }: { params: Promise<{ club: string }> }): Promise<Metadata> {
+  const { club } = await params;
+  return tabMeta(club, 'Defense & Goalkeeping', 'defense', 'goals conceded, xGA, saves and clean sheet stats by season');
+}
 
 export default async function DefensePage({ params }: { params: Promise<{ club: string }> }) {
   const { club } = await params;

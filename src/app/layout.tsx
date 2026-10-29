@@ -29,8 +29,21 @@ const sarabun = Sarabun({
 });
 
 export const metadata: Metadata = {
-  title: 'Premier League — Club Analytics',
-  description: 'Premier League club analytics dashboard',
+  metadataBase: new URL('https://eplstats.pages.dev'),
+  title: {
+    default: 'EPL Stats — Premier League Club Analytics',
+    template: '%s — EPL Stats',
+  },
+  description:
+    'Free Premier League analytics: season-by-season goals, xG/xGA, goalkeeping, squad wages, manager eras and match logs for every PL club since 2014.',
+  openGraph: {
+    siteName: 'EPL Stats',
+    type: 'website',
+    locale: 'en_US',
+    alternateLocale: 'th_TH',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'EPL Stats — Premier League club analytics' }],
+  },
+  twitter: { card: 'summary_large_image' },
 };
 
 const themeInitScript = `

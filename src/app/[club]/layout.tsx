@@ -19,8 +19,13 @@ export async function generateMetadata({
   const { club } = await params;
   const entry = getClubIndex().find((c) => c.slug === club);
   if (!entry) return {};
+  const title = `${entry.name} — Stats, xG, Wages & Managers`;
+  const description = `${entry.name} Premier League analytics: season-by-season results, goals, xG/xGA, goalkeeping, squad wages, match logs and manager records since 2014.`;
   return {
-    title: `${entry.name} — Premier League — Club Analytics`,
+    title,
+    description,
+    alternates: { canonical: `/${club}/` },
+    openGraph: { title, description },
     icons: { icon: `/logos/${club}.png`, apple: `/logos/${club}.png` },
   };
 }
