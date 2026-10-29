@@ -133,6 +133,13 @@ export function LoadFail({ onRetry }: { onRetry: () => void }) {
   );
 }
 
+const COL_TIP: Record<string, string> = {
+  GF: 'gf', GA: 'ga', xG: 'xg', xGA: 'xga', Sh: 'sh', SoT: 'sot',
+  'SoT%': 'sotPct', 'G/Sh': 'gPerSh', PK: 'pk', PKatt: 'pkatt',
+  SoTA: 'sota', Saves: 'saves', 'Save%': 'savePct', CS: 'cs',
+  CrdY: 'crdY', CrdR: 'crdR', MP: 'mp',
+};
+
 export function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-');
   return `${d}/${m}/${y.slice(-2)}`;
@@ -306,6 +313,7 @@ export function StatTable({ table, group }: { table: MatchlogTable; group: CompG
             {view.map((c, i) => (
               <th
                 key={`${c}-${i}`}
+                title={COL_TIP[c] ? t(`colTip.${COL_TIP[c]}`) : undefined}
                 className={`whitespace-nowrap border-b border-border px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted ${
                   i > oppIdx ? 'text-right' : 'text-left'
                 }`}

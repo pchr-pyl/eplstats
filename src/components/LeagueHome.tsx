@@ -10,6 +10,7 @@ import type {
   Zone,
 } from '@/lib/types';
 import { fmt, signed } from '@/lib/format';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { loadLeagueSeason, formatDate, LoadFail, LOAD_FAILED } from './matchlog-shared';
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -85,10 +86,29 @@ export function LeagueHome({
     };
   }, [season, initial?.season, extra]);
 
+  const [tbSort, setTbSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'rank', dir: 'asc' });
   const tableRows: LeagueTableViewRow[] = useMemo(() => {
     if (!data) return [];
     return (data.views[view] ?? []) as LeagueTableViewRow[];
   }, [data, view]);
+
+  const sortedRows = useMemo(() => {
+    const k = tbSort.key;
+    const val = (r: LeagueTableViewRow): number | string | null =>
+      k === 'club' ? nameOf(r.slug) : ((r as unknown as Record<string, unknown>)[k] as number | null);
+    const cmp = (a: LeagueTableViewRow, b: LeagueTableViewRow) => {
+      const av = val(a);
+      const bv = val(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+    };
+    return [...tableRows].sort((a, b) => (tbSort.dir === 'asc' ? cmp(a, b) : -cmp(a, b)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableRows, tbSort, lang, clubs]);
 
   const hasNext = data ? Object.keys(data.next).length > 0 : false;
   const zones = data?.zones ?? {};
@@ -198,24 +218,51 @@ export function LeagueHome({
               <tr>
                 {(
                   isXg
-                    ? ['#', t('table.club'), t('home.cols.pl'), 'xG', 'xGA', 'xGD', t('home.cols.xpts'), t('table.pts'), t('home.cols.ptsMinusXpts')]
-                    : ['#', t('table.club'), t('home.cols.pl'), 'W', 'D', 'L', t('home.cols.score'), 'GD', t('table.pts'), t('matchLog.form'), ...(hasNext ? [t('home.cols.next')] : [])]
-                ).map((h, i) => (
+                    ? ([
+                        { k: 'rank', h: '#', tip: t('colTip.rank') },
+                        { k: 'club', h: t('table.club'), tip: '' },
+                        { k: 'mp', h: t('home.cols.pl'), tip: t('colTip.pl') },
+                        { k: 'xg', h: 'xG', tip: t('colTip.xg') },
+                        { k: 'xga', h: 'xGA', tip: t('colTip.xga') },
+                        { k: 'xgd', h: 'xGD', tip: t('colTip.xgd') },
+                        { k: 'xpts', h: t('home.cols.xpts'), tip: t('colTip.xpts') },
+                        { k: 'pts', h: t('table.pts'), tip: t('colTip.pts') },
+                        { k: 'ptsMinusXpts', h: t('home.cols.ptsMinusXpts'), tip: t('colTip.ptsMinusXpts') },
+                      ])
+                    : ([
+                        { k: 'rank', h: '#', tip: t('colTip.rank') },
+                        { k: 'club', h: t('table.club'), tip: '' },
+                        { k: 'mp', h: t('home.cols.pl'), tip: t('colTip.pl') },
+                        { k: 'w', h: 'W', tip: t('colTip.w') },
+                        { k: 'd', h: 'D', tip: t('colTip.d') },
+                        { k: 'l', h: 'L', tip: t('colTip.l') },
+                        { k: null, h: t('home.cols.score'), tip: t('colTip.score') },
+                        { k: 'gd', h: 'GD', tip: t('colTip.gd') },
+                        { k: 'pts', h: t('table.pts'), tip: t('colTip.pts') },
+                        { k: null, h: t('matchLog.form'), tip: t('colTip.form') },
+                        ...(hasNext ? [{ k: null, h: t('home.cols.next'), tip: t('colTip.next') }] : []),
+                      ])
+                ).map((c, i) => (
                   <th
                     key={i}
+                    title={c.tip || undefined}
+                    onClick={c.k ? () => setTbSort((prev) => ({ key: c.k!, dir: prev.key === c.k && prev.dir === 'asc' ? 'desc' : 'asc' })) : undefined}
                     className={`border-b border-border px-1.5 py-3 text-xs sm:px-3 font-semibold uppercase tracking-wider text-muted ${
                       i < 2 ? 'text-left' : 'text-right'
-                    } ${
+                    } ${c.k ? 'cursor-pointer select-none hover:bg-bg-secondary' : ''} ${
                       !isXg && [3,4,5,6,10].includes(i) ? 'hidden sm:table-cell' : isXg && [2,5,7,8].includes(i) ? 'hidden sm:table-cell' : ''
                     }`}
                   >
-                    {h}
+                    <span className={`inline-flex items-center gap-0.5 ${i < 2 ? '' : 'justify-end'}`}>
+                      {c.h}
+                      {c.k && (tbSort.key === c.k ? (tbSort.dir === 'asc' ? <ArrowUp size={11} /> : <ArrowDown size={11} />) : <ArrowUpDown size={11} className="opacity-30" />)}
+                    </span>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {tableRows.map((r) => {
+              {sortedRows.map((r) => {
                 const z: Zone = view === 'all' ? (zones[r.slug] ?? null) : null;
                 const fm = data?.form?.[r.slug] ?? [];
                 const nx = data?.next?.[r.slug];
@@ -336,8 +383,15 @@ export function LeagueHome({
                         {m.home ? nameOf(m.home) : '—'}
                       </span>
                       {m.home && <ClubCrest slug={m.home} size={16} />}
-                      <span className="w-14 shrink-0 text-center font-semibold text-primary">
-                        {m.score ?? (m.time || '—')}
+                      <span className="w-20 shrink-0 text-center">
+                        <span className="block font-semibold leading-tight text-primary">
+                          {m.score ?? (m.time || '—')}
+                        </span>
+                        {m.date && (
+                          <span className="block text-[10px] leading-tight text-muted">
+                            {formatDate(m.date)}
+                          </span>
+                        )}
                       </span>
                       {m.away && <ClubCrest slug={m.away} size={16} />}
                       <span className="flex-1 truncate text-primary">

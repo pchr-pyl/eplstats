@@ -13,7 +13,10 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  LabelList,
 } from 'recharts';
+import { LabelsBtn } from './LabelsBtn';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { ClubIndexEntry, LeagueData, SquadCompareData } from '@/lib/types';
 import { fmt, gbp } from '@/lib/format';
@@ -43,6 +46,29 @@ export function ClubsCompare({
   const seasons = useMemo(() => Object.keys(league).sort(), [league]);
   const [season, setSeason] = useState(() => seasons[seasons.length - 1] ?? '');
   const [perMatch, setPerMatch] = useState(false);
+  const [lgSort, setLgSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'pts', dir: 'desc' });
+  const [sqSort, setSqSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'weeklyBill', dir: 'desc' });
+  const [lbl, setLbl] = useState<Record<string, boolean>>({});
+  const lblOn = (k: string) => !!lbl[k];
+  const toggleLbl = (k: string) => setLbl((p) => ({ ...p, [k]: !p[k] }));
+  const numFmt = (v: unknown) => fmt(Number(v));
+
+  const clickSort = (
+    cur: { key: string; dir: 'asc' | 'desc' },
+    set: typeof setLgSort,
+    key: string,
+  ) =>
+    set({
+      key,
+      dir: cur.key === key && cur.dir === 'desc' ? 'asc' : 'desc',
+    });
+
+  const arrow = (cur: { key: string; dir: 'asc' | 'desc' }, key: string) =>
+    cur.key === key ? (
+      cur.dir === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
+    ) : (
+      <ArrowUpDown size={12} className="opacity-30" />
+    );
 
   const name = (slug: string) => {
     const c = clubs.find((x) => x.slug === slug);
@@ -80,9 +106,12 @@ export function ClubsCompare({
     reversed = false,
   ) => (
     <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
-      <h3 className="mb-2 font-display text-lg font-semibold text-primary">
-        {title}
-      </h3>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className="font-display text-lg font-semibold text-primary">
+          {title}
+        </h3>
+        <LabelsBtn on={lblOn(field)} onClick={() => toggleLbl(field)} />
+      </div>
       <div className="h-56 w-full">
         <ResponsiveContainer>
           <LineChart data={series(field)} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
@@ -124,7 +153,17 @@ export function ClubsCompare({
                 dot={false}
                 connectNulls
                 type="monotone"
-              />
+              >
+                {lblOn(field) && (
+                  <LabelList
+                    dataKey={slug}
+                    position="top"
+                    fontSize={9}
+                    fill={color(slug)}
+                    formatter={numFmt}
+                  />
+                )}
+              </Line>
             ))}
           </LineChart>
         </ResponsiveContainer>
@@ -134,9 +173,37 @@ export function ClubsCompare({
 
   const sideRows = league[season] ?? [];
 
+  const leagueRows = useMemo(() => {
+    const rs = picked.map((slug) => {
+      const found = sideRows.find((x) => x.slug === slug);
+      return (
+        found ?? {
+          slug, name: slug, color: '#888888', mp: null, w: null, d: null,
+          l: null, gf: null, ga: null, gd: null, pts: null, xg: null,
+          xga: null, xgd: null, cs: null, rank: null,
+        }
+      );
+    });
+    const k = lgSort.key;
+    const val = (r: (typeof rs)[number]): number | string | null =>
+      k === 'club' ? name(r.slug) : ((r as Record<string, unknown>)[k] as number | null);
+    const cmp = (a: (typeof rs)[number], b: (typeof rs)[number]) => {
+      const av = val(a);
+      const bv = val(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+    };
+    return [...rs].sort((a, b) => (lgSort.dir === 'asc' ? cmp(a, b) : -cmp(a, b)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [picked, sideRows, lgSort, lang, clubs]);
+
   const squadRows = useMemo(
-    () =>
-      picked.map((slug) => {
+    () => {
+      const rows = picked.map((slug) => {
         const c = clubs.find((x) => x.slug === slug);
         const s = squad[season]?.[slug];
         return {
@@ -150,8 +217,23 @@ export function ClubsCompare({
           yearlyBill: s?.yearlyBill ?? null,
           topEarner: s?.topEarner ?? null,
         };
-      }),
-    [picked, season, squad, clubs],
+      });
+      const k = sqSort.key;
+      const val = (r: (typeof rows)[number]): number | string | null =>
+        k === 'club' ? r.name : ((r as Record<string, unknown>)[k] as number | string | null);
+      const cmp = (a: (typeof rows)[number], b: (typeof rows)[number]) => {
+        const av = val(a);
+        const bv = val(b);
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return typeof av === 'number' && typeof bv === 'number'
+          ? av - bv
+          : String(av).localeCompare(String(bv));
+      };
+      return rows.sort((a, b) => (sqSort.dir === 'asc' ? cmp(a, b) : -cmp(a, b)));
+    },
+    [picked, season, squad, clubs, sqSort],
   );
 
   const squadBar = (
@@ -204,6 +286,15 @@ export function ClubsCompare({
               radius={[4, 4, 0, 0]}
               isAnimationActive={false}
             >
+              <LabelList
+                dataKey={money ? 'weeklyBillM' : field}
+                position="top"
+                fontSize={10}
+                fill="var(--text-muted)"
+                formatter={(v: unknown) =>
+                  money ? `£${fmt(Number(v))}M` : fmt(Number(v))
+                }
+              />
               {squadRows.map((r) => (
                 <Cell key={r.slug} fill={r.color} />
               ))}
@@ -306,62 +397,66 @@ export function ClubsCompare({
           <table className="w-full min-w-[760px] border-collapse">
             <thead className="bg-surface-elevated">
               <tr>
-                {[t('table.club'), 'MP', 'W', 'D', 'L', 'GF', 'GA', 'GD', t('table.pts'), 'xG', 'xGA'].map(
-                  (h, i) => (
-                    <th
-                      key={i}
-                      className={`border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted ${
-                        i === 0 ? 'text-left' : 'text-right'
-                      }`}
-                    >
-                      {h}
-                    </th>
-                  ),
-                )}
+                {([
+                  { key: 'club', label: t('table.club'), tip: '' },
+                  { key: 'mp', label: 'MP', tip: t('colTip.mp') },
+                  { key: 'w', label: 'W', tip: t('colTip.w') },
+                  { key: 'd', label: 'D', tip: t('colTip.d') },
+                  { key: 'l', label: 'L', tip: t('colTip.l') },
+                  { key: 'gf', label: 'GF', tip: t('colTip.gf') },
+                  { key: 'ga', label: 'GA', tip: t('colTip.ga') },
+                  { key: 'gd', label: 'GD', tip: t('colTip.gd') },
+                  { key: 'pts', label: t('table.pts'), tip: t('colTip.pts') },
+                  { key: 'xg', label: 'xG', tip: t('colTip.xg') },
+                  { key: 'xga', label: 'xGA', tip: t('colTip.xga') },
+                ]).map((c, i) => (
+                  <th
+                    key={c.key}
+                    title={c.tip || undefined}
+                    onClick={() => clickSort(lgSort, setLgSort, c.key)}
+                    className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
+                      i === 0 ? 'text-left' : 'text-right'
+                    }`}
+                  >
+                    <div className={`flex items-center gap-1 ${i === 0 ? '' : 'justify-end'}`}>
+                      <span>{c.label}</span>
+                      {arrow(lgSort, c.key)}
+                    </div>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {picked.map((slug) => {
-                const r = sideRows.find((x) => x.slug === slug);
-                return (
-                  <tr key={slug} className="border-b border-border-light">
-                    <td className="px-3 py-2.5 text-sm font-medium text-primary">
-                      <span className="inline-flex items-center gap-2">
-                        <img
-                          aria-hidden
-                          src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/logos/${slug}.png`}
-                          width={18}
-                          height={18}
-                          alt=""
-                          className="inline-block h-5 w-5 object-contain"
-                        />
-                        {name(slug)}
-                        <span className="text-xs text-muted">
-                          {r?.rank != null ? `#${r.rank}` : '—'}
-                        </span>
+              {leagueRows.map((r) => (
+                <tr key={r.slug} className="border-b border-border-light">
+                  <td className="px-3 py-2.5 text-sm font-medium text-primary">
+                    <span className="inline-flex items-center gap-2">
+                      <img
+                        aria-hidden
+                        src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/logos/${r.slug}.png`}
+                        width={18}
+                        height={18}
+                        alt=""
+                        className="inline-block h-5 w-5 object-contain"
+                      />
+                      {name(r.slug)}
+                      <span className="text-xs text-muted">
+                        {r.rank != null ? `#${r.rank}` : '—'}
                       </span>
-                    </td>
-                    {r ? (
-                      <>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.mp}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.w}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.d}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.l}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.gf}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.ga}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.gd}</td>
-                        <td className="px-3 py-2.5 text-right text-sm font-semibold text-primary">{r.pts}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{fmt(r.xg)}</td>
-                        <td className="px-3 py-2.5 text-right text-sm text-secondary">{fmt(r.xga)}</td>
-                      </>
-                    ) : (
-                      <td colSpan={10} className="px-3 py-2.5 text-right text-sm text-muted">
-                        —
-                      </td>
-                    )}
-                  </tr>
-                );
-              })}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.mp ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.w ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.d ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.l ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.gf ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.ga ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{r.gd ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm font-semibold text-primary">{r.pts ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{fmt(r.xg)}</td>
+                  <td className="px-3 py-2.5 text-right text-sm text-secondary">{fmt(r.xga)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -383,21 +478,26 @@ export function ClubsCompare({
             <table className="w-full min-w-[720px] border-collapse">
               <thead className="bg-surface-elevated">
                 <tr>
-                  {[
-                    t('table.club'),
-                    t('clubCompare.players'),
-                    t('clubCompare.avgAge'),
-                    t('clubCompare.weeklyBill'),
-                    t('clubCompare.yearlyBill'),
-                    t('clubCompare.topEarner'),
-                  ].map((h, i) => (
+                  {([
+                    { key: 'club', label: t('table.club'), tip: '' },
+                    { key: 'players', label: t('clubCompare.players'), tip: t('colTip.players') },
+                    { key: 'avgAge', label: t('clubCompare.avgAge'), tip: t('colTip.avgAge') },
+                    { key: 'weeklyBill', label: t('clubCompare.weeklyBill'), tip: t('colTip.weeklyBill') },
+                    { key: 'yearlyBill', label: t('clubCompare.yearlyBill'), tip: t('colTip.yearlyBill') },
+                    { key: 'topEarner', label: t('clubCompare.topEarner'), tip: t('colTip.topEarner') },
+                  ]).map((c, i) => (
                     <th
-                      key={i}
-                      className={`border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted ${
+                      key={c.key}
+                      title={c.tip || undefined}
+                      onClick={() => clickSort(sqSort, setSqSort, c.key)}
+                      className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
                         i === 0 || i === 5 ? 'text-left' : 'text-right'
                       }`}
                     >
-                      {h}
+                      <div className={`flex items-center gap-1 ${i === 0 || i === 5 ? '' : 'justify-end'}`}>
+                        <span>{c.label}</span>
+                        {arrow(sqSort, c.key)}
+                      </div>
                     </th>
                   ))}
                 </tr>

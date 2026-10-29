@@ -14,7 +14,9 @@ import {
   TooltipContentProps,
   AreaChart,
   Area,
+  LabelList,
 } from 'recharts';
+import { LabelsBtn } from './LabelsBtn';
 import { useI18n } from '@/i18n/I18nContext';
 import type { SquadData, SquadSeason, SquadPlayer, PlayersData, PlayerSeasonStats, CompGroup } from '@/lib/types';
 import { mergedPlayersForGroup, seasonShort } from '@/lib/stats';
@@ -119,6 +121,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
     [perfGroup, seasonEntry]
   );
   const [perfSort, setPerfSort] = useState<{ key: PerfSortKey; dir: PerfSortDir }>({ key: 'gls', dir: 'desc' });
+  const [wageLbl, setWageLbl] = useState(false);
 
   const weeklyBill = summary?.grossWeekly ?? sum(players.map((p) => p.weeklyGross));
   const yearlyBill = summary?.grossYearly ?? sum(players.map((p) => p.yearlyGross));
@@ -303,6 +306,15 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
     { label: t('squad.kpi.avgAge'), value: fmt(avgAge, 2) },
   ].filter((k) => k.value !== '—');
 
+  const SQ_TIP: Partial<Record<SortKey, string>> = {
+    pos: t('colTip.pos'),
+    age: t('colTip.age'),
+    weeklyGross: t('colTip.weeklyGross'),
+    yearlyGross: t('colTip.yearlyGross'),
+    expires: t('colTip.expires'),
+    status: t('colTip.status'),
+  };
+
   const columns: { key: SortKey; label: string; align: 'left' | 'right' }[] = [
     { key: 'name', label: t('squad.table.name'), align: 'left' },
     { key: 'pos', label: t('squad.table.pos'), align: 'left' },
@@ -330,6 +342,23 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
     { key: 'sotPct', label: t('squad.col.sotPct'), align: 'right' },
     { key: 'gPerSh', label: t('squad.col.gPerSh'), align: 'right' },
   ];
+
+  const PERF_TIP: Partial<Record<PerfSortKey, string>> = {
+    pos: t('colTip.pos'),
+    age: t('colTip.age'),
+    mp: t('colTip.mp'),
+    starts: t('colTip.starts'),
+    min: t('colTip.min'),
+    gls: t('colTip.gls'),
+    ast: t('colTip.ast'),
+    gPlusA: t('colTip.gPlusA'),
+    crdY: t('colTip.crdY'),
+    crdR: t('colTip.crdR'),
+    sh: t('colTip.sh'),
+    sot: t('colTip.sot'),
+    sotPct: t('colTip.sotPct'),
+    gPerSh: t('colTip.gPerSh'),
+  };
 
   const renderPerfCell = (p: PlayerSeasonStats, key: PerfSortKey, dec?: number) => {
     if (key === 'player') return p.player;
@@ -414,7 +443,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
       </section>
 
       {wageTrend.length > 1 && (
-        <ChartCard title={t('squad.chart.weeklyTrend')}>
+        <ChartCard title={t('squad.chart.weeklyTrend')} action={<LabelsBtn on={wageLbl} onClick={() => setWageLbl((v) => !v)} />}>
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={wageTrend} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
               <defs>
@@ -450,7 +479,9 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                 strokeWidth={2.5}
                 fill="url(#wageGrad)"
                 isAnimationActive={false}
-              />
+              >
+                {wageLbl && <LabelList dataKey="weekly" position="top" fontSize={10} fill="var(--text-muted)" formatter={(v: unknown) => `£${Number(v).toFixed(2)}M`} />}
+              </Area>
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -464,7 +495,9 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
               <XAxis dataKey="band" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={ChartTooltip} />
-              <Bar dataKey="count" fill="var(--brand)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+              <Bar dataKey="count" fill="var(--brand)" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                <LabelList dataKey="count" position="top" fontSize={10} fill="var(--text-muted)" />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -476,7 +509,9 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
               <XAxis dataKey="year" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={ChartTooltip} />
-              <Bar dataKey="count" fill="var(--info)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+              <Bar dataKey="count" fill="var(--info)" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                <LabelList dataKey="count" position="top" fontSize={10} fill="var(--text-muted)" />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -493,6 +528,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                 {columns.map((col) => (
                   <th
                     key={col.key}
+                    title={SQ_TIP[col.key]}
                     onClick={() => toggleSort(col.key)}
                     className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
                       col.align === 'left' ? 'text-left' : 'text-right'
@@ -565,6 +601,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                   {perfColumns.map((col) => (
                     <th
                       key={col.key}
+                      title={PERF_TIP[col.key]}
                       onClick={() => togglePerfSort(col.key)}
                       className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
                         col.align === 'left' ? 'text-left' : 'text-right'
@@ -640,10 +677,13 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
   );
 }
 
-function ChartCard({ title, children }: { title: string; children: ReactNode }) {
+function ChartCard({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
-      <h3 className="mb-3 font-display text-lg font-semibold text-primary">{title}</h3>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="font-display text-lg font-semibold text-primary">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -13,7 +13,9 @@ import {
   TooltipContentProps,
   LineChart,
   ReferenceLine,
+  LabelList,
 } from 'recharts';
+import { LabelsBtn } from './LabelsBtn';
 import { useI18n } from '@/i18n/I18nContext';
 import type { SeasonRow } from '@/lib/types';
 import { seasonShort, winRate, csRate } from '@/lib/stats';
@@ -111,16 +113,24 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
   const axisTick = { fill: 'var(--text-muted)', fontSize: 11 };
   const gridStroke = 'var(--border)';
 
+  const [lbl, setLbl] = useState<Record<string, boolean>>({});
+  const lblOn = (k: string) => !!lbl[k];
+  const toggleLbl = (k: string) => setLbl((p) => ({ ...p, [k]: !p[k] }));
+  const numFmt = (v: unknown) => fmt(Number(v));
+  const pctFmt = (v: unknown) => pct(Number(v), 0);
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <ChartCard title={t('charts.attack')}>
+      <ChartCard title={t('charts.attack')} action={<LabelsBtn on={lblOn('attack')} onClick={() => toggleLbl('attack')} />}>
         <ResponsiveContainer width="100%" height={280}>
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
             <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="short" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
             <Tooltip content={ChartTooltip} />
-            <Bar dataKey="gfPerMp" fill="var(--brand)" radius={[4, 4, 0, 0]} name="gfPerMp" isAnimationActive={false} />
+            <Bar dataKey="gfPerMp" fill="var(--brand)" radius={[4, 4, 0, 0]} name="gfPerMp" isAnimationActive={false}>
+              <LabelList dataKey="gfPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+            </Bar>
             <Line
               type="monotone"
               dataKey="xgPerMp"
@@ -130,19 +140,23 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
               connectNulls={false}
               isAnimationActive={false}
               name="xgPerMp"
-            />
+            >
+              {lblOn('attack') && <LabelList dataKey="xgPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+            </Line>
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>
 
-      <ChartCard title={t('charts.defense')}>
+      <ChartCard title={t('charts.defense')} action={<LabelsBtn on={lblOn('defense')} onClick={() => toggleLbl('defense')} />}>
         <ResponsiveContainer width="100%" height={280}>
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
             <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="short" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
             <Tooltip content={ChartTooltip} />
-            <Bar dataKey="gaPerMp" fill="var(--danger)" radius={[4, 4, 0, 0]} name="gaPerMp" isAnimationActive={false} />
+            <Bar dataKey="gaPerMp" fill="var(--danger)" radius={[4, 4, 0, 0]} name="gaPerMp" isAnimationActive={false}>
+              <LabelList dataKey="gaPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+            </Bar>
             <Line
               type="monotone"
               dataKey="xgaPerMp"
@@ -152,12 +166,14 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
               connectNulls={false}
               isAnimationActive={false}
               name="xgaPerMp"
-            />
+            >
+              {lblOn('defense') && <LabelList dataKey="xgaPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+            </Line>
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>
 
-      <ChartCard title={t('charts.pointsTrend')}>
+      <ChartCard title={t('charts.pointsTrend')} action={<LabelsBtn on={lblOn('pts')} onClick={() => toggleLbl('pts')} />}>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
             <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -174,12 +190,14 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
               connectNulls={false}
               isAnimationActive={false}
               name="ptsPerMp"
-            />
+            >
+              {lblOn('pts') && <LabelList dataKey="ptsPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+            </Line>
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
 
-      <ChartCard title={t('charts.rates')}>
+      <ChartCard title={t('charts.rates')} action={<LabelsBtn on={lblOn('rates')} onClick={() => toggleLbl('rates')} />}>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
             <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -202,7 +220,9 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
               connectNulls={false}
               isAnimationActive={false}
               name="winRate"
-            />
+            >
+              {lblOn('rates') && <LabelList dataKey="winRate" position="top" fontSize={10} fill="var(--text-muted)" formatter={pctFmt} />}
+            </Line>
             <Line
               type="monotone"
               dataKey="csRate"
@@ -212,7 +232,9 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
               connectNulls={false}
               isAnimationActive={false}
               name="csRate"
-            />
+            >
+              {lblOn('rates') && <LabelList dataKey="csRate" position="bottom" fontSize={10} fill="var(--text-muted)" formatter={pctFmt} />}
+            </Line>
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -222,14 +244,19 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
 
 function ChartCard({
   title,
+  action,
   children,
 }: {
   title: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
-      <h3 className="mb-3 font-display text-lg font-semibold text-primary">{title}</h3>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="font-display text-lg font-semibold text-primary">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );

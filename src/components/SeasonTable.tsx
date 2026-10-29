@@ -73,6 +73,26 @@ export function SeasonTable({
     return base;
   }, [t, group]);
 
+  const TIP: Partial<Record<SortKey, string>> = {
+    season: t('colTip.season'),
+    mp: t('colTip.mp'),
+    w: t('colTip.w'),
+    d: t('colTip.d'),
+    l: t('colTip.l'),
+    gf: t('colTip.gf'),
+    ga: t('colTip.ga'),
+    gd: t('colTip.gd'),
+    pts: t('colTip.pts'),
+    ptsPerMp: t('colTip.ptsPerMp'),
+    xg: t('colTip.xg'),
+    xga: t('colTip.xga'),
+    xgd: t('colTip.xgd'),
+    cs: t('colTip.cs'),
+    winRate: t('colTip.winRate'),
+    csRate: t('colTip.csRate'),
+    topScorer: t('colTip.topScorer'),
+  };
+
   const sortedRows = useMemo(() => {
     const col = columns.find(c => c.key === sort.key);
     const copy = [...rows];
@@ -126,6 +146,7 @@ export function SeasonTable({
             {columns.map(col => (
               <th
                 key={col.key}
+                title={TIP[col.key]}
                 onClick={() => toggleSort(col.key)}
                 className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${col.align === 'left' ? 'text-left' : 'text-right'}`}
               >

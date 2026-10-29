@@ -14,6 +14,7 @@ import {
   CartesianGrid,
   Tooltip,
   TooltipContentProps,
+  LabelList,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
 import type { CompGroup, KeepersData, GkSeasonRow, TeamStatsBySeason } from '@/lib/types';
@@ -24,6 +25,7 @@ import { loadKeepersSeason, LOAD_FAILED } from './matchlog-shared';
 import { CompetitionTabs } from './CompetitionTabs';
 import { MatchlogPanel } from './MatchlogBrowser';
 import { SeasonPace } from './SeasonPace';
+import { LabelsBtn } from './LabelsBtn';
 
 type SortKey = 'season' | 'player' | 'mp' | 'ga' | 'sota' | 'saves' | 'savePct' | 'cs';
 type DefSortKey =
@@ -121,6 +123,11 @@ export function DefenseDashboard({
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
   const [defSort, setDefSort] = useState<{ key: DefSortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
   const [perMatch, setPerMatch] = useState(false);
+  const [lbl, setLbl] = useState<Record<string, boolean>>({});
+  const lblOn = (k: string) => !!lbl[k];
+  const toggleLbl = (k: string) => setLbl((p) => ({ ...p, [k]: !p[k] }));
+  const numFmt = (v: unknown) => fmt(Number(v));
+  const pctFmt = (v: unknown) => pct(Number(v), 0);
 
   const defRows = useMemo<DefRow[]>(() => {
     const groupMap = new Map(
@@ -360,6 +367,20 @@ export function DefenseDashboard({
     },
   ];
 
+  const DEF_TIP: Partial<Record<DefSortKey, string>> = {
+    season: t('colTip.season'),
+    mp: t('colTip.mp'),
+    ga: t('colTip.ga'),
+    gaPerMp: t('colTip.gaPerMp'),
+    xga: t('colTip.xga'),
+    shA: t('colTip.sha'),
+    sota: t('colTip.sota'),
+    saves: t('colTip.saves'),
+    savePct: t('colTip.savePct'),
+    cs: t('colTip.cs'),
+    csPct: t('colTip.csPct'),
+  };
+
   const defColumns: { key: DefSortKey; label: string; align: 'left' | 'right' }[] = [
     { key: 'season', label: t('defense.table.season'), align: 'left' },
     { key: 'mp', label: 'MP', align: 'right' },
@@ -373,6 +394,16 @@ export function DefenseDashboard({
     { key: 'cs', label: 'CS', align: 'right' },
     { key: 'csPct', label: 'CS%', align: 'right' },
   ];
+
+  const GK_TIP: Partial<Record<SortKey, string>> = {
+    season: t('colTip.season'),
+    mp: t('colTip.mp'),
+    ga: t('colTip.ga'),
+    sota: t('colTip.sota'),
+    saves: t('colTip.saves'),
+    savePct: t('colTip.savePct'),
+    cs: t('colTip.cs'),
+  };
 
   const columns: { key: SortKey; label: string; align: 'left' | 'right' }[] = [
     { key: 'season', label: t('keepers.table.season'), align: 'left' },
@@ -416,7 +447,7 @@ export function DefenseDashboard({
       <SeasonPace side="defense" />
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ChartCard title={t('defense.chart.gaXga')}>
+        <ChartCard title={t('defense.chart.gaXga')} action={<LabelsBtn on={lblOn('gaxga')} onClick={() => toggleLbl('gaxga')} />}>
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={defRows} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -437,7 +468,9 @@ export function DefenseDashboard({
                 fillOpacity={0.15}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('gaxga') && <LabelList dataKey="gaPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Area>
               <Line
                 type="monotone"
                 dataKey="xgaPerMp"
@@ -447,7 +480,9 @@ export function DefenseDashboard({
                 dot={{ r: 3, fill: 'var(--info)' }}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('gaxga') && <LabelList dataKey="xgaPerMp" position="bottom" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Line>
             </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -455,6 +490,8 @@ export function DefenseDashboard({
         <ChartCard
           title={t('keepers.chart.bySeason')}
           action={
+            <div className="flex items-center gap-1.5">
+            <LabelsBtn on={lblOn('bySeason')} onClick={() => toggleLbl('bySeason')} />
             <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5 text-xs font-medium">
               <button
                 type="button"
@@ -479,6 +516,7 @@ export function DefenseDashboard({
                 {t('defense.perMatch')}
               </button>
             </div>
+            </div>
           }
         >
           <ResponsiveContainer width="100%" height={280}>
@@ -501,7 +539,9 @@ export function DefenseDashboard({
                 fillOpacity={0.15}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('bySeason') && <LabelList dataKey={perMatch ? 'sotaPerMp' : 'sota'} position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Area>
               <Line
                 type="monotone"
                 dataKey={perMatch ? 'savesPerMp' : 'saves'}
@@ -511,7 +551,9 @@ export function DefenseDashboard({
                 dot={{ r: 3, fill: '#8b5cf6' }}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('bySeason') && <LabelList dataKey={perMatch ? 'savesPerMp' : 'saves'} position="bottom" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Line>
               <Line
                 type="monotone"
                 dataKey={perMatch ? 'gaPerMp' : 'ga'}
@@ -530,6 +572,8 @@ export function DefenseDashboard({
           title={t('keepers.chart.perGk')}
           note={allCompsNote}
           action={
+            <div className="flex items-center gap-1.5">
+            <LabelsBtn on={lblOn('perGk')} onClick={() => toggleLbl('perGk')} />
             <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5 text-xs font-medium">
               <button
                 type="button"
@@ -549,6 +593,7 @@ export function DefenseDashboard({
               >
                 {t('defense.perMatch')}
               </button>
+            </div>
             </div>
           }
         >
@@ -583,14 +628,18 @@ export function DefenseDashboard({
                 fill="#0d9488"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
-              />
+              >
+                <LabelList dataKey={perMatch ? 'sotaPerMp' : 'sota'} position="top" fontSize={9} fill="var(--text-muted)" formatter={numFmt} />
+              </Bar>
               <Bar
                 dataKey={perMatch ? 'gaPerMp' : 'ga'}
                 name={perMatch ? 'gaPerMp' : 'ga'}
                 fill="var(--danger)"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
-              />
+              >
+                <LabelList dataKey={perMatch ? 'gaPerMp' : 'ga'} position="top" fontSize={9} fill="var(--text-muted)" formatter={numFmt} />
+              </Bar>
               <Line
                 yAxisId="right"
                 type="monotone"
@@ -600,12 +649,14 @@ export function DefenseDashboard({
                 strokeWidth={2.5}
                 dot={false}
                 isAnimationActive={false}
-              />
+              >
+                {lblOn('perGk') && <LabelList dataKey="savePct" position="top" fontSize={10} fill="var(--text-muted)" formatter={pctFmt} />}
+              </Line>
             </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={t('keepers.chart.goalsPrevented')}>
+        <ChartCard title={t('keepers.chart.goalsPrevented')} action={<LabelsBtn on={lblOn('gp')} onClick={() => toggleLbl('gp')} />}>
           <p className="mb-3 text-xs text-muted">{t('keepers.goalsPreventedNote')}</p>
           <p className="mb-3 text-xs text-muted">{t('defense.psxgNote')}</p>
           {goalsPrevented.length === 0 ? (
@@ -638,14 +689,18 @@ export function DefenseDashboard({
                 fill="var(--danger)"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
-              />
+              >
+                <LabelList dataKey="ga" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+              </Bar>
               <Bar
                 dataKey="psxg"
                 name="psxg"
                 fill="var(--info)"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
-              />
+              >
+                <LabelList dataKey="psxg" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+              </Bar>
               <Line
                 yAxisId="right"
                 type="monotone"
@@ -655,7 +710,9 @@ export function DefenseDashboard({
                 strokeWidth={2.5}
                 dot={{ r: 3, fill: 'var(--chart-neutral)' }}
                 isAnimationActive={false}
-              />
+              >
+                {lblOn('gp') && <LabelList dataKey="psxgPlusMinus" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Line>
             </ComposedChart>
           </ResponsiveContainer>
           )}
@@ -673,6 +730,7 @@ export function DefenseDashboard({
                 {defColumns.map((col) => (
                   <th
                     key={col.key}
+                    title={DEF_TIP[col.key]}
                     onClick={() => toggleDefSort(col.key)}
                     className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
                       col.align === 'left' ? 'text-left' : 'text-right'
@@ -738,6 +796,7 @@ export function DefenseDashboard({
                 {columns.map((col) => (
                   <th
                     key={col.key}
+                    title={GK_TIP[col.key]}
                     onClick={() => toggleSort(col.key)}
                     className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
                       col.align === 'left' ? 'text-left' : 'text-right'

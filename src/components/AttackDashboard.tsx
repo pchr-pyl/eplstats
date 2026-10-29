@@ -13,6 +13,7 @@ import {
   CartesianGrid,
   Tooltip,
   TooltipContentProps,
+  LabelList,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
 import type { CompGroup, TeamStatsBySeason } from '@/lib/types';
@@ -22,6 +23,7 @@ import { useClubData } from './ClubProvider';
 import { CompetitionTabs } from './CompetitionTabs';
 import { MatchlogPanel } from './MatchlogBrowser';
 import { SeasonPace } from './SeasonPace';
+import { LabelsBtn } from './LabelsBtn';
 
 type SortKey =
   | 'season' | 'mp' | 'gls' | 'gfPerMp' | 'xg' | 'sh' | 'sot'
@@ -55,6 +57,11 @@ export function AttackDashboard({
   const { rows } = useClubData();
   const [group, setGroup] = useState<CompGroup>('all');
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
+  const [lbl, setLbl] = useState<Record<string, boolean>>({});
+  const lblOn = (k: string) => !!lbl[k];
+  const toggleLbl = (k: string) => setLbl((p) => ({ ...p, [k]: !p[k] }));
+  const numFmt = (v: unknown) => fmt(Number(v));
+  const pctFmt = (v: unknown) => pct(Number(v), 0);
 
   const data = useMemo<Row[]>(() => {
     const groupMap = new Map(
@@ -155,6 +162,21 @@ export function AttackDashboard({
     { label: t('attack.kpi.gPerSh'), value: fmt(latest?.gPerSh ?? null, 2) },
   ];
 
+  const TIP: Partial<Record<SortKey, string>> = {
+    season: t('colTip.season'),
+    mp: t('colTip.mp'),
+    gls: t('colTip.gls'),
+    gfPerMp: t('colTip.gfPerMp'),
+    xg: t('colTip.xg'),
+    sh: t('colTip.sh'),
+    sot: t('colTip.sot'),
+    sotPct: t('colTip.sotPct'),
+    gPerSh: t('colTip.gPerSh'),
+    pk: t('colTip.pk'),
+    pkatt: t('colTip.pkatt'),
+    topScorer: t('colTip.topScorer'),
+  };
+
   const columns: { key: SortKey; label: string; align: 'left' | 'right' }[] = [
     { key: 'season', label: t('attack.table.season'), align: 'left' },
     { key: 'mp', label: 'MP', align: 'right' },
@@ -192,7 +214,7 @@ export function AttackDashboard({
       <SeasonPace side="attack" />
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ChartCard title={t('attack.chart.goals')}>
+        <ChartCard title={t('attack.chart.goals')} action={<LabelsBtn on={lblOn('goals')} onClick={() => toggleLbl('goals')} />}>
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -208,7 +230,9 @@ export function AttackDashboard({
                 fillOpacity={0.15}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('goals') && <LabelList dataKey="gfPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Area>
               <Line
                 type="monotone"
                 dataKey="xgPerMp"
@@ -218,12 +242,14 @@ export function AttackDashboard({
                 dot={{ r: 3, fill: 'var(--info)' }}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('goals') && <LabelList dataKey="xgPerMp" position="bottom" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Line>
             </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={t('attack.chart.shots')}>
+        <ChartCard title={t('attack.chart.shots')} action={<LabelsBtn on={lblOn('shots')} onClick={() => toggleLbl('shots')} />}>
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -249,7 +275,9 @@ export function AttackDashboard({
                 fillOpacity={0.15}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('shots') && <LabelList dataKey="shPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
+              </Area>
               <Line
                 yAxisId="right"
                 type="monotone"
@@ -260,7 +288,9 @@ export function AttackDashboard({
                 dot={{ r: 3, fill: '#0d9488' }}
                 isAnimationActive={false}
                 connectNulls
-              />
+              >
+                {lblOn('shots') && <LabelList dataKey="sotPct" position="top" fontSize={10} fill="var(--text-muted)" formatter={pctFmt} />}
+              </Line>
             </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -277,6 +307,7 @@ export function AttackDashboard({
                 {columns.map((col) => (
                   <th
                     key={col.key}
+                    title={TIP[col.key]}
                     onClick={() => toggleSort(col.key)}
                     className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${col.align === 'left' ? 'text-left' : 'text-right'}`}
                   >
@@ -319,10 +350,13 @@ export function AttackDashboard({
   );
 }
 
-function ChartCard({ title, children }: { title: string; children: ReactNode }) {
+function ChartCard({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
-      <h3 className="mb-3 font-display text-lg font-semibold text-primary">{title}</h3>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="font-display text-lg font-semibold text-primary">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );
