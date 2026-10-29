@@ -35,7 +35,7 @@ interface Metric {
   abs?: boolean;
 }
 
-export function VariantC({ data, lang }: VariantProps) {
+export function VariantC({ data, lang, hasXg }: VariantProps) {
   const L = (th: string, en: string) => (lang === 'th' ? th : en);
   const options = data.filter((s) => s.mp > 0);
 
@@ -57,12 +57,16 @@ export function VariantC({ data, lang }: VariantProps) {
       { label: L('ประตูได้/นัด', 'Goals for / match'), get: gfPer, fmt: (v) => fmt(v) },
       { label: L('ประตูเสีย/นัด', 'Goals against / match'), get: gaPer, fmt: (v) => fmt(v), lowerBetter: true },
       { label: L('คลีนชีต', 'Clean sheets'), get: csRate, fmt: (v) => pct(v, 2) },
-      { label: 'xG/' + L('นัด', 'match'), get: xgPer, fmt: (v) => fmt(v) },
-      { label: 'xGA/' + L('นัด', 'match'), get: xgaPer, fmt: (v) => fmt(v), lowerBetter: true },
-      { label: 'xGD/' + L('นัด', 'match'), get: xgdPer, fmt: (v) => signed(v), abs: true },
+      ...(hasXg
+        ? ([
+            { label: 'xG/' + L('นัด', 'match'), get: xgPer, fmt: (v: number | null) => fmt(v) },
+            { label: 'xGA/' + L('นัด', 'match'), get: xgaPer, fmt: (v: number | null) => fmt(v), lowerBetter: true },
+            { label: 'xGD/' + L('นัด', 'match'), get: xgdPer, fmt: (v: number | null) => signed(v), abs: true },
+          ] satisfies Metric[])
+        : []),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang],
+    [lang, hasXg],
   );
 
   const race = useMemo(() => {
@@ -85,6 +89,13 @@ export function VariantC({ data, lang }: VariantProps) {
     }));
   }, [left, right]);
 
+  if (options.length === 0) {
+    return (
+      <section className="rounded-2xl border border-border bg-surface p-8 text-center">
+        <p className="text-secondary">{L('ไม่มีนัดในรายการนี้', 'No matches in this competition')}</p>
+      </section>
+    );
+  }
   if (options.length < 2 || !left || !right) {
     return (
       <section className="rounded-2xl border border-border bg-surface p-8 text-center">

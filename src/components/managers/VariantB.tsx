@@ -78,7 +78,7 @@ function PpgBar({ s }: { s: StatBase }) {
   );
 }
 
-export function VariantB({ data, lang }: VariantProps) {
+export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
   const L = (th: string, en: string) => (lang === 'th' ? th : en);
   const [sortKey, setSortKey] = useState<SortKey>('ppg');
   const [dir, setDir] = useState<1 | -1>(-1);
@@ -98,15 +98,18 @@ export function VariantB({ data, lang }: VariantProps) {
       return c * dir || b.mp - a.mp;
     });
     return {
-      ranked: arr.filter((s) => s.mp >= 10),
-      small: arr.filter((s) => s.mp < 10),
+      ranked: arr.filter((s) => s.mp >= minN),
+      small: arr.filter((s) => s.mp < minN),
     };
-  }, [data, sortKey, dir, hideInterim]);
+  }, [data, sortKey, dir, hideInterim, minN]);
 
   // best per column among ranked stints (>= 10 matches)
   const best = useMemo(() => {
     const out = new Map<SortKey, number>();
-    for (const k of ['ppg', 'win', 'gf', 'ga', 'cs', 'xg', 'xga', 'xgd'] as SortKey[]) {
+    const keys = (hasXg
+      ? ['ppg', 'win', 'gf', 'ga', 'cs', 'xg', 'xga', 'xgd']
+      : ['ppg', 'win', 'gf', 'ga', 'cs']) as SortKey[];
+    for (const k of keys) {
       let v: number | null = null;
       for (const s of ranked) {
         const x = getVal(s, k);
@@ -116,7 +119,7 @@ export function VariantB({ data, lang }: VariantProps) {
       if (v != null) out.set(k, v);
     }
     return out;
-  }, [ranked]);
+  }, [ranked, hasXg]);
 
   const sortBy = (k: SortKey) => {
     if (k === sortKey) setDir((d) => (d === 1 ? -1 : 1));
@@ -127,7 +130,7 @@ export function VariantB({ data, lang }: VariantProps) {
   };
 
   const isBest = (s: StintStat, k: SortKey, v: number | null) =>
-    s.mp >= 10 && v != null && best.get(k) === v;
+    s.mp >= minN && v != null && best.get(k) === v;
   const bestCls = (on: boolean) =>
     on ? 'font-semibold text-primary underline decoration-brand decoration-2 underline-offset-4' : '';
 
@@ -166,16 +169,20 @@ export function VariantB({ data, lang }: VariantProps) {
         <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('gf', g))}`}>{fmt(g)}</td>
         <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('ga', a))}`}>{fmt(a)}</td>
         <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('cs', c))}`}>{pct(c, 2)}</td>
-        <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('xg', x))}`}>{fmt(x)}</td>
-        <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('xga', xa))}`}>{fmt(xa)}</td>
-        <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('xgd', xd))} ${xd == null ? 'text-muted' : xd >= 0 ? 'text-success' : 'text-danger'}`}>{signed(xd)}</td>
+        {hasXg && (
+          <>
+            <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('xg', x))}`}>{fmt(x)}</td>
+            <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('xga', xa))}`}>{fmt(xa)}</td>
+            <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('xgd', xd))} ${xd == null ? 'text-muted' : xd >= 0 ? 'text-success' : 'text-danger'}`}>{signed(xd)}</td>
+          </>
+        )}
       </>
     );
   };
 
   const tableRow = (s: StintStat, rank: number | null) => {
     const open = expanded === s.id;
-    const smallSample = s.mp < 10;
+    const smallSample = s.mp < minN;
     return [
       <tr
         key={s.id}
@@ -238,7 +245,7 @@ export function VariantB({ data, lang }: VariantProps) {
     const p = ppg(s);
     const open = expanded === s.id;
     return (
-      <div key={s.id} className={`rounded-xl border border-border bg-surface p-3 ${s.mp < 10 ? 'opacity-60' : ''}`}>
+      <div key={s.id} className={`rounded-xl border border-border bg-surface p-3 ${s.mp < minN ? 'opacity-60' : ''}`}>
         <button
           type="button"
           aria-expanded={open}
@@ -267,7 +274,8 @@ export function VariantB({ data, lang }: VariantProps) {
         </div>
         <div className="mt-2"><WdlBar s={s} /></div>
         <div className="mt-1.5 text-xs text-secondary">
-          {s.mp} MP · {pct(winRate(s), 2)} {L('ชนะ', 'win')} · xGD {signed(xgdPer(s))}
+          {s.mp} MP · {pct(winRate(s), 2)} {L('ชนะ', 'win')}
+          {hasXg && <> · xGD {signed(xgdPer(s))}</>}
         </div>
         {open &&
           s.seasons.map((ss) => (
@@ -316,9 +324,9 @@ export function VariantB({ data, lang }: VariantProps) {
                 {th('gf', 'GF/' + L('นัด', 'match'))}
                 {th('ga', 'GA/' + L('นัด', 'match'))}
                 {th('cs', L('คลีนชีต', 'Clean sheets'))}
-                {th('xg', 'xG/' + L('นัด', 'match'))}
-                {th('xga', 'xGA/' + L('นัด', 'match'))}
-                {th('xgd', 'xGD/' + L('นัด', 'match'))}
+                {hasXg && th('xg', 'xG/' + L('นัด', 'match'))}
+                {hasXg && th('xga', 'xGA/' + L('นัด', 'match'))}
+                {hasXg && th('xgd', 'xGD/' + L('นัด', 'match'))}
               </tr>
             </thead>
             <tbody>
@@ -327,8 +335,8 @@ export function VariantB({ data, lang }: VariantProps) {
                 ...(small.length > 0
                   ? [
                       <tr key="divider" aria-hidden>
-                        <td colSpan={13} className="border-t-2 border-border bg-bg-secondary/40 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
-                          {L('ตัวอย่างน้อย (< 10 นัด)', 'Small sample (< 10 matches)')}
+                        <td colSpan={hasXg ? 13 : 10} className="border-t-2 border-border bg-bg-secondary/40 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                          {L(`ตัวอย่างน้อย (< ${minN} นัด)`, `Small sample (< ${minN} matches)`)}
                         </td>
                       </tr>,
                       ...small.map((s) => tableRow(s, null)),
@@ -337,7 +345,9 @@ export function VariantB({ data, lang }: VariantProps) {
               ]}
               {ranked.length + small.length === 0 && (
                 <tr>
-                  <td colSpan={13} className="px-4 py-8 text-center text-sm text-muted">—</td>
+                  <td colSpan={hasXg ? 13 : 10} className="px-4 py-8 text-center text-sm text-muted">
+                    {L('ไม่มีนัดในรายการนี้', 'No matches in this competition')}
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -350,10 +360,15 @@ export function VariantB({ data, lang }: VariantProps) {
         {ranked.map((s, i) => mobileCard(s, i + 1))}
         {small.length > 0 && ranked.length > 0 && (
           <div className="border-t-2 border-border bg-bg-secondary/40 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
-            {L('ตัวอย่างน้อย (< 10 นัด)', 'Small sample (< 10 matches)')}
+            {L(`ตัวอย่างน้อย (< ${minN} นัด)`, `Small sample (< ${minN} matches)`)}
           </div>
         )}
         {small.map((s) => mobileCard(s, null))}
+        {ranked.length + small.length === 0 && (
+          <div className="rounded-xl border border-border bg-surface p-6 text-center text-sm text-muted">
+            {L('ไม่มีนัดในรายการนี้', 'No matches in this competition')}
+          </div>
+        )}
       </section>
     </>
   );

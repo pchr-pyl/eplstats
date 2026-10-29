@@ -1,8 +1,8 @@
-import { ManagersClient } from '@/components/ManagersClient';
+import { ManagersPage } from '@/components/managers/ManagersPage';
 
-export default async function ManagersPage({ params }: { params: Promise<{ club: string }> }) {
+export default async function ManagersRoutePage({ params }: { params: Promise<{ club: string }> }) {
   await params;
-  return <ManagersClient />;
+  return <ManagersPage />;
 }
 
 export const dynamicParams = false;

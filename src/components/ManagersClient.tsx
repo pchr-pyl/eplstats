@@ -28,13 +28,11 @@ import type { CompGroup, MatchRow } from '@/lib/types';
 import { compInGroup } from '@/lib/stats';
 import { fmt, pct } from '@/lib/format';
 import { useClubData } from './ClubProvider';
-import { CompetitionTabs } from './CompetitionTabs';
 import { ScoresList } from './matchlog-shared';
 
-export function ManagersClient() {
+export function ManagersClient({ group }: { group: CompGroup }) {
   const { t, lang } = useI18n();
   const { matches, stints } = useClubData();
-  const [group, setGroup] = useState<CompGroup>('all');
   const stats = useMemo(
     () =>
       aggregateManagers(
@@ -83,7 +81,7 @@ export function ManagersClient() {
     };
   });
 
-  const row = (s: ManagerStats, indent = false) => (
+  const row = (s: ManagerStats) => (
     <>
       <td className="px-3 py-2.5 text-right text-sm text-secondary">{s.mp}</td>
       <td className="px-3 py-2.5 text-right text-sm text-secondary">
@@ -111,9 +109,8 @@ export function ManagersClient() {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-6 py-8 lg:px-10">
+    <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
-        <CompetitionTabs group={group} onChange={setGroup} />
         <h2 className="font-display text-xl font-semibold text-primary">
           {t('managers.pick')}
         </h2>
@@ -178,12 +175,14 @@ export function ManagersClient() {
                   dataKey={t('managers.ptsPerMp')}
                   fill="var(--brand)"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
                 />
                 <Bar
                   yAxisId="pct"
                   dataKey={t('managers.winPct')}
                   fill="var(--chart-neutral)"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -265,7 +264,7 @@ export function ManagersClient() {
                             <td className="px-3 py-2 text-sm text-muted">
                               {ss.first} → {ss.last}
                             </td>
-                            {row(ss, true)}
+                            {row(ss)}
                           </tr>
                         )),
                         <tr
@@ -305,6 +304,6 @@ export function ManagersClient() {
           </table>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

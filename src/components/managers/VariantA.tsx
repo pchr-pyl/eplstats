@@ -25,6 +25,7 @@ import {
   periodShort,
   ppg,
   RollPoint,
+  rollingWindow,
   StatBase,
   stintRuns,
   StintStat,
@@ -102,9 +103,10 @@ function RollTooltip({
   );
 }
 
-export function VariantA({ data, roll, baseline, lang }: VariantProps) {
+export function VariantA({ data, roll, baseline, lang, hasXg }: VariantProps) {
   const L = (th: string, en: string) => (lang === 'th' ? th : en);
   const withGames = data.filter((s) => s.mp > 0);
+  const winN = rollingWindow(roll.length);
 
   // spotlight: current manager with matches, else latest stint with matches
   const cur = data.find((s) => isCurrent(s.stint) && s.mp > 0);
@@ -155,6 +157,14 @@ export function VariantA({ data, roll, baseline, lang }: VariantProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [withGames.map((s) => s.id).join(',')]);
 
+  if (withGames.length === 0) {
+    return (
+      <section className="rounded-2xl border border-border bg-surface p-8 text-center">
+        <p className="text-secondary">{L('ไม่มีนัดในรายการนี้', 'No matches in this competition')}</p>
+      </section>
+    );
+  }
+
   return (
     <>
       {/* spotlight */}
@@ -188,7 +198,7 @@ export function VariantA({ data, roll, baseline, lang }: VariantProps) {
       <section className="rounded-2xl border border-border bg-surface p-4">
         <div className="mb-2 flex items-baseline justify-between gap-3">
           <h3 className="font-display text-lg font-semibold text-primary">
-            {L('แต้มต่อนัด — ค่าเฉลี่ย 10 นัดล่าสุด', 'Points per match — rolling 10')}
+            {L(`แต้มต่อนัด — ค่าเฉลี่ย ${winN} นัดล่าสุด`, `Points per match — rolling ${winN}`)}
           </h3>
           {baseline != null && (
             <span className="text-xs text-muted">
@@ -351,7 +361,7 @@ export function VariantA({ data, roll, baseline, lang }: VariantProps) {
                         L('อัตราชนะ', 'Win rate'),
                         'GF/GA ' + L('ต่อนัด', '/match'),
                         L('คลีนชีต %', 'Clean sheet %'),
-                        'xG/xGA ' + L('ต่อนัด', '/match'),
+                        ...(hasXg ? ['xG/xGA ' + L('ต่อนัด', '/match')] : []),
                       ].map((h, i) => (
                         <th
                           key={i}
@@ -378,9 +388,11 @@ export function VariantA({ data, roll, baseline, lang }: VariantProps) {
                           {fmt(gfPer(ss))} / {fmt(gaPer(ss))}
                         </td>
                         <td className={numCell}>{pct(csRate(ss), 2)}</td>
-                        <td className={numCell}>
-                          {ss.xgN > 0 ? `${fmt(xgPer(ss))} / ${fmt(xgaPer(ss))}` : '—'}
-                        </td>
+                        {hasXg && (
+                          <td className={numCell}>
+                            {ss.xgN > 0 ? `${fmt(xgPer(ss))} / ${fmt(xgaPer(ss))}` : '—'}
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

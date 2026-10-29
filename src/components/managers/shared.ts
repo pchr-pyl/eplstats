@@ -1,4 +1,4 @@
-import type { MatchRow, ManagerStint } from '@/lib/types';
+import type { CompGroup, MatchRow, ManagerStint } from '@/lib/types';
 import { managerForDate, stintId } from '@/lib/managers';
 
 export type Lang = 'th' | 'en';
@@ -129,6 +129,16 @@ export function surname(stint: ManagerStint, lang: Lang = 'en'): string {
 
 export const isCurrent = (stint: ManagerStint) => stint.to == null;
 
+/** Small-sample threshold: tighter for comp groups with few matches per manager. */
+export function minSample(group: CompGroup): number {
+  return group === 'all' || group === 'premier-league' ? 10 : 5;
+}
+
+/** Rolling-PPG window: 10 normally, shrunk for small filtered sets. */
+export function rollingWindow(n: number): number {
+  return n < 10 ? Math.max(3, n) : 10;
+}
+
 export function daysInCharge(stint: ManagerStint): number {
   const from = new Date(`${stint.from}T00:00:00Z`).getTime();
   const to = stint.to ? new Date(`${stint.to}T00:00:00Z`).getTime() : Date.now();
@@ -159,15 +169,16 @@ export interface RollPoint {
   sid: string | null;
 }
 
-/** Rolling 10-match PPG across ALL played matches; each point tagged with stint id. */
+/** Rolling N-match PPG across ALL played matches; each point tagged with stint id. */
 export function rollingPpg(games: MatchRow[], stints: ManagerStint[]): RollPoint[] {
+  const w = rollingWindow(games.length);
   return games.map((m, i) => {
     let p: number | null = null;
-    if (i >= 9) {
+    if (i >= w - 1) {
       let sum = 0;
-      for (let k = i - 9; k <= i; k++)
+      for (let k = i - w + 1; k <= i; k++)
         sum += games[k].result === 'W' ? 3 : games[k].result === 'D' ? 1 : 0;
-      p = sum / 10;
+      p = sum / w;
     }
     const stint = managerForDate(stints, m.date);
     return {
@@ -206,4 +217,6 @@ export interface VariantProps {
   roll: RollPoint[];
   baseline: number | null;
   lang: Lang;
+  hasXg: boolean;
+  minN: number;
 }
