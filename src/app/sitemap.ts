@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${BASE}/`, changeFrequency: 'weekly', priority: 1 },
     { url: `${BASE}/clubs-compare/`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE}/insights/`, changeFrequency: 'weekly', priority: 0.8 },
     ...getClubIndex().flatMap((c) =>
       TABS.map((t) => ({
         url: `${BASE}/${c.slug}${t}/`,
