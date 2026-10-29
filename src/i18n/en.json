@@ -23,6 +23,20 @@
   "noData": "Select at least one manager",
   "matchLog": "Match log"
  },
+ "feedback": {
+  "button": "Feedback",
+  "title": "Send feedback",
+  "bug": "Bug",
+  "idea": "Suggestion",
+  "other": "Other",
+  "message": "What went wrong? What would you like to see?",
+  "contact": "Email (optional)",
+  "submit": "Send",
+  "sending": "Sending…",
+  "thanks": "Thanks! Feedback sent.",
+  "error": "Couldn't send — please try again.",
+  "close": "Close"
+ },
  "competitions": {
   "all": "All",
   "premier-league": "Premier League",

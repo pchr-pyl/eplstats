@@ -4,6 +4,8 @@ import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { I18nProvider } from '@/i18n/I18nContext';
+import { FeedbackButton } from '@/components/FeedbackButton';
+import { TrackView } from '@/components/TrackView';
 
 const ibmPlex = IBM_Plex_Sans_Thai_Looped({
   variable: '--font-ibm-plex',
@@ -60,7 +62,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
         <ThemeProvider>
-          <I18nProvider>{children}</I18nProvider>
+          <I18nProvider>
+            {children}
+            <FeedbackButton />
+            <TrackView />
+          </I18nProvider>
         </ThemeProvider>
       </body>
     </html>

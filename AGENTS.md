@@ -142,3 +142,16 @@ alone leave stale stat rows.
   it with `npx npm@10 install --package-lock-only` or `npm ci` fails there.
 - Refresh flow: scrape → `python -X utf8 scripts/build/build_all.py` → commit
   + push (auto-deploys) or `npm run deploy` to skip git.
+
+## Feedback + admin (Pages Functions + D1)
+- `functions/api/` — Pages Functions served alongside `out/`: `POST /api/feedback`,
+  `POST /api/track` (sendBeacon pageviews), `POST /api/admin/login`,
+  `GET /api/admin/feedback`, `GET /api/admin/stats`. Files starting `_` are not routed.
+- `wrangler.toml` binds D1 `eplstats-feedback` as `DB` (tables: `feedback`,
+  `pageviews`; schema in `scripts/schema-feedback.sql`). Applies to both
+  git-connected builds and `wrangler pages deploy`.
+- `/admin` = static client page (login → Bearer token in sessionStorage).
+  Creds default `admin@gmail.com` / `admin123` — override via Pages env vars
+  `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SECRET` (token signing).
+- Local test: `wrangler d1 execute eplstats-feedback --local --file=scripts/schema-feedback.sql`
+  then `npx wrangler pages dev out`.
