@@ -19,7 +19,7 @@ import type { ClubIndexEntry, LeagueData, SquadCompareData } from '@/lib/types';
 import { fmt, gbp } from '@/lib/format';
 import { seasonShort } from '@/lib/stats';
 
-const MAX_CLUBS = 4;
+const MAX_CLUBS = 8;
 const DEFAULTS = ['man-utd', 'arsenal'];
 
 interface Row {
