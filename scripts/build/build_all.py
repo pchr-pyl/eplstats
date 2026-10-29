@@ -8,7 +8,7 @@ Per club (seasons from data/clubs.json):
   data/built/{slug}/seasons.json   SeasonRow[] + squad + All-Competitions row
   data/built/{slug}/keepers.json   KeepersData
   data/built/{slug}/players.json   PlayersData
-  data/built/{slug}/attack.json    AttackBySeason
+  data/built/{slug}/teamstats.json TeamStatsBySeason
   data/built/{slug}/squad.json     SquadData
   public/data/{slug}/matchlogs-{season}.json
 League-wide:
@@ -322,6 +322,36 @@ def keeper_matchlog(club):
     return out
 
 
+def gk_squad_rows(md, season):
+    """Squad goalkeeping markdown -> GkSeasonRow list."""
+    out = []
+    for _h, header, rows in parse_tables(md):
+        if not header or header[0] != "Player":
+            continue
+        idx = colmap(header)
+        sav = [i for i, c in enumerate(header) if c == "Save%"]
+        for r in rows:
+            if len(r) < 23:
+                continue
+            g = lambda n: r[idx[n]] if idx.get(n) is not None and idx[n] < len(r) else ""
+            out.append({
+                "season": season,
+                "player": strip_md(g("Player")) or None,
+                "nation": strip_md(g("Nation")) or None,
+                "age": num(g("Age")), "mp": num(g("MP")),
+                "starts": num(g("Starts")), "min": num(g("Min")),
+                "nineties": num(g("90s")), "ga": num(g("GA")),
+                "ga90": num(g("GA90")), "sota": num(g("SoTA")),
+                "saves": num(g("Saves")), "savePct": num(g("Save%")),
+                "w": num(g("W")), "d": num(g("D")), "l": num(g("L")),
+                "cs": num(g("CS")), "csPct": num(g("CS%")),
+                "pkatt": num(g("PKatt")), "pka": num(g("PKA")),
+                "pksv": num(g("PKsv")), "pkm": num(g("PKm")),
+                "pkSavePct": num(r[sav[-1]]) if sav else None,
+            })
+    return out
+
+
 def keeper_squad(club):
     out = []
     for season in club["seasons"]:
@@ -329,30 +359,22 @@ def keeper_squad(club):
         if not p.exists():
             warn(f"{club['slug']} {season}: no keeper-squad.json")
             continue
-        for _h, header, rows in parse_tables(load_json(p)["markdown"]):
-            if not header or header[0] != "Player":
-                continue
-            idx = colmap(header)
-            sav = [i for i, c in enumerate(header) if c == "Save%"]
+        out.extend(gk_squad_rows(load_json(p)["markdown"], season))
+    return out
+
+
+def keeper_comps(club):
+    """perGkComp: GkSeasonRow + comp from players-comps.json keeper tables."""
+    out = []
+    for season in club["seasons"]:
+        p = RAW / "clubs" / club["slug"] / season / "players-comps.json"
+        if not p.exists():
+            continue
+        for c in load_json(p).get("comps", []):
+            rows = gk_squad_rows(c.get("markdown_keeper") or "", season)
             for r in rows:
-                if len(r) < 23:
-                    continue
-                g = lambda n: r[idx[n]] if idx.get(n) is not None and idx[n] < len(r) else ""
-                out.append({
-                    "season": season,
-                    "player": strip_md(g("Player")) or None,
-                    "nation": strip_md(g("Nation")) or None,
-                    "age": num(g("Age")), "mp": num(g("MP")),
-                    "starts": num(g("Starts")), "min": num(g("Min")),
-                    "nineties": num(g("90s")), "ga": num(g("GA")),
-                    "ga90": num(g("GA90")), "sota": num(g("SoTA")),
-                    "saves": num(g("Saves")), "savePct": num(g("Save%")),
-                    "w": num(g("W")), "d": num(g("D")), "l": num(g("L")),
-                    "cs": num(g("CS")), "csPct": num(g("CS%")),
-                    "pkatt": num(g("PKatt")), "pka": num(g("PKA")),
-                    "pksv": num(g("PKsv")), "pkm": num(g("PKm")),
-                    "pkSavePct": num(r[sav[-1]]) if sav else None,
-                })
+                r["comp"] = c["name"]
+            out.extend(rows)
     return out
 
 
@@ -404,7 +426,8 @@ def psxg_rows(club):
 
 def build_keepers(club):
     data = {"matchLog": keeper_matchlog(club),
-            "perGkSeason": keeper_squad(club)}
+            "perGkSeason": keeper_squad(club),
+            "perGkComp": keeper_comps(club)}
     psxg, per_gk = psxg_rows(club)
     if club["slug"] == "man-utd":
         legacy_path = DATA / "man-utd-psxg-legacy.json"
@@ -437,6 +460,68 @@ def _is_player_name(name):
     return bool(name) and not re.search(r"\b(squad|total|opponent)\b", name, re.I)
 
 
+def player_rows(std_md, shoot_md, time_md):
+    """standard/shooting/playingTime markdown -> player rows (None if no
+    standard table)."""
+    std_h, std_r = first_table(std_md or "")
+    shoot_h, shoot_r = first_table(shoot_md or "")
+    time_h, time_r = first_table(time_md or "")
+    if not std_h or std_h[0] != "Player":
+        return None
+    std_i, shoot_i, time_i = colmap(std_h), colmap(shoot_h), colmap(time_h)
+
+    def cell(row, i):
+        return row[i] if row is not None and i is not None and i < len(row) else ""
+
+    def nint(row, i):
+        v = num(cell(row, i))
+        return None if v is None else int(v)
+
+    shoot_by = {_norm_name(strip_md(r[0])): r for r in shoot_r
+                if len(r) >= len(shoot_h) and r[0].strip()}
+    time_by = {_norm_name(strip_md(r[0])): r for r in time_r
+               if len(r) >= len(time_h) and r[0].strip()}
+    players = []
+    for r in std_r:
+        if len(r) < len(std_h):
+            continue
+        name = strip_md(r[0])
+        pos = strip_md(cell(r, std_i.get("Pos")))
+        if not _is_player_name(name) or not pos:
+            continue
+        age = num(cell(r, std_i.get("Age")))
+        shoot = shoot_by.get(_norm_name(name))
+        tim = time_by.get(_norm_name(name))
+        players.append({
+            "player": name,
+            "nation": strip_md(cell(r, std_i.get("Nation"))) or None,
+            "pos": pos, "age": int(age) if age is not None else None,
+            "mp": nint(r, std_i.get("MP")),
+            "starts": nint(r, std_i.get("Starts")),
+            "min": nint(r, std_i.get("Min")),
+            "nineties": num(cell(r, std_i.get("90s"))),
+            "gls": nint(r, std_i.get("Gls")),
+            "ast": nint(r, std_i.get("Ast")),
+            "gPlusA": nint(r, std_i.get("G+A")),
+            "gMinusPk": nint(r, std_i.get("G-PK")),
+            "pk": nint(r, std_i.get("PK")),
+            "pkatt": nint(r, std_i.get("PKatt")),
+            "crdY": nint(r, std_i.get("CrdY")),
+            "crdR": nint(r, std_i.get("CrdR")),
+            "sh": nint(shoot, shoot_i.get("Sh")),
+            "sot": nint(shoot, shoot_i.get("SoT")),
+            "sotPct": num(cell(shoot, shoot_i.get("SoT%"))),
+            "gPerSh": num(cell(shoot, shoot_i.get("G/Sh"))),
+            "gPerSot": num(cell(shoot, shoot_i.get("G/SoT"))),
+            "minsPerStart": num(cell(tim, time_i.get("Mn/Start"))),
+            "ppm": num(cell(tim, time_i.get("PPM"))),
+        })
+    return players
+
+
+PLAYER_COMP_NAMES = set()
+
+
 def build_players(club):
     out = {"seasons": {}, "latest": ""}
     for season in club["seasons"]:
@@ -445,63 +530,27 @@ def build_players(club):
             warn(f"{club['slug']} {season}: no players.json")
             continue
         raw = load_json(p)
-        std_h, std_r = first_table(raw.get("markdown_standard", ""))
-        shoot_h, shoot_r = first_table(raw.get("markdown_shooting", ""))
-        time_h, time_r = first_table(raw.get("markdown_playingTime", ""))
-        if not std_h or std_h[0] != "Player":
+        players = player_rows(raw.get("markdown_standard", ""),
+                              raw.get("markdown_shooting", ""),
+                              raw.get("markdown_playingTime", ""))
+        if players is None:
             warn(f"{club['slug']} {season}: no standard table")
             continue
-        std_i, shoot_i, time_i = colmap(std_h), colmap(shoot_h), colmap(time_h)
-
-        def cell(row, i):
-            return row[i] if row is not None and i is not None and i < len(row) else ""
-
-        def nint(row, i):
-            v = num(cell(row, i))
-            return None if v is None else int(v)
-
-        shoot_by = {_norm_name(strip_md(r[0])): r for r in shoot_r
-                    if len(r) >= len(shoot_h) and r[0].strip()}
-        time_by = {_norm_name(strip_md(r[0])): r for r in time_r
-                   if len(r) >= len(time_h) and r[0].strip()}
-        players = []
-        for r in std_r:
-            if len(r) < len(std_h):
-                continue
-            name = strip_md(r[0])
-            pos = strip_md(cell(r, std_i.get("Pos")))
-            if not _is_player_name(name) or not pos:
-                continue
-            age = num(cell(r, std_i.get("Age")))
-            shoot = shoot_by.get(_norm_name(name))
-            tim = time_by.get(_norm_name(name))
-            players.append({
-                "player": name,
-                "nation": strip_md(cell(r, std_i.get("Nation"))) or None,
-                "pos": pos, "age": int(age) if age is not None else None,
-                "mp": nint(r, std_i.get("MP")),
-                "starts": nint(r, std_i.get("Starts")),
-                "min": nint(r, std_i.get("Min")),
-                "nineties": num(cell(r, std_i.get("90s"))),
-                "gls": nint(r, std_i.get("Gls")),
-                "ast": nint(r, std_i.get("Ast")),
-                "gPlusA": nint(r, std_i.get("G+A")),
-                "gMinusPk": nint(r, std_i.get("G-PK")),
-                "pk": nint(r, std_i.get("PK")),
-                "pkatt": nint(r, std_i.get("PKatt")),
-                "crdY": nint(r, std_i.get("CrdY")),
-                "crdR": nint(r, std_i.get("CrdR")),
-                "sh": nint(shoot, shoot_i.get("Sh")),
-                "sot": nint(shoot, shoot_i.get("SoT")),
-                "sotPct": num(cell(shoot, shoot_i.get("SoT%"))),
-                "gPerSh": num(cell(shoot, shoot_i.get("G/Sh"))),
-                "gPerSot": num(cell(shoot, shoot_i.get("G/SoT"))),
-                "minsPerStart": num(cell(tim, time_i.get("Mn/Start"))),
-                "ppm": num(cell(tim, time_i.get("PPM"))),
-            })
-        out["seasons"][season] = {
-            "players": players,
-            "sourceURL": raw.get("metadata", {}).get("sourceURL")}
+        entry = {"players": players,
+                 "sourceURL": raw.get("metadata", {}).get("sourceURL")}
+        pc = RAW / "clubs" / club["slug"] / season / "players-comps.json"
+        if pc.exists():
+            by_comp = {}
+            for c in load_json(pc).get("comps", []):
+                PLAYER_COMP_NAMES.add(c["name"])
+                rows = player_rows(c.get("markdown_standard"),
+                                   c.get("markdown_shooting"),
+                                   c.get("markdown_playingTime"))
+                if rows is not None:
+                    by_comp[c["name"]] = rows
+            if by_comp:
+                entry["byComp"] = by_comp
+        out["seasons"][season] = entry
     if out["seasons"]:
         out["latest"] = sorted(out["seasons"])[-1]
     return out
@@ -555,31 +604,73 @@ def build_matchlogs(club):
     return seasons
 
 
-def build_attack(matchlog_seasons):
+def build_team_stats(matchlog_seasons):
+    """{season: {rawComp: TeamCompRow}} — per-competition team stats.
+
+    Each matchlog table's rows are grouped by their own raw Comp cell
+    (e.g. "Premier League", "Champions Lg"); the client canonicalizes.
+    No row joins across tables.
+    """
+    def s(vals):
+        vals = [v for v in vals if v is not None]
+        return round(sum(vals), 2) if vals else None
+
+    def groups(table):
+        """comp -> row list for one matchlog table."""
+        out = {}
+        if not table:
+            return None, out
+        cols = table["columns"]
+        ci = cols.index("Comp") if "Comp" in cols else -1
+        for r in table["rows"]:
+            comp = strip_md(r[ci]) if 0 <= ci < len(r) else ""
+            out.setdefault(comp, []).append(r)
+        return cols, out
+
     out = {}
     for season, types in matchlog_seasons.items():
-        t = types.get("shooting", {}).get("for")
-        if not t:
+        sf_cols, sh_for = groups(types.get("shooting", {}).get("for"))
+        sa_cols, sh_ag = groups(types.get("shooting", {}).get("against"))
+        kf_cols, kp_for = groups(types.get("keeper", {}).get("for"))
+        if not (sh_for or sh_ag or kp_for):
             continue
-        ix = {}
-        for i, c in enumerate(t["columns"]):
-            ix.setdefault(c, i)
-        mp = len(t["rows"])
 
-        def col(name):
-            i = ix.get(name)
+        def col(rows, cols, name):
+            i = cols.index(name) if cols and name in cols else None
             return [num(r[i]) if i is not None and i < len(r) else None
-                    for r in t["rows"]]
+                    for r in rows]
 
-        def s(vals):
-            vals = [v for v in vals if v is not None]
-            return round(sum(vals), 2) if vals else None
+        def n_nonnull(vals):
+            return sum(1 for v in vals if v is not None)
 
-        sh = col("Sh")
-        cov = sum(1 for v in sh if v is not None) / mp if mp else 0
-        out[season] = {"mp": mp, "gls": s(col("Gls")), "sh": s(sh),
-                       "sot": s(col("SoT")), "pk": s(col("PK")),
-                       "pkatt": s(col("PKatt")), "shCoverage": round(cov, 2)}
+        ga_i = sf_cols.index("GA") if sf_cols and "GA" in sf_cols else None
+        season_out = {}
+        for comp in set(sh_for) | set(sh_ag) | set(kp_for):
+            fr = sh_for.get(comp, [])
+            ar = sh_ag.get(comp, [])
+            kr = kp_for.get(comp, [])
+            ga = [score(r[ga_i])[0] if ga_i is not None and ga_i < len(r)
+                  else None for r in fr]
+            sh = col(fr, sf_cols, "Sh")
+            sha = col(ar, sa_cols, "Sh")
+            sota = col(kr, kf_cols, "SoTA")
+            season_out[comp] = {
+                "mp": max(len(fr), len(ar), len(kr)),
+                "gls": s(col(fr, sf_cols, "Gls")),
+                "ga": s(ga),
+                "sh": s(sh),
+                "sot": s(col(fr, sf_cols, "SoT")),
+                "pk": s(col(fr, sf_cols, "PK")),
+                "pkatt": s(col(fr, sf_cols, "PKatt")),
+                "shN": n_nonnull(sh),
+                "shA": s(sha),
+                "shAN": n_nonnull(sha),
+                "sota": s(sota),
+                "saves": s(col(kr, kf_cols, "Saves")),
+                "cs": s(col(kr, kf_cols, "CS")),
+                "kN": n_nonnull(sota),
+            }
+        out[season] = season_out
     return out
 
 
@@ -1042,6 +1133,8 @@ def keepers_by_season(keepers):
             "psxg": [r for r in keepers.get("psxg", []) if r["season"] == s],
             "psxgPerGk": [r for r in keepers.get("psxgPerGk", [])
                           if r["season"] == s],
+            "perGkComp": [r for r in keepers.get("perGkComp", [])
+                          if r["season"] == s],
         }
     return out
 
@@ -1058,14 +1151,14 @@ def build_club(club, league_xg):
     keepers = build_keepers(club)
     players = build_players(club)
     ml_seasons = build_matchlogs(club)
-    attack = build_attack(ml_seasons)
+    teamstats = build_team_stats(ml_seasons)
     squad = build_squad(club)
     out = BUILT / slug
     write_json(out / "matches.json", matches)
     write_json(out / "seasons.json", seasons)
     write_json(out / "keepers.json", keepers)
     write_json(out / "players.json", players)
-    write_json(out / "attack.json", attack)
+    write_json(out / "teamstats.json", teamstats)
     write_json(out / "squad.json", squad)
     # per-season public files for lazy loading (squad/keepers/players)
     for s, rows in keepers_by_season(keepers).items():
@@ -1140,6 +1233,8 @@ def main():
         write_json(BUILT / "managers.json", load_json(mgr), compact=False)
     build_match_files(lm, CLUBS)
     print(f"done: {len(index)} clubs in index")
+    if PLAYER_COMP_NAMES:
+        print(f"player comp names: {sorted(PLAYER_COMP_NAMES)}")
     if STRIPPED_CC:
         print(f"opponent cc-prefixes stripped: {sorted(STRIPPED_CC)}")
 

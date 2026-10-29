@@ -12,10 +12,12 @@ import {
   TooltipContentProps,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import type { MatchRow, MatchlogTable, SeasonMatchlogs } from '@/lib/types';
+import type { CompGroup, MatchRow, MatchlogTable, SeasonMatchlogs } from '@/lib/types';
+import { compInGroup } from '@/lib/stats';
 import { useClub, useClubData } from './ClubProvider';
 import { fmt, pct, signed } from '@/lib/format';
 import { loadMatchlogs, LOAD_FAILED } from './matchlog-shared';
+import { CompetitionTabs } from './CompetitionTabs';
 
 function pts(result: string | null): number {
   if (result === 'W') return 3;
@@ -61,6 +63,7 @@ function sumMatchlogColumn(
   table: MatchlogTable | undefined,
   dates: Set<string>,
   colName: string,
+  group: CompGroup,
 ): number | null {
   if (!table) return null;
   const compIdx = table.columns.indexOf('Comp');
@@ -70,7 +73,7 @@ function sumMatchlogColumn(
   let sum = 0;
   let count = 0;
   for (const r of table.rows) {
-    if (r[compIdx] !== 'Premier League') continue;
+    if (!compInGroup(r[compIdx] ?? '', group)) continue;
     if (!dates.has(r[dateIdx])) continue;
     const v = r[colIdx] ?? '';
     if (v === '') continue;
@@ -102,20 +105,26 @@ export function CompareDashboard() {
   const { t } = useI18n();
   const { club } = useClub();
   const { matches } = useClubData();
+  const [group, setGroup] = useState<CompGroup>('all');
   const seasons = useMemo(() => {
     const set = new Set(
       matches
-        .filter((m) => m.competition === 'Premier League' && m.result)
+        .filter((m) => compInGroup(m.competition, group) && m.result)
         .map((m) => m.season),
     );
     return Array.from(set).sort();
-  }, [matches]);
+  }, [matches, group]);
 
   const [selected, setSelected] = useState<string[]>(() => {
     const a = seasons[seasons.length - 2] ?? '';
     const b = seasons[seasons.length - 1] ?? '';
     return [...new Set([a, b].filter(Boolean))];
   });
+
+  const effective = useMemo(() => {
+    const keep = selected.filter((s) => seasons.includes(s));
+    return keep.length ? keep : seasons.slice(-2);
+  }, [selected, seasons]);
 
   // missing key = still loading; loadMatchlogs caches per club|season
   const [matchlogs, setMatchlogs] = useState<
@@ -124,7 +133,7 @@ export function CompareDashboard() {
 
   useEffect(() => {
     let live = true;
-    for (const season of selected) {
+    for (const season of effective) {
       loadMatchlogs(club.slug, season).then((r) => {
         if (!live) return;
         const next = r === LOAD_FAILED ? 'failed' : r;
@@ -134,7 +143,7 @@ export function CompareDashboard() {
     return () => {
       live = false;
     };
-  }, [selected, club.slug]);
+  }, [effective, club.slug]);
 
   const getColor = (season: string) => {
     const idx = seasons.indexOf(season);
@@ -143,45 +152,45 @@ export function CompareDashboard() {
 
   const seasonData = useMemo<Record<string, SeasonData>>(() => {
     const map: Record<string, SeasonData> = {};
-    for (const season of selected) {
+    for (const season of effective) {
       const rows = matches
         .filter(
           (m) =>
             m.season === season &&
-            m.competition === 'Premier League' &&
+            compInGroup(m.competition, group) &&
             (m.result === 'W' || m.result === 'D' || m.result === 'L'),
         )
         .sort((a, b) => a.date.localeCompare(b.date));
       map[season] = { rows, cum: cumPoints(rows) };
     }
     return map;
-  }, [matches, selected]);
+  }, [matches, effective, group]);
 
   const { maxCumLen, matchweek } = useMemo(() => {
-    if (!selected.length) return { maxCumLen: 0, matchweek: 0 };
-    const lens = selected.map((s) => seasonData[s]?.rows.length ?? 0);
-    const cums = selected.map((s) => seasonData[s]?.cum.length ?? 0);
+    if (!effective.length) return { maxCumLen: 0, matchweek: 0 };
+    const lens = effective.map((s) => seasonData[s]?.rows.length ?? 0);
+    const cums = effective.map((s) => seasonData[s]?.cum.length ?? 0);
     return {
       maxCumLen: Math.max(...cums),
       matchweek: Math.min(...lens),
     };
-  }, [selected, seasonData]);
+  }, [effective, seasonData]);
 
   const chartData = useMemo(() => {
     return Array.from({ length: maxCumLen }, (_, i) => {
       const entry: Record<string, number | null> & { match: number } = {
         match: i + 1,
       };
-      for (const season of selected) {
+      for (const season of effective) {
         entry[season] = seasonData[season]?.cum[i] ?? null;
       }
       return entry;
     });
-  }, [maxCumLen, selected, seasonData]);
+  }, [maxCumLen, effective, seasonData]);
 
   const stats = useMemo<Record<string, SeasonStats>>(() => {
     const map: Record<string, SeasonStats> = {};
-    for (const season of selected) {
+    for (const season of effective) {
       const rows = seasonData[season]?.rows ?? [];
       const cum = seasonData[season]?.cum ?? [];
       const slice = rows.slice(0, matchweek);
@@ -217,11 +226,11 @@ export function CompareDashboard() {
       };
     }
     return map;
-  }, [selected, seasonData, matchweek]);
+  }, [effective, seasonData, matchweek]);
 
   const logStats = useMemo<Record<string, LogStats>>(() => {
     const map: Record<string, LogStats> = {};
-    for (const season of selected) {
+    for (const season of effective) {
       const ml = matchlogs[season];
       const loading = ml == null || ml === 'loading';
       if (loading || ml === 'failed' || typeof ml !== 'object') {
@@ -238,15 +247,15 @@ export function CompareDashboard() {
         seasonData[season]?.rows.slice(0, matchweek).map((m) => m.date) ?? [],
       );
       map[season] = {
-        sh: sumMatchlogColumn(ml.shooting?.for, dates, 'Sh'),
-        sot: sumMatchlogColumn(ml.shooting?.for, dates, 'SoT'),
-        sota: sumMatchlogColumn(ml.keeper?.for, dates, 'SoTA'),
-        saves: sumMatchlogColumn(ml.keeper?.for, dates, 'Saves'),
+        sh: sumMatchlogColumn(ml.shooting?.for, dates, 'Sh', group),
+        sot: sumMatchlogColumn(ml.shooting?.for, dates, 'SoT', group),
+        sota: sumMatchlogColumn(ml.keeper?.for, dates, 'SoTA', group),
+        saves: sumMatchlogColumn(ml.keeper?.for, dates, 'Saves', group),
         loading: false,
       };
     }
     return map;
-  }, [selected, matchweek, matchlogs, seasonData]);
+  }, [effective, matchweek, matchlogs, seasonData, group]);
 
   const axisTick = { fill: 'var(--text-muted)', fontSize: 11 };
   const gridStroke = 'var(--border)';
@@ -288,10 +297,10 @@ export function CompareDashboard() {
   }
 
   function toggleSeason(season: string) {
-    setSelected((prev) => {
-      const set = new Set(prev);
+    setSelected(() => {
+      const set = new Set(effective);
       if (set.has(season)) {
-        if (set.size === 1) return prev;
+        if (set.size === 1) return effective;
         set.delete(season);
       } else {
         set.add(season);
@@ -304,11 +313,12 @@ export function CompareDashboard() {
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-8 px-6 py-8 lg:px-10">
       <section className="flex min-w-0 flex-col gap-4">
         <h2 className="font-display text-xl font-semibold text-primary">{t('compare.title')}</h2>
+        <CompetitionTabs group={group} onChange={setGroup} />
         <div className="flex flex-col gap-2">
           <span className="text-sm text-secondary">{t('compare.seasons')}</span>
           <div className="flex flex-wrap gap-2">
             {seasons.map((season) => {
-              const isSelected = selected.includes(season);
+              const isSelected = effective.includes(season);
               const color = getColor(season);
               return (
                 <button
@@ -347,7 +357,7 @@ export function CompareDashboard() {
             <XAxis dataKey="match" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} domain={[0, 'auto']} />
             <Tooltip content={ChartTooltip} />
-            {selected.map((season) => {
+            {effective.map((season) => {
               const color = getColor(season);
               return (
                 <Line
@@ -368,7 +378,7 @@ export function CompareDashboard() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {selected.map((season) => {
+        {effective.map((season) => {
           const s = stats[season];
           const ls = logStats[season];
           const color = getColor(season);

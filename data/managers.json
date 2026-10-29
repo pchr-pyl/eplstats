@@ -1396,6 +1396,20 @@
     "name": "Ruben Amorim",
     "nameTh": "รูเบน อาโมริม",
     "from": "2024-11-11",
+    "to": "2026-01-05",
+    "interim": false
+   },
+   {
+    "name": "Darren Fletcher",
+    "nameTh": "ดาร์เรน เฟล็ตเชอร์",
+    "from": "2026-01-06",
+    "to": "2026-01-12",
+    "interim": true
+   },
+   {
+    "name": "Michael Carrick",
+    "nameTh": "ไมเคิล คาร์ริค",
+    "from": "2026-01-13",
     "to": null,
     "interim": false
    }

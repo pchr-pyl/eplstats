@@ -16,11 +16,12 @@ import {
   Area,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import type { SquadData, SquadSeason, SquadPlayer, PlayersData, PlayerSeasonStats } from '@/lib/types';
-import { seasonShort } from '@/lib/stats';
+import type { SquadData, SquadSeason, SquadPlayer, PlayersData, PlayerSeasonStats, CompGroup } from '@/lib/types';
+import { mergedPlayersForGroup, seasonShort } from '@/lib/stats';
 import { fmt, gbp, dash } from '@/lib/format';
 import { useClub } from './ClubProvider';
 import { loadSquadSeason, LoadFail, LOAD_FAILED } from './matchlog-shared';
+import { CompetitionTabs } from './CompetitionTabs';
 
 type SortKey = 'name' | 'pos' | 'age' | 'weeklyGross' | 'yearlyGross' | 'expires' | 'status';
 type SortDir = 'asc' | 'desc';
@@ -108,7 +109,15 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'weeklyGross', dir: 'desc' });
 
   const playerSeason = playersData.latest;
-  const seasonPlayers = playersData.seasons[playerSeason]?.players ?? [];
+  const seasonEntry = playersData.seasons[playerSeason];
+  const [perfGroup, setPerfGroup] = useState<CompGroup>('all');
+  const perfRows = useMemo(
+    () =>
+      perfGroup === 'all'
+        ? (seasonEntry?.players ?? [])
+        : mergedPlayersForGroup(seasonEntry?.byComp, perfGroup),
+    [perfGroup, seasonEntry]
+  );
   const [perfSort, setPerfSort] = useState<{ key: PerfSortKey; dir: PerfSortDir }>({ key: 'gls', dir: 'desc' });
 
   const weeklyBill = summary?.grossWeekly ?? sum(players.map((p) => p.weeklyGross));
@@ -239,7 +248,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
   };
 
   const sortedPerfRows = useMemo(() => {
-    const copy = [...seasonPlayers];
+    const copy = [...perfRows];
     copy.sort((a, b) => {
       const aVal = getPerfSortValue(a, perfSort.key);
       const bVal = getPerfSortValue(b, perfSort.key);
@@ -255,7 +264,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
       return cmp;
     });
     return copy;
-  }, [seasonPlayers, perfSort]);
+  }, [perfRows, perfSort]);
 
   const togglePerfSort = (key: PerfSortKey) => {
     setPerfSort((prev) => ({ key, dir: prev.key === key && prev.dir === 'asc' ? 'desc' : 'asc' }));
@@ -538,13 +547,17 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
         </div>
       </section>
 
-      {seasonPlayers.length > 0 && (
+      {seasonEntry && (
         <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
-          <div className="border-b border-border px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
             <h3 className="font-display text-lg font-semibold text-primary">
               {t('squad.performance.title').replace('{season}', playerSeason)}
             </h3>
+            <CompetitionTabs group={perfGroup} onChange={setPerfGroup} />
           </div>
+          {perfGroup !== 'all' && perfRows.length === 0 ? (
+            <p className="px-4 py-6 text-sm text-muted">{t('squad.noCompData')}</p>
+          ) : (
           <div className="max-h-[70vh] overflow-auto">
             <table className="w-full min-w-[1100px] border-collapse">
               <thead className="sticky top-0 z-10 bg-surface-elevated">
@@ -600,6 +613,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
               </tbody>
             </table>
           </div>
+          )}
         </section>
       )}
 

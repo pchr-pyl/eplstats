@@ -15,10 +15,13 @@ import {
   TooltipContentProps,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import type { SeasonRow, AttackBySeason } from '@/lib/types';
-import { seasonShort } from '@/lib/stats';
+import type { CompGroup, TeamStatsBySeason } from '@/lib/types';
+import { rowsForGroup, seasonShort, teamStatsForGroup } from '@/lib/stats';
 import { fmt, pct, dash } from '@/lib/format';
 import { useClubData } from './ClubProvider';
+import { CompetitionTabs } from './CompetitionTabs';
+import { MatchlogPanel } from './MatchlogBrowser';
+import { SeasonPace } from './SeasonPace';
 
 type SortKey =
   | 'season' | 'mp' | 'gls' | 'gfPerMp' | 'xg' | 'sh' | 'sot'
@@ -44,48 +47,49 @@ interface Row {
 }
 
 export function AttackDashboard({
-  attack,
+  teamStats,
 }: {
-  attack: AttackBySeason;
+  teamStats: TeamStatsBySeason;
 }) {
   const { t } = useI18n();
   const { rows } = useClubData();
+  const [group, setGroup] = useState<CompGroup>('all');
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
 
   const data = useMemo<Row[]>(() => {
-    const allComp = new Map<string, SeasonRow>();
-    const pl = new Map<string, SeasonRow>();
-    for (const r of rows) {
-      if (r.competition === 'All Competitions') allComp.set(r.season, r);
-      if (r.competition === 'Premier League') pl.set(r.season, r);
-    }
-    return Object.keys(attack)
-      .sort()
-      .map((season) => {
-        const a = attack[season];
-        const all = allComp.get(season);
-        const plRow = pl.get(season);
-        const mp = a.mp || null;
-        const covered = (a.shCoverage ?? 0) >= 0.5;
-        return {
-          season,
-          short: seasonShort(season),
-          mp,
-          gls: a.gls,
-          gfPerMp: a.gls != null && mp ? a.gls / mp : null,
-          xg: plRow?.xg ?? null,
-          xgPerMp: plRow?.xg != null && plRow.mp ? plRow.xg / plRow.mp : null,
-          sh: covered ? a.sh : null,
-          shPerMp: covered && a.sh != null && mp ? a.sh / mp : null,
-          sot: covered ? a.sot : null,
-          sotPct: covered && a.sot != null && a.sh ? a.sot / a.sh : null,
-          gPerSh: covered && a.gls != null && a.sh ? a.gls / a.sh : null,
-          pk: a.pk,
-          pkatt: a.pkatt,
-          topScorer: all?.topScorer ?? null,
-        };
-      });
-  }, [attack, rows]);
+    const groupMap = new Map(
+      rowsForGroup(rows, group).map((r) => [r.season, r])
+    );
+    const plMap = new Map(
+      rows
+        .filter((r) => r.competition === 'Premier League')
+        .map((r) => [r.season, r])
+    );
+    return teamStatsForGroup(teamStats, group).map((a) => {
+      const xgRow =
+        group === 'all' ? plMap.get(a.season) : groupMap.get(a.season);
+      const mp = a.mp || null;
+      const covered = a.mp > 0 && a.shN / a.mp >= 0.5;
+      return {
+        season: a.season,
+        short: seasonShort(a.season),
+        mp,
+        gls: a.gls,
+        gfPerMp: a.gls != null && mp ? a.gls / mp : null,
+        xg: xgRow?.xg ?? null,
+        xgPerMp:
+          xgRow?.xg != null && xgRow.mp ? xgRow.xg / xgRow.mp : null,
+        sh: covered ? a.sh : null,
+        shPerMp: covered && a.sh != null && a.shN ? a.sh / a.shN : null,
+        sot: covered ? a.sot : null,
+        sotPct: covered && a.sot != null && a.sh ? a.sot / a.sh : null,
+        gPerSh: covered && a.gls != null && a.sh ? a.gls / a.sh : null,
+        pk: a.pk,
+        pkatt: a.pkatt,
+        topScorer: groupMap.get(a.season)?.topScorer ?? null,
+      };
+    });
+  }, [teamStats, rows, group]);
 
   const sorted = useMemo(() => {
     const val = (r: Row): number | string | null => {
@@ -170,6 +174,7 @@ export function AttackDashboard({
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-8 px-6 py-8 lg:px-10">
       <section className="flex min-w-0 flex-col gap-4">
         <h2 className="font-display text-xl font-semibold text-primary">{t('attack.title')}</h2>
+        <CompetitionTabs group={group} onChange={setGroup} />
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {kpi.map((k) => (
             <div
@@ -183,6 +188,8 @@ export function AttackDashboard({
         </div>
         <p className="text-xs text-muted">{t('attack.note')}</p>
       </section>
+
+      <SeasonPace side="attack" />
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title={t('attack.chart.goals')}>
@@ -302,6 +309,12 @@ export function AttackDashboard({
           </table>
         </div>
       </section>
+
+      <MatchlogPanel
+        type="shooting"
+        titleKey="matchLog.tabs.shooting"
+        group={group}
+      />
     </main>
   );
 }

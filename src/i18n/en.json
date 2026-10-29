@@ -20,7 +20,8 @@
   "ptsPerMp": "Pts/MP",
   "winPct": "Win %",
   "interim": "interim",
-  "noData": "Select at least one manager"
+  "noData": "Select at least one manager",
+  "matchLog": "Match log"
  },
  "competitions": {
   "all": "All",
@@ -179,17 +180,16 @@
  "nav": {
   "overview": "Overview",
   "matches": "Scores & Fixtures",
-  "shooting": "Shooting",
-  "keepers": "Keepers",
-  "misc": "Miscellaneous",
   "attack": "Attack",
+  "defense": "Defense",
+  "misc": "Miscellaneous",
   "squad": "Squad",
   "managers": "Managers",
   "compare": "Compare"
  },
  "attack": {
   "title": "Attack analytics",
-  "note": "Shots/on-target from fbref matchlogs — shot data exists from 2016-17 onward (older seasons have no shot data on fbref)",
+  "note": "Shots/on-target from fbref matchlogs — shot data exists from 2016-17 onward (older seasons have no shot data on fbref) · xG is Premier League only (Understat)",
   "kpi": {
    "gfPerMp": "Goals / MP",
    "shPerMp": "Shots / MP",
@@ -204,6 +204,27 @@
    "title": "Per-season attack stats",
    "season": "Season",
    "topScorer": "Top scorer"
+  }
+ },
+ "defense": {
+  "title": "Defense",
+  "note": "Shots/shots on target/saves from fbref matchlogs — xGA is Premier League only (Understat)",
+  "allCompsNote": "All-competition totals (no per-competition split yet)",
+  "psxgNote": "PSxG: Premier League only",
+  "kpi": {
+   "gaPerMp": "Goals against / MP",
+   "shAPerMp": "Shots against / MP",
+   "sotaPerMp": "SoT against / MP",
+   "savePct": "Save %",
+   "csPct": "Clean sheet %",
+   "goalsPrevented": "PSxG prevented"
+  },
+  "chart": {
+   "gaXga": "GA & xGA per match"
+  },
+  "table": {
+   "title": "Defence by season",
+   "season": "Season"
   }
  },
  "keepers": {
@@ -279,6 +300,7 @@
   "performance": {
    "title": "Season Performance – {season}"
   },
+  "noCompData": "No per-competition data for this season",
   "col": {
    "player": "Player",
    "pos": "Pos",
@@ -310,7 +332,7 @@
   "lossRate": "Loss %",
   "points": "Pts",
   "matchweek": "Matchweek",
-  "note": "Premier League matches played only",
+  "note": "Completed matches in the selected competition only",
   "gf": "GF",
   "ga": "GA",
   "gd": "GD",
@@ -425,5 +447,33 @@
    "yellow": "Yellow cards",
    "red": "Red cards"
   }
+ },
+ "pace": {
+  "title": "Season pace",
+  "plOnly": "Premier League only — ignores the competition filter above",
+  "afterN": "After first {n} games",
+  "compareVs": "Compare vs",
+  "raceMetric": "Race metric",
+  "showAll": "show all seasons",
+  "range": { "early": "Early", "full": "Full season" },
+  "duelTitle": "{cur} vs {cmp} · first {n} PL games",
+  "perGame": "/gm",
+  "currentShort": "{cur} has only {n} played — using all of them",
+  "raceTitle": "Cumulative {metric} by game",
+  "otherSeasons": "other seasons",
+  "rankTitle": "Start ranking after {n} games",
+  "rankBadge": "{rank}-best start of {total} seasons by cumulative {metric}",
+  "likeTitle": "Like-for-like fixtures (same opponent + venue)",
+  "likeNote": "First-N comparisons ignore fixture difficulty — this table pairs only matches vs the same opponent at the same venue.",
+  "noFixture": "no fixture (promoted/relegated)",
+  "matchedPairs": "matched pairs",
+  "gw": "GW",
+  "opponent": "Opponent",
+  "venue": "Venue",
+  "home": "H",
+  "away": "A",
+  "season": "Season",
+  "vsShort": "vs",
+  "deltaPts": "Δpts"
  }
 }

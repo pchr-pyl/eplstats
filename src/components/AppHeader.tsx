@@ -13,10 +13,9 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 const SUBNAV = [
   { sub: '', key: 'overview' },
   { sub: 'matches', key: 'matches' },
-  { sub: 'shooting', key: 'shooting' },
-  { sub: 'keepers', key: 'keepers' },
-  { sub: 'misc', key: 'misc' },
   { sub: 'attack', key: 'attack' },
+  { sub: 'defense', key: 'defense' },
+  { sub: 'misc', key: 'misc' },
   { sub: 'squad', key: 'squad' },
   { sub: 'managers', key: 'managers' },
   { sub: 'compare', key: 'compare' },

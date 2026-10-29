@@ -1,4 +1,13 @@
-import type { SeasonRow, MatchRow, CompGroup } from './types';
+import type {
+  SeasonRow,
+  MatchRow,
+  CompGroup,
+  TeamStatsBySeason,
+  TeamCompRow,
+  TeamGroupRow,
+  PlayerSeasonStats,
+  GkSeasonRow,
+} from './types';
 
 export const EUROPE_COMPS = [
   'Champions League',
@@ -161,12 +170,17 @@ const FBREF_COMP_CANON: Record<string, string> = {
   'Champions Lg': 'Champions League',
   'Europa Lg': 'Europa League',
   'UEFA Cup': 'Europa League',
+  'Conf Lg': 'Conference League',
   'Conference Lg': 'Conference League',
   'FA Community Shield': 'Community Shield',
   'Community Shield': 'Community Shield',
   'Super Cup': 'UEFA Super Cup',
   'Club World Cup': 'Club World Cup',
   'Int Champions Cup': 'International Champions Cup',
+  'FIFA Club World Cup': 'Club World Cup',
+  'UEFA Champions League': 'Champions League',
+  'UEFA Europa League': 'Europa League',
+  'UEFA Conference League': 'Conference League',
   'Friendly': 'Friendly',
 };
 
@@ -179,6 +193,129 @@ export function compInGroup(comp: string, group: CompGroup): boolean {
   if (group === 'all') return c !== 'Friendly';
   if (group === 'europe') return EUROPE_COMPS.includes(c);
   return c === COMP_MAP[group];
+}
+
+export function teamStatsForGroup(
+  stats: TeamStatsBySeason,
+  group: CompGroup,
+): TeamGroupRow[] {
+  const sumNullable = (
+    comps: TeamCompRow[],
+    key: keyof TeamCompRow,
+  ): number | null => {
+    let total = 0;
+    let any = false;
+    for (const r of comps) {
+      const v = r[key];
+      if (typeof v === 'number') {
+        total += v;
+        any = true;
+      }
+    }
+    return any ? Math.round(total * 100) / 100 : null;
+  };
+
+  const out: TeamGroupRow[] = [];
+  for (const season of Object.keys(stats).sort()) {
+    const comps = Object.entries(stats[season] ?? {})
+      .filter(([comp]) => compInGroup(comp, group))
+      .map(([, r]) => r);
+    if (!comps.length) continue;
+    const row: TeamGroupRow = {
+      season,
+      mp: comps.reduce((a, r) => a + r.mp, 0),
+      gls: sumNullable(comps, 'gls'),
+      ga: sumNullable(comps, 'ga'),
+      sh: sumNullable(comps, 'sh'),
+      sot: sumNullable(comps, 'sot'),
+      pk: sumNullable(comps, 'pk'),
+      pkatt: sumNullable(comps, 'pkatt'),
+      shN: comps.reduce((a, r) => a + r.shN, 0),
+      shA: sumNullable(comps, 'shA'),
+      shAN: comps.reduce((a, r) => a + r.shAN, 0),
+      sota: sumNullable(comps, 'sota'),
+      saves: sumNullable(comps, 'saves'),
+      cs: sumNullable(comps, 'cs'),
+      kN: comps.reduce((a, r) => a + r.kN, 0),
+    };
+    if (row.mp === 0) continue;
+    out.push(row);
+  }
+  return out;
+}
+
+const PLAYER_SUM_KEYS = [
+  'mp', 'starts', 'min', 'nineties', 'gls', 'ast', 'gPlusA', 'gMinusPk',
+  'pk', 'pkatt', 'crdY', 'crdR', 'sh', 'sot',
+] as const;
+
+const GK_SUM_KEYS = [
+  'mp', 'starts', 'min', 'nineties', 'ga', 'sota', 'saves',
+  'w', 'd', 'l', 'cs', 'pkatt', 'pka', 'pksv', 'pkm',
+] as const;
+
+function addNum(a: number | null, b: number | null): number | null {
+  if (a == null && b == null) return null;
+  return (a ?? 0) + (b ?? 0);
+}
+
+export function mergedPlayersForGroup(
+  byComp: Record<string, PlayerSeasonStats[]> | undefined,
+  group: CompGroup,
+): PlayerSeasonStats[] {
+  const merged = new Map<string, PlayerSeasonStats>();
+  const ppmAcc = new Map<string, { num: number; den: number }>();
+  for (const [comp, rows] of Object.entries(byComp ?? {})) {
+    if (!compInGroup(comp, group)) continue;
+    for (const r of rows) {
+      const m = merged.get(r.player);
+      if (!m) {
+        merged.set(r.player, { ...r });
+        if (r.ppm != null && r.mp != null)
+          ppmAcc.set(r.player, { num: r.ppm * r.mp, den: r.mp });
+        continue;
+      }
+      for (const k of PLAYER_SUM_KEYS) m[k] = addNum(m[k], r[k]);
+      m.sotPct = m.sh ? ((m.sot ?? 0) / m.sh) * 100 : null;
+      m.gPerSh = m.sh ? (m.gMinusPk ?? 0) / m.sh : null;
+      m.gPerSot = m.sot ? (m.gMinusPk ?? 0) / m.sot : null;
+      if (r.ppm != null && r.mp != null) {
+        const a = ppmAcc.get(r.player) ?? { num: 0, den: 0 };
+        a.num += r.ppm * r.mp;
+        a.den += r.mp;
+        ppmAcc.set(r.player, a);
+      }
+      m.minsPerStart = null;
+    }
+  }
+  for (const [player, m] of merged) {
+    const a = ppmAcc.get(player);
+    if (a && a.den > 0 && Object.keys(byComp ?? {}).filter((c) => compInGroup(c, group)).length > 1)
+      m.ppm = a.num / a.den;
+  }
+  return Array.from(merged.values());
+}
+
+export function mergedGkRows(
+  rows: (GkSeasonRow & { comp?: string })[],
+  group: CompGroup,
+): GkSeasonRow[] {
+  const merged = new Map<string, GkSeasonRow & { comp?: string }>();
+  for (const r of rows) {
+    if (r.comp != null && !compInGroup(r.comp, group)) continue;
+    const key = `${r.season}|${r.player}`;
+    const m = merged.get(key);
+    if (!m) {
+      merged.set(key, { ...r });
+      continue;
+    }
+    for (const k of GK_SUM_KEYS) m[k] = addNum(m[k], r[k]);
+    m.savePct = m.sota ? ((m.saves ?? 0) / m.sota) * 100 : null;
+    m.ga90 = m.nineties ? (m.ga ?? 0) / m.nineties : null;
+    m.csPct = m.mp ? ((m.cs ?? 0) / m.mp) * 100 : null;
+    m.pkSavePct = m.pkatt ? ((m.pksv ?? 0) / m.pkatt) * 100 : null;
+  }
+  return Array.from(merged.values());
 }
 
 export function matchesForSeason(

@@ -80,7 +80,9 @@ Per-match PSxG is not available anywhere post-removal — don't promise it.
 
 ## Multi-club build + UI (2026-10)
 - Build: `python -X utf8 scripts/build/build_all.py [--club SLUG]` → writes
-  `data/built/{slug}/{matches,seasons,keepers,players,attack,squad}.json`,
+  `data/built/{slug}/{matches,seasons,keepers,players,teamstats,squad}.json`
+  (`teamstats.json` = `{season: {rawFbrefComp: {mp,gls,ga,sh,sot,pk,pkatt,shN,shA,shAN,sota,saves,cs,kN}}}`
+  from matchlogs; client sums comps per CompGroup via `teamStatsForGroup`),
   `public/data/{slug}/matchlogs-{season}.json` and per-season
   `{keepers,squad,players}-{season}.json` (lazy-fetched by keepers/squad tabs),
   `data/built/league.json`,
@@ -93,8 +95,11 @@ Per-match PSxG is not available anywhere post-removal — don't promise it.
   on first hit — not representative. Shared club data (seasons/matches/managers) ships
   once in the `[club]` layout segment via `useClubData()`; tab pages stay small.
 - Verify: `python -X utf8 scripts/build/verify_man_utd.py`.
-- Routes: `/` league home, `/{club}[/matches|/shooting|/keepers|/misc|/attack|
-  /squad|/managers|/compare]`, `/clubs-compare`. `src/app/[club]` with
+- Routes: `/` league home, `/{club}[/matches|/attack|/defense|/misc|
+  /squad|/managers|/compare]`, `/clubs-compare`. Attack = attack summary +
+  shooting matchlog; Defense = team defence + goalkeepers + keeper matchlog
+  (old `/shooting`, `/keepers` routes removed). Every club tab has
+  `CompetitionTabs` (default 'all'); xG/xGA are PL-only so 'all' shows PL xG. `src/app/[club]` with
   generateStaticParams + `dynamicParams = false`.
 - `src/lib/data.ts` reads `data/built/` per club (react cache); club branding via
   ClubProvider + `--club-brand-light/dark` → `--brand` in `.club-theme` (globals.css).
@@ -102,6 +107,20 @@ Per-match PSxG is not available anywhere post-removal — don't promise it.
 - Legacy `scripts/*.py` + `data/man-utd-*.json` + old `public/data/matchlogs-*.json`
   remain but nothing in `src` imports them.
 - Dev: `npm run dev` → http://localhost:3000
+
+## Per-competition player stats (players-comps)
+- Raw `data/raw/clubs/{slug}/{season}/players-comps.json` =
+  `{comps:[{compId,name,sourceURL,markdown_standard|shooting|keeper|playingTime}]}`
+  from `https://fbref.com/en/squads/{id}/{season}/c{compId}/{Club}-Stats-{Comp}`
+  (c9 PL, c514 FA Cup, c690 EFL Cup, c8 CL, c19 EL, c882 Conference League).
+- Scraped via firecrawl (Playwright CF-blocked): job list `tmp/pc_jobs.py`
+  (comps from matches.json), saver `scripts/scrape/players_comps_save.py <overflow content.txt>`.
+  `run.py --types players-comps` exists but needs the browser to clear CF.
+- Build → `players.json` seasons[].byComp, `keepers.json` perGkComp; client merges
+  per CompGroup (`mergedPlayersForGroup`, `mergedGkRows` in src/lib/stats.ts).
+- fbref writes Conference League as "Conf Lg" — canonicalized in
+  `scripts/build/common.py` COMP_MAP and TS `FBREF_COMP_CANON`.
+- Qualifying-only Europa pages have no stats table (5 known gaps) — UI falls back.
 
 ## Refreshing the current season
 Re-scrape ALL types for every club in the in-progress season (schedule,

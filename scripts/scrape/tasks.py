@@ -7,6 +7,10 @@ files so existing parsers keep working:
   players                   : {markdown_standard, markdown_shooting,
                                markdown_keeper, markdown_playingTime,
                                markdown_misc, metadata}
+  players-comps             : {comps:[{compId, name, sourceURL,
+                               markdown_standard, markdown_shooting,
+                               markdown_keeper, markdown_playingTime}],
+                               metadata}
   keeper-squad              : {markdown, metadata}
   league table              : {markdown, squads, metadata}
   league fixtures           : {markdown, metadata}
@@ -96,6 +100,44 @@ def club_players(session, club, season):
     return res
 
 
+def club_players_comps(session, club, season):
+    """Per-competition squad pages linked from the all-comps page."""
+    url = _club_url(club, season, "players")
+    _status, html = session.fetch_retries(url)
+    fid, slug = club["fbrefId"], club["fbrefSlug"]
+    pat = re.compile(
+        rf"/en/squads/{re.escape(fid)}/{re.escape(season)}/c(\d+)/"
+        rf"{re.escape(slug)}-Stats-([^\"'#?]+)")
+    comps = {}
+    for m in re.finditer(pat, html):
+        comps[m.group(1)] = m.group(2)
+    if not comps:
+        raise ValueError(f"no comp links on {url}")
+    out = {"comps": [], "metadata": {"sourceURL": url}}
+    for comp_id, name in sorted(comps.items(), key=lambda kv: int(kv[0])):
+        comp_url = (f"{FBREF}/en/squads/{fid}/{season}/c{comp_id}/"
+                    f"{slug}-Stats-{name}")
+        _st, chtml = session.fetch_retries(comp_url)
+        res = session._page.evaluate(
+            EXTRACT_TABLES_MD_JS,
+            [chtml, FBREF + "/", {
+                "markdown_standard": 'table[id^="stats_standard"]',
+                "markdown_shooting": 'table[id^="stats_shooting"]',
+                "markdown_keeper": 'table[id^="stats_keeper"]',
+                "markdown_playingTime": 'table[id^="stats_playing_time"]',
+            }],
+        )
+        if not res.get("markdown_standard"):
+            raise ValueError(f"no standard table on {comp_url}")
+        out["comps"].append({
+            "compId": comp_id,
+            "name": name.replace("-", " "),
+            "sourceURL": comp_url,
+            **res,
+        })
+    return out
+
+
 def club_capology(session, club, season):
     if not club.get("capologySlug"):
         raise ValueError("no capologySlug")
@@ -114,6 +156,7 @@ CLUB_TYPES = {
     "misc": lambda s, c, y: club_matchlog(s, c, y, "misc"),
     "keeper-squad": club_keeper_squad,
     "players": club_players,
+    "players-comps": club_players_comps,
     "capology": club_capology,
 }
 

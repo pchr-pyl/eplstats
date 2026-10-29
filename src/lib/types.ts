@@ -69,17 +69,42 @@ export interface MatchlogSides {
 
 export type SeasonMatchlogs = Partial<Record<MatchlogType, MatchlogSides>>;
 
-export interface AttackSeasonRow {
+export interface TeamCompRow {
   mp: number;
   gls: number | null;
+  ga: number | null;
   sh: number | null;
   sot: number | null;
   pk: number | null;
   pkatt: number | null;
-  shCoverage: number;
+  shN: number;
+  shA: number | null;
+  shAN: number;
+  sota: number | null;
+  saves: number | null;
+  cs: number | null;
+  kN: number;
 }
 
-export type AttackBySeason = Record<string, AttackSeasonRow>;
+export type TeamStatsBySeason = Record<string, Record<string, TeamCompRow>>;
+
+export interface TeamGroupRow {
+  season: string;
+  mp: number;
+  gls: number | null;
+  ga: number | null;
+  sh: number | null;
+  sot: number | null;
+  pk: number | null;
+  pkatt: number | null;
+  shN: number;
+  shA: number | null;
+  shAN: number;
+  sota: number | null;
+  saves: number | null;
+  cs: number | null;
+  kN: number;
+}
 
 export interface KeeperMatchRow {
   season: string;
@@ -167,6 +192,7 @@ export interface KeepersData {
   perGkSeason: GkSeasonRow[];
   psxg: PsxgSeasonRow[];
   psxgPerGk: PsxgGkRow[];
+  perGkComp?: (GkSeasonRow & { comp: string })[];
 }
 
 export interface SquadPlayer {
@@ -237,6 +263,7 @@ export interface PlayerSeasonStats {
 
 export interface PlayersSeason {
   players: PlayerSeasonStats[];
+  byComp?: Record<string, PlayerSeasonStats[]>;
   sourceURL: string | null;
 }
 

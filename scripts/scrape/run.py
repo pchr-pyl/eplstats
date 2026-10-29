@@ -2,7 +2,7 @@
 
 Usage:
   python -X utf8 scripts/scrape/run.py --league --types table,fixtures,keeperadv,understat --seasons 2014-2015..2026-2027
-  python -X utf8 scripts/scrape/run.py --club arsenal --types schedule,shooting,keeper,misc,players,keeper-squad,capology
+  python -X utf8 scripts/scrape/run.py --club arsenal --types schedule,shooting,keeper,misc,players,players-comps,keeper-squad,capology
   python -X utf8 scripts/scrape/run.py --club all --types schedule
   python -X utf8 scripts/scrape/run.py --club man-utd --types shooting --seasons 2020-2021 --out-dir tmp/shapecheck
 
@@ -61,6 +61,7 @@ REQUIRED_KEYS = {
     "keeper-squad": ["markdown"],
     "shooting": ["tables"], "keeper": ["tables"], "misc": ["tables"],
     "players": ["markdown_standard"],
+    "players-comps": ["comps"],
     "table": ["squads"], "fixtures": ["markdown"],
     "keeperadv": ["markdown_squads"],
     "understat": ["dates"],

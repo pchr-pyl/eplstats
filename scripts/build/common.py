@@ -20,6 +20,7 @@ COMP_MAP = {
     "europa lg": "Europa League",
     "europa league": "Europa League",
     "uefa cup": "Europa League",
+    "conf lg": "Conference League",
     "conference lg": "Conference League",
     "conference league": "Conference League",
     "fa cup": "FA Cup",

@@ -16,6 +16,7 @@ import { useI18n } from '@/i18n/I18nContext';
 
 import {
   aggregateManagers,
+  managerForDate,
   stintId,
   ptsOf,
   perMp,
@@ -23,13 +24,39 @@ import {
   csPct,
   type ManagerStats,
 } from '@/lib/managers';
+import type { CompGroup, MatchRow } from '@/lib/types';
+import { compInGroup } from '@/lib/stats';
 import { fmt, pct } from '@/lib/format';
 import { useClubData } from './ClubProvider';
+import { CompetitionTabs } from './CompetitionTabs';
+import { ScoresList } from './matchlog-shared';
 
 export function ManagersClient() {
   const { t, lang } = useI18n();
   const { matches, stints } = useClubData();
-  const stats = useMemo(() => aggregateManagers(stints, matches), [stints, matches]);
+  const [group, setGroup] = useState<CompGroup>('all');
+  const stats = useMemo(
+    () =>
+      aggregateManagers(
+        stints,
+        matches.filter((m) => compInGroup(m.competition, group)),
+      ),
+    [stints, matches, group],
+  );
+  const stintMatches = useMemo(() => {
+    const map = new Map<string, MatchRow[]>();
+    for (const m of matches) {
+      if (!compInGroup(m.competition, group)) continue;
+      const stint = managerForDate(stints, m.date);
+      if (!stint) continue;
+      const id = stintId(stint);
+      const arr = map.get(id);
+      if (arr) arr.push(m);
+      else map.set(id, [m]);
+    }
+    return map;
+  }, [stints, matches, group]);
+  const showComp = group === 'all' || group === 'europe';
   const [selected, setSelected] = useState<string[]>(() =>
     stints.filter((m) => !m.interim).slice(-3).map(stintId)
   );
@@ -86,6 +113,7 @@ export function ManagersClient() {
   return (
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-6 py-8 lg:px-10">
       <section className="flex flex-col gap-3">
+        <CompetitionTabs group={group} onChange={setGroup} />
         <h2 className="font-display text-xl font-semibold text-primary">
           {t('managers.pick')}
         </h2>
@@ -225,20 +253,44 @@ export function ManagersClient() {
                     {row(s)}
                   </tr>,
                   ...(isOpen
-                    ? agg.seasons.map((ss) => (
+                    ? [
+                        ...agg.seasons.map((ss) => (
+                          <tr
+                            key={`${mid}-${ss.season}`}
+                            className="border-b border-border-light bg-bg-secondary/50"
+                          >
+                            <td className="px-3 py-2 pl-9 text-sm text-muted">
+                              {ss.season}
+                            </td>
+                            <td className="px-3 py-2 text-sm text-muted">
+                              {ss.first} → {ss.last}
+                            </td>
+                            {row(ss, true)}
+                          </tr>
+                        )),
                         <tr
-                          key={`${mid}-${ss.season}`}
-                          className="border-b border-border-light bg-bg-secondary/50"
+                          key={`${mid}-log`}
+                          className="border-b border-border"
                         >
-                          <td className="px-3 py-2 pl-9 text-sm text-muted">
-                            {ss.season}
+                          <td colSpan={10} className="px-4 py-3">
+                            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+                              {t('managers.matchLog')} ·{' '}
+                              {(stintMatches.get(mid) ?? []).length}{' '}
+                              {t('matchLog.matches')}
+                            </div>
+                            {(stintMatches.get(mid) ?? []).length > 0 ? (
+                              <ScoresList
+                                rows={stintMatches.get(mid)!}
+                                showComp={showComp}
+                              />
+                            ) : (
+                              <p className="py-4 text-sm text-muted">
+                                {t('matchLog.noData')}
+                              </p>
+                            )}
                           </td>
-                          <td className="px-3 py-2 text-sm text-muted">
-                            {ss.first} → {ss.last}
-                          </td>
-                          {row(ss, true)}
-                        </tr>
-                      ))
+                        </tr>,
+                      ]
                     : []),
                 ];
               })}

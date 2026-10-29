@@ -7,7 +7,7 @@ import type {
   KeepersData,
   SquadData,
   PlayersData,
-  AttackBySeason,
+  TeamStatsBySeason,
   ManagerStint,
   ClubIndexEntry,
   LeagueData,
@@ -64,8 +64,8 @@ export const getPlayers = cache((slug: string): PlayersData => {
   });
 });
 
-export const getAttack = cache((slug: string): AttackBySeason => {
-  return readJson<AttackBySeason>(join(clubDir(slug), 'attack.json'), {});
+export const getTeamStats = cache((slug: string): TeamStatsBySeason => {
+  return readJson<TeamStatsBySeason>(join(clubDir(slug), 'teamstats.json'), {});
 });
 
 interface ManagersFile {
