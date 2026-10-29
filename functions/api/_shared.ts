@@ -2,6 +2,7 @@
 
 export interface Env {
   DB: D1Database;
+  IMG: KVNamespace;
   ADMIN_EMAIL?: string;
   ADMIN_PASSWORD?: string;
   ADMIN_SECRET?: string;

@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS feedback (
   message TEXT NOT NULL,
   contact TEXT,
   page TEXT,
-  ua TEXT
+  ua TEXT,
+  image TEXT
 );
 
 CREATE TABLE IF NOT EXISTS pageviews (

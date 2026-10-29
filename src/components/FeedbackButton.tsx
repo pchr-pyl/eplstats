@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { MessageSquare, X } from 'lucide-react';
+import { ImagePlus, MessageSquare, X } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 const TYPES = ['bug', 'idea', 'other'] as const;
+const MAX_IMG_BYTES = 5 * 1024 * 1024;
 
 export function FeedbackButton() {
   const { t } = useI18n();
@@ -15,7 +16,21 @@ export function FeedbackButton() {
   const [type, setType] = useState<(typeof TYPES)[number]>('bug');
   const [message, setMessage] = useState('');
   const [contact, setContact] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [imgErr, setImgErr] = useState(false);
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const pickImage = (f: File | null) => {
+    setImgErr(false);
+    if (!f) return setImage(null);
+    if (!f.type.startsWith('image/') || f.size > MAX_IMG_BYTES) {
+      setImgErr(true);
+      if (fileRef.current) fileRef.current.value = '';
+      return;
+    }
+    setImage(f);
+  };
 
   if (pathname?.startsWith('/admin')) return null;
 
@@ -23,13 +38,21 @@ export function FeedbackButton() {
     if (!message.trim() || state === 'sending') return;
     setState('sending');
     try {
+      const fd = new FormData();
+      fd.append('type', type);
+      fd.append('message', message.trim());
+      if (contact.trim()) fd.append('contact', contact.trim());
+      fd.append('page', pathname ?? '');
+      if (image) fd.append('image', image);
       const r = await fetch(`${BASE_PATH}/api/feedback`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message: message.trim(), contact: contact.trim() || null, page: pathname }),
+        body: fd,
       });
       setState(r.ok ? 'sent' : 'error');
-      if (r.ok) setMessage('');
+      if (r.ok) {
+        setMessage('');
+        setImage(null);
+      }
     } catch {
       setState('error');
     }
@@ -107,6 +130,44 @@ export function FeedbackButton() {
                   placeholder={t('feedback.contact')}
                   className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-primary placeholder:text-muted focus:border-brand focus:outline-none"
                 />
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(e) => pickImage(e.target.files?.[0] ?? null)}
+                />
+                {image ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-border bg-bg px-3 py-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt=""
+                      className="h-10 w-10 rounded object-cover"
+                    />
+                    <span className="min-w-0 flex-1 truncate text-xs text-secondary">
+                      {image.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => pickImage(null)}
+                      aria-label={t('feedback.removeImg')}
+                      className="text-muted hover:text-primary"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="flex items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted transition-colors hover:border-brand hover:text-brand"
+                  >
+                    <ImagePlus size={14} />
+                    {t('feedback.attach')}
+                  </button>
+                )}
+                {imgErr && <p className="text-xs text-danger">{t('feedback.imgErr')}</p>}
                 {state === 'error' && (
                   <p className="text-xs text-danger">{t('feedback.error')}</p>
                 )}

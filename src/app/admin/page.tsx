@@ -14,6 +14,7 @@ interface FeedbackRow {
   contact: string | null;
   page: string | null;
   ua: string | null;
+  image: string | null;
 }
 
 interface Stats {
@@ -40,6 +41,39 @@ function authFetch(token: string, path: string) {
   return fetch(`${BASE_PATH}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+}
+
+function FeedbackImage({ token, imgKey }: { token: string; imgKey: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let obj: string | null = null;
+    let live = true;
+    authFetch(token, `/api/img/${imgKey}`)
+      .then((r) => (r.ok ? r.blob() : null))
+      .then((b) => {
+        if (b && live) {
+          obj = URL.createObjectURL(b);
+          setUrl(obj);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+      if (obj) URL.revokeObjectURL(obj);
+    };
+  }, [token, imgKey]);
+
+  if (!url) return null;
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-block">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt="attachment"
+        className="max-h-40 rounded-lg border border-border"
+      />
+    </a>
+  );
 }
 
 export default function AdminPage() {
@@ -313,6 +347,7 @@ export default function AdminPage() {
                     {f.contact && <span className="text-brand">{f.contact}</span>}
                   </div>
                   <p className="whitespace-pre-wrap text-sm text-primary">{f.message}</p>
+                  {f.image && <FeedbackImage token={token} imgKey={f.image} />}
                 </li>
               ))}
             </ul>

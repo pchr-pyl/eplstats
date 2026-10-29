@@ -5,3 +5,7 @@ pages_build_output_dir = "out"
 binding = "DB"
 database_name = "eplstats-feedback"
 database_id = "a2c32461-a925-49a4-a966-8e0d8169f6e8"
+
+[[kv_namespaces]]
+binding = "IMG"
+id = "7914746e351d46c0a0ae363ef354274b"

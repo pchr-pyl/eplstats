@@ -12,6 +12,22 @@ interface D1Database {
   prepare(query: string): D1PreparedStatement;
 }
 
+interface KVNamespace {
+  put(
+    key: string,
+    value: ArrayBuffer | ReadableStream | string,
+    options?: { metadata?: unknown; expirationTtl?: number },
+  ): Promise<void>;
+  get(
+    key: string,
+    type?: 'text' | 'json' | 'arrayBuffer' | 'stream',
+  ): Promise<unknown>;
+  getWithMetadata<Metadata = unknown>(
+    key: string,
+    type?: 'text' | 'json' | 'arrayBuffer' | 'stream',
+  ): Promise<{ value: unknown; metadata: Metadata | null }>;
+}
+
 interface EventContext<Env, P extends string, Data> {
   request: Request;
   env: Env;

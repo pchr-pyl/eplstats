@@ -143,13 +143,16 @@ alone leave stale stat rows.
 - Refresh flow: scrape → `python -X utf8 scripts/build/build_all.py` → commit
   + push (auto-deploys) or `npm run deploy` to skip git.
 
-## Feedback + admin (Pages Functions + D1)
-- `functions/api/` — Pages Functions served alongside `out/`: `POST /api/feedback`,
+## Feedback + admin (Pages Functions + D1/KV)
+- `functions/api/` — Pages Functions served alongside `out/`: `POST /api/feedback`
+  (multipart; optional `image` file → KV, key in `feedback.image`),
   `POST /api/track` (sendBeacon pageviews), `POST /api/admin/login`,
-  `GET /api/admin/feedback`, `GET /api/admin/stats`. Files starting `_` are not routed.
+  `GET /api/admin/feedback`, `GET /api/admin/stats`, `GET /api/img/{key}`
+  (auth-gated image fetch). Files starting `_` are not routed.
 - `wrangler.toml` binds D1 `eplstats-feedback` as `DB` (tables: `feedback`,
-  `pageviews`; schema in `scripts/schema-feedback.sql`). Applies to both
-  git-connected builds and `wrangler pages deploy`.
+  `pageviews`; schema in `scripts/schema-feedback.sql`) and KV
+  `FEEDBACK_IMAGES` as `IMG`. Applies to both git-connected builds and
+  `wrangler pages deploy`.
 - `/admin` = static client page (login → Bearer token in sessionStorage).
   Creds default `admin@gmail.com` / `admin123` — override via Pages env vars
   `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SECRET` (token signing).
