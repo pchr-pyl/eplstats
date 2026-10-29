@@ -82,6 +82,39 @@ export const getLeague = cache((): LeagueData => {
     .seasons ?? {};
 });
 
+export const getSquadCompare = cache(
+  (): import('./types').SquadCompareData => {
+    const out: import('./types').SquadCompareData = {};
+    for (const c of getClubIndex()) {
+      const seasons = getSquad(c.slug).seasons ?? {};
+      for (const [season, s] of Object.entries(seasons)) {
+        const withAge = s.players.filter((p) => p.age != null);
+        const top = s.players.reduce<(typeof s.players)[number] | null>(
+          (best, p) =>
+            (p.yearlyGross ?? 0) > (best?.yearlyGross ?? 0) ? p : best,
+          null,
+        );
+        (out[season] ??= {})[c.slug] = {
+          players: s.players.length,
+          avgAge: withAge.length
+            ? withAge.reduce((a, p) => a + (p.age ?? 0), 0) / withAge.length
+            : null,
+          weeklyBill:
+            s.summary?.grossWeekly ??
+            (s.players.reduce((a, p) => a + (p.weeklyGross ?? 0), 0) ||
+              null),
+          yearlyBill:
+            s.summary?.grossYearly ??
+            (s.players.reduce((a, p) => a + (p.yearlyGross ?? 0), 0) ||
+              null),
+          topEarner: top?.yearlyGross ? top.name : null,
+        };
+      }
+    }
+    return out;
+  },
+);
+
 export const getLeagueSeason = cache((season: string) => {
   return readJson<import('./types').LeagueSeasonData | null>(
     join(process.cwd(), 'public', 'data', 'league', `${season}.json`),

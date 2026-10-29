@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
+  Cell,
   Legend,
   Line,
   LineChart,
@@ -12,8 +15,8 @@ import {
   YAxis,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import type { ClubIndexEntry, LeagueData } from '@/lib/types';
-import { fmt } from '@/lib/format';
+import type { ClubIndexEntry, LeagueData, SquadCompareData } from '@/lib/types';
+import { fmt, gbp } from '@/lib/format';
 import { seasonShort } from '@/lib/stats';
 
 const MAX_CLUBS = 4;
@@ -27,9 +30,11 @@ interface Row {
 export function ClubsCompare({
   clubs,
   league,
+  squad,
 }: {
   clubs: ClubIndexEntry[];
   league: LeagueData;
+  squad: SquadCompareData;
 }) {
   const { t, lang } = useI18n();
   const [picked, setPicked] = useState<string[]>(() =>
@@ -37,6 +42,7 @@ export function ClubsCompare({
   );
   const seasons = useMemo(() => Object.keys(league).sort(), [league]);
   const [season, setSeason] = useState(() => seasons[seasons.length - 1] ?? '');
+  const [perMatch, setPerMatch] = useState(false);
 
   const name = (slug: string) => {
     const c = clubs.find((x) => x.slug === slug);
@@ -59,7 +65,11 @@ export function ClubsCompare({
       const row: Row = { season: s };
       for (const slug of picked) {
         const r = (league[s] ?? []).find((x) => x.slug === slug);
-        row[slug] = r ? r[field] : null;
+        const v = r ? r[field] : null;
+        row[slug] =
+          perMatch && field !== 'rank' && typeof v === 'number' && r?.mp
+            ? v / r.mp
+            : v;
       }
       return row;
     });
@@ -124,6 +134,86 @@ export function ClubsCompare({
 
   const sideRows = league[season] ?? [];
 
+  const squadRows = useMemo(
+    () =>
+      picked.map((slug) => {
+        const c = clubs.find((x) => x.slug === slug);
+        const s = squad[season]?.[slug];
+        return {
+          slug,
+          name: c?.shortName ?? c?.name ?? slug,
+          color: c?.color ?? '#888888',
+          players: s?.players ?? null,
+          avgAge: s?.avgAge ?? null,
+          weeklyBill: s?.weeklyBill ?? null,
+          weeklyBillM: s?.weeklyBill != null ? s.weeklyBill / 1e6 : null,
+          yearlyBill: s?.yearlyBill ?? null,
+          topEarner: s?.topEarner ?? null,
+        };
+      }),
+    [picked, season, squad, clubs],
+  );
+
+  const squadBar = (
+    title: string,
+    field: 'avgAge' | 'weeklyBill',
+    money = false,
+  ) => (
+    <div className="min-w-0">
+      <h4 className="mb-2 font-display text-sm font-semibold text-primary">
+        {title}
+      </h4>
+      <div className="h-48 w-full">
+        <ResponsiveContainer>
+          <BarChart
+            data={squadRows}
+            margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid stroke="var(--border-light)" vertical={false} />
+            <XAxis
+              dataKey="name"
+              tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+            />
+            <YAxis
+              tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+              tickFormatter={(v: number) =>
+                money ? `£${fmt(v)}M` : fmt(v, 2)
+              }
+              width={48}
+            />
+            <Tooltip
+              contentStyle={{
+                background: 'var(--surface-elevated)',
+                border: '1px solid var(--border)',
+                borderRadius: 12,
+                fontSize: 13,
+              }}
+              labelStyle={{ color: 'var(--text)' }}
+              formatter={(
+                v: number | string | readonly (string | number)[] | undefined,
+              ) =>
+                typeof v === 'number'
+                  ? money
+                    ? `£${fmt(v, 2)}M`
+                    : fmt(v, 2)
+                  : '—'
+              }
+            />
+            <Bar
+              dataKey={money ? 'weeklyBillM' : field}
+              radius={[4, 4, 0, 0]}
+              isAnimationActive={false}
+            >
+              {squadRows.map((r) => (
+                <Cell key={r.slug} fill={r.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+
   return (
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-6 py-8 lg:px-10">
       <section className="flex flex-col gap-3">
@@ -162,12 +252,37 @@ export function ClubsCompare({
       </section>
 
       {picked.length > 0 && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {chart(t('clubCompare.rank'), 'rank', true)}
-          {chart(t('table.pts'), 'pts')}
-          {chart(t('table.gd'), 'gd')}
-          {chart('xG / xGA', 'xg')}
-        </div>
+        <>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-muted">{t('clubCompare.perMatchNote')}</p>
+            <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setPerMatch(false)}
+                className={`rounded-md px-3 py-1 transition ${
+                  !perMatch ? 'bg-brand text-surface' : 'text-muted hover:text-primary'
+                }`}
+              >
+                {t('defense.totals')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPerMatch(true)}
+                className={`rounded-md px-3 py-1 transition ${
+                  perMatch ? 'bg-brand text-surface' : 'text-muted hover:text-primary'
+                }`}
+              >
+                {t('defense.perMatch')}
+              </button>
+            </div>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {chart(t('clubCompare.rank'), 'rank', true)}
+            {chart(`${t('table.pts')}${perMatch ? '/MP' : ''}`, 'pts')}
+            {chart(`${t('table.gd')}${perMatch ? '/MP' : ''}`, 'gd')}
+            {chart(`xG${perMatch ? '/MP' : ''}`, 'xg')}
+          </div>
+        </>
       )}
 
       <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
@@ -251,6 +366,83 @@ export function ClubsCompare({
           </table>
         </div>
       </section>
+
+      {picked.length > 0 && (
+        <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
+            <h3 className="font-display text-lg font-semibold text-primary">
+              {t('clubCompare.squadCompare')}
+            </h3>
+            <span className="text-xs text-muted">{season}</span>
+          </div>
+          <div className="grid gap-6 p-4 lg:grid-cols-2">
+            {squadBar(t('clubCompare.avgAge'), 'avgAge')}
+            {squadBar(t('clubCompare.weeklyBill'), 'weeklyBill', true)}
+          </div>
+          <div className="overflow-x-auto border-t border-border">
+            <table className="w-full min-w-[720px] border-collapse">
+              <thead className="bg-surface-elevated">
+                <tr>
+                  {[
+                    t('table.club'),
+                    t('clubCompare.players'),
+                    t('clubCompare.avgAge'),
+                    t('clubCompare.weeklyBill'),
+                    t('clubCompare.yearlyBill'),
+                    t('clubCompare.topEarner'),
+                  ].map((h, i) => (
+                    <th
+                      key={i}
+                      className={`border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted ${
+                        i === 0 || i === 5 ? 'text-left' : 'text-right'
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {squadRows.map((r) => (
+                  <tr key={r.slug} className="border-b border-border-light">
+                    <td className="px-3 py-2.5 text-sm font-medium text-primary">
+                      <span className="inline-flex items-center gap-2">
+                        <img
+                          aria-hidden
+                          src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/logos/${r.slug}.png`}
+                          width={18}
+                          height={18}
+                          alt=""
+                          className="inline-block h-5 w-5 object-contain"
+                        />
+                        {name(r.slug)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-sm text-secondary">
+                      {r.players ?? '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-sm text-secondary">
+                      {fmt(r.avgAge, 2)}
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-sm text-secondary">
+                      {gbp(r.weeklyBill, 0)}
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-sm text-secondary">
+                      {gbp(r.yearlyBill, 0)}
+                    </td>
+                    <td className="px-3 py-2.5 text-sm text-secondary">
+                      {r.topEarner ?? '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="px-4 py-3 text-xs text-muted">
+            {t('clubCompare.squadNote')}
+          </p>
+        </section>
+      )}
     </main>
   );
 }

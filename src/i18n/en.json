@@ -411,7 +411,15 @@
   "pickClubs": "Select up to 4 clubs",
   "compareTitle": "Club comparison",
   "forSeason": "Season",
-  "rank": "Rank"
+  "rank": "Rank",
+  "perMatchNote": "Per match divides season totals by games played (rank excluded)",
+  "squadCompare": "Squad compare",
+  "players": "Players",
+  "avgAge": "Avg age",
+  "weeklyBill": "Weekly wage bill",
+  "yearlyBill": "Yearly wage bill",
+  "topEarner": "Top earner",
+  "squadNote": "Capology estimated wages; older seasons may have partial coverage."
  },
  "match": {
   "events": "Match events",

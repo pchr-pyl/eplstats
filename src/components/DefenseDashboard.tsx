@@ -185,7 +185,11 @@ export function DefenseDashboard({
       const cs = sum(rows.map((r) => r.cs));
       const mp = sum(rows.map((r) => r.mp));
       const savePct = sota > 0 ? saves / sota : null;
-      return { player, mp, sota, saves, ga, cs, savePct };
+      return {
+        player, mp, sota, saves, ga, cs, savePct,
+        sotaPerMp: mp > 0 ? sota / mp : null,
+        gaPerMp: mp > 0 ? ga / mp : null,
+      };
     });
     out.sort((a, b) => b.sota - a.sota);
     return out;
@@ -522,7 +526,32 @@ export function DefenseDashboard({
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={t('keepers.chart.perGk')} note={allCompsNote}>
+        <ChartCard
+          title={t('keepers.chart.perGk')}
+          note={allCompsNote}
+          action={
+            <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setPerMatch(false)}
+                className={`rounded-md px-3 py-1 transition ${
+                  !perMatch ? 'bg-brand text-surface' : 'text-muted hover:text-primary'
+                }`}
+              >
+                {t('defense.totals')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPerMatch(true)}
+                className={`rounded-md px-3 py-1 transition ${
+                  perMatch ? 'bg-brand text-surface' : 'text-muted hover:text-primary'
+                }`}
+              >
+                {t('defense.perMatch')}
+              </button>
+            </div>
+          }
+        >
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={perGk} margin={{ top: 8, right: 16, bottom: 24, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -549,15 +578,15 @@ export function DefenseDashboard({
               />
               <Tooltip content={ChartTooltip} />
               <Bar
-                dataKey="sota"
-                name="sota"
+                dataKey={perMatch ? 'sotaPerMp' : 'sota'}
+                name={perMatch ? 'sotaPerMp' : 'sota'}
                 fill="#0d9488"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
               />
               <Bar
-                dataKey="ga"
-                name="ga"
+                dataKey={perMatch ? 'gaPerMp' : 'ga'}
+                name={perMatch ? 'gaPerMp' : 'ga'}
                 fill="var(--danger)"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}

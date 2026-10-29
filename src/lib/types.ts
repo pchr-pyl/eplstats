@@ -235,6 +235,17 @@ export interface SquadData {
   availableSeasons?: string[];
 }
 
+export interface SquadCompareRow {
+  players: number;
+  avgAge: number | null;
+  weeklyBill: number | null;
+  yearlyBill: number | null;
+  topEarner: string | null;
+}
+
+/** season -> club slug -> squad summary */
+export type SquadCompareData = Record<string, Record<string, SquadCompareRow>>;
+
 export interface PlayerSeasonStats {
   player: string;
   nation: string | null;
