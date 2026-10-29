@@ -1,0 +1,23 @@
+# EPL Stats - Premier League Club Analytics
+
+> Free EPL analytics site: season-by-season results, goals, xG/xGA, goalkeeping, squad wages, manager eras, and match-by-match logs for every Premier League club since 2014-15.
+
+## Key pages
+- / - league table, fixtures, form, xG/xPTS standings
+- /clubs-compare/ - compare up to 8 clubs: points, GD, xG trends, wage bills, squad age
+- /{club}/ - club overview and season trend charts
+- /{club}/attack/ - goals, xG, shots, finishing by season
+- /{club}/defense/ - goals conceded, xGA, saves, clean sheets, per-goalkeeper stats
+- /{club}/squad/ - squad wages, ages, contracts, player season stats
+- /{club}/managers/ - manager eras, records, points per match, match logs
+- /{club}/matches/ - every match result and fixture
+- /{club}/misc/ - fouls, cards, offsides per match
+- /{club}/compare/ - match-by-match points pace across seasons
+
+## Club slugs
+arsenal, aston-villa, bournemouth, brentford, brighton, burnley, cardiff-city, chelsea, coventry-city, crystal-palace, everton, fulham, huddersfield-town, hull-city, ipswich-town, leeds-united, leicester-city, liverpool, luton-town, man-city, man-utd, middlesbrough, newcastle-united, norwich-city, nottingham-forest, qpr, sheffield-united, southampton, stoke-city, sunderland, swansea-city, tottenham, watford, west-brom, west-ham, wolves
+
+## Notes
+- Data sources: FBref, Understat (xG, Premier League only, 2014-15 onward), Capology (wage estimates, not official).
+- xG only from 2014-15; PSxG removed by FBref ~2025 (only Man Utd legacy data remains).
+- Site is static HTML, English + Thai.

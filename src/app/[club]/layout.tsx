@@ -60,6 +60,23 @@ export default async function ClubLayout({
       matches={matches}
       stints={stints}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'SportsTeam',
+            name: entry.name,
+            sport: 'Soccer',
+            url: `https://eplstats.pages.dev/${club}/`,
+            logo: `https://eplstats.pages.dev/logos/${club}.png`,
+            memberOf: {
+              '@type': 'SportsLeague',
+              name: 'Premier League',
+            },
+          }),
+        }}
+      />
       <div
         className="club-theme"
         style={

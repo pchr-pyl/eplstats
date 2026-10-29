@@ -36,6 +36,7 @@ export const metadata: Metadata = {
   },
   description:
     'Free Premier League analytics: season-by-season goals, xG/xGA, goalkeeping, squad wages, manager eras and match logs for every PL club since 2014.',
+  alternates: { canonical: '/' },
   openGraph: {
     siteName: 'EPL Stats',
     type: 'website',
@@ -73,6 +74,20 @@ export default function RootLayout({
           id="theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'EPL Stats',
+              url: 'https://eplstats.pages.dev',
+              description:
+                'Free Premier League analytics: goals, xG, defense, squad wages, managers and match logs for every PL club since 2014.',
+              inLanguage: ['en', 'th'],
+            }),
+          }}
         />
         <ThemeProvider>
           <I18nProvider>
