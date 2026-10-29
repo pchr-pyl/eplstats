@@ -32,6 +32,7 @@
   "message": "What went wrong? What would you like to see?",
   "contact": "Email (optional)",
   "attach": "Attach a screenshot",
+  "pasteHint": "or press Ctrl+V to paste",
   "removeImg": "Remove image",
   "imgErr": "Image must be PNG/JPEG/WebP/GIF under 5 MB",
   "submit": "Send",

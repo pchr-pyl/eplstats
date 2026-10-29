@@ -32,6 +32,20 @@ export function FeedbackButton() {
     setImage(f);
   };
 
+  const onPaste = (e: React.ClipboardEvent) => {
+    const item = Array.from(e.clipboardData.items).find((i) =>
+      i.type.startsWith('image/'),
+    );
+    const f = item?.getAsFile();
+    if (!f) return;
+    e.preventDefault();
+    pickImage(
+      f.name
+        ? f
+        : new File([f], `screenshot-${Date.now()}.png`, { type: f.type }),
+    );
+  };
+
   if (pathname?.startsWith('/admin')) return null;
 
   const submit = async () => {
@@ -79,6 +93,7 @@ export function FeedbackButton() {
           <div
             role="dialog"
             aria-label={t('feedback.title')}
+            onPaste={onPaste}
             className="w-full max-w-md rounded-t-2xl border border-border bg-surface p-5 shadow-xl sm:rounded-2xl"
           >
             <div className="mb-3 flex items-center justify-between">
@@ -166,6 +181,11 @@ export function FeedbackButton() {
                     <ImagePlus size={14} />
                     {t('feedback.attach')}
                   </button>
+                )}
+                {!image && (
+                  <p className="-mt-1 text-[11px] text-muted">
+                    {t('feedback.pasteHint')}
+                  </p>
                 )}
                 {imgErr && <p className="text-xs text-danger">{t('feedback.imgErr')}</p>}
                 {state === 'error' && (
