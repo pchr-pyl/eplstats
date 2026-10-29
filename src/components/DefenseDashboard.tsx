@@ -629,7 +629,7 @@ export function DefenseDashboard({
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
               >
-                <LabelList dataKey={perMatch ? 'sotaPerMp' : 'sota'} position="top" fontSize={9} fill="var(--text-muted)" formatter={numFmt} />
+                {lblOn('perGk') && <LabelList dataKey={perMatch ? 'sotaPerMp' : 'sota'} position="top" fontSize={9} fill="var(--text-muted)" formatter={numFmt} />}
               </Bar>
               <Bar
                 dataKey={perMatch ? 'gaPerMp' : 'ga'}
@@ -638,7 +638,7 @@ export function DefenseDashboard({
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
               >
-                <LabelList dataKey={perMatch ? 'gaPerMp' : 'ga'} position="top" fontSize={9} fill="var(--text-muted)" formatter={numFmt} />
+                {lblOn('perGk') && <LabelList dataKey={perMatch ? 'gaPerMp' : 'ga'} position="top" fontSize={9} fill="var(--text-muted)" formatter={numFmt} />}
               </Bar>
               <Line
                 yAxisId="right"
@@ -690,7 +690,7 @@ export function DefenseDashboard({
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
               >
-                <LabelList dataKey="ga" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+                {lblOn('gp') && <LabelList dataKey="ga" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
               </Bar>
               <Bar
                 dataKey="psxg"
@@ -699,7 +699,7 @@ export function DefenseDashboard({
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
               >
-                <LabelList dataKey="psxg" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+                {lblOn('gp') && <LabelList dataKey="psxg" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
               </Bar>
               <Line
                 yAxisId="right"

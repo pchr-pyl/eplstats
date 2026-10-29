@@ -13,6 +13,7 @@ import {
   TooltipContentProps,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useClub, useClubData } from '@/components/ClubProvider';
 import { LOAD_FAILED, loadMatchlogs } from '@/components/matchlog-shared';
 import { seasonShort } from '@/lib/stats';
@@ -147,6 +148,13 @@ function Seg<T extends string>({
   );
 }
 
+const PACE_TIP: Record<string, string> = {
+  Pts: 'pts', GF: 'gf', xG: 'xg', 'GF−xG': 'gfMinusXg',
+  Sh: 'sh', SoT: 'sot', 'SoT%': 'sotPct', 'G/Sh': 'gPerSh',
+  GA: 'ga', xGA: 'xga', 'GA−xGA': 'gaMinusXga', ShA: 'sha',
+  SoTA: 'sota', Saves: 'saves', 'Save%': 'savePct', CS: 'cs',
+};
+
 function fmtKind(v: number | null, kind: CardDef['kind']): string {
   if (v == null) return '—';
   if (kind === 'pct') return pct(v, 2);
@@ -271,6 +279,28 @@ export function SeasonPace({ side }: { side: PaceSide }) {
     return copy;
   }, [aggs, metric, metricDef.lower]);
   const curRank = ranked.findIndex((a) => a.season === current) + 1;
+
+  const [rkSort, setRkSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(null);
+  const sortedRanked = useMemo(() => {
+    if (!rkSort || rkSort.key === 'rank') return ranked;
+    const card = cards.find((c) => c.label === rkSort.key);
+    const val = (a: (typeof ranked)[number]): number | string | null => {
+      if (rkSort.key === 'season') return a.season;
+      if (rkSort.key === 'wdl') return a.w * 3 + a.d;
+      return card ? card.get(a) : null;
+    };
+    const cmp = (a: (typeof ranked)[number], b: (typeof ranked)[number]) => {
+      const av = val(a);
+      const bv = val(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === 'string' || typeof bv === 'string')
+        return String(av).localeCompare(String(bv));
+      return (av as number) - (bv as number);
+    };
+    return [...ranked].sort((a, b) => (rkSort.dir === 'asc' ? cmp(a, b) : -cmp(a, b)));
+  }, [ranked, rkSort, cards]);
 
   const likeRows = useMemo(() => {
     const find = (m: MatchRow) =>
@@ -589,30 +619,47 @@ export function SeasonPace({ side }: { side: PaceSide }) {
           <table className="w-full min-w-[900px] border-collapse">
             <thead className="sticky top-0 z-10 bg-surface-elevated">
               <tr>
-                <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
-                  #
-                </th>
-                <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
-                  {t('pace.season')}
-                </th>
-                <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
-                  {cards[0].label}
-                </th>
-                <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
-                  W-D-L
-                </th>
-                {cards.slice(1).map((c) => (
+                {([
+                  { k: 'rank', h: '#', tip: t('colTip.rank'), left: true },
+                  { k: 'season', h: t('pace.season'), tip: t('colTip.season'), left: true },
+                  { k: cards[0].label, h: cards[0].label, tip: PACE_TIP[cards[0].label] ? t(`colTip.${PACE_TIP[cards[0].label]}`) : '', left: false },
+                  { k: 'wdl', h: 'W-D-L', tip: t('colTip.w'), left: false },
+                  ...cards.slice(1).map((c) => ({
+                    k: c.label,
+                    h: c.label,
+                    tip: PACE_TIP[c.label] ? t(`colTip.${PACE_TIP[c.label]}`) : '',
+                    left: false,
+                  })),
+                ]).map((col) => (
                   <th
-                    key={c.label}
-                    className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted"
+                    key={col.k}
+                    title={col.tip || undefined}
+                    onClick={() =>
+                      col.k === 'rank'
+                        ? setRkSort(null)
+                        : setRkSort((prev) =>
+                            prev?.key === col.k
+                              ? { key: col.k, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+                              : {
+                                  key: col.k,
+                                  dir: cards.find((c) => c.label === col.k)?.lower ? 'asc' : 'desc',
+                                }
+                          )
+                    }
+                    className={`cursor-pointer select-none whitespace-nowrap border-b border-border px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${col.left ? 'text-left' : 'text-right'}`}
                   >
-                    {c.label}
+                    <span className={`inline-flex items-center gap-0.5 ${col.left ? '' : 'justify-end'}`}>
+                      {col.h}
+                      {rkSort?.key === col.k
+                        ? (rkSort.dir === 'asc' ? <ArrowUp size={11} /> : <ArrowDown size={11} />)
+                        : <ArrowUpDown size={11} className="opacity-30" />}
+                    </span>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {ranked.map((a, i) => {
+              {sortedRanked.map((a, i) => {
                 const isCur = a.season === current;
                 const isCmp = a.season === compare;
                 return (

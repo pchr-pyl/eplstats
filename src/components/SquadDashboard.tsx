@@ -121,7 +121,9 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
     [perfGroup, seasonEntry]
   );
   const [perfSort, setPerfSort] = useState<{ key: PerfSortKey; dir: PerfSortDir }>({ key: 'gls', dir: 'desc' });
-  const [wageLbl, setWageLbl] = useState(false);
+  const [lbl, setLbl] = useState<Record<string, boolean>>({});
+  const lblOn = (k: string) => !!lbl[k];
+  const toggleLbl = (k: string) => setLbl((p) => ({ ...p, [k]: !p[k] }));
 
   const weeklyBill = summary?.grossWeekly ?? sum(players.map((p) => p.weeklyGross));
   const yearlyBill = summary?.grossYearly ?? sum(players.map((p) => p.yearlyGross));
@@ -443,7 +445,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
       </section>
 
       {wageTrend.length > 1 && (
-        <ChartCard title={t('squad.chart.weeklyTrend')} action={<LabelsBtn on={wageLbl} onClick={() => setWageLbl((v) => !v)} />}>
+        <ChartCard title={t('squad.chart.weeklyTrend')} action={<LabelsBtn on={lblOn('wage')} onClick={() => toggleLbl('wage')} />}>
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={wageTrend} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
               <defs>
@@ -480,7 +482,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                 fill="url(#wageGrad)"
                 isAnimationActive={false}
               >
-                {wageLbl && <LabelList dataKey="weekly" position="top" fontSize={10} fill="var(--text-muted)" formatter={(v: unknown) => `£${Number(v).toFixed(2)}M`} />}
+                {lblOn('wage') && <LabelList dataKey="weekly" position="top" fontSize={10} fill="var(--text-muted)" formatter={(v: unknown) => `£${Number(v).toFixed(2)}M`} />}
               </Area>
             </AreaChart>
           </ResponsiveContainer>
@@ -488,7 +490,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
       )}
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ChartCard title={t('squad.chart.ageTitle')}>
+        <ChartCard title={t('squad.chart.ageTitle')} action={<LabelsBtn on={lblOn('age')} onClick={() => toggleLbl('age')} />}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={ageBands} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -496,13 +498,13 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={ChartTooltip} />
               <Bar dataKey="count" fill="var(--brand)" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                <LabelList dataKey="count" position="top" fontSize={10} fill="var(--text-muted)" />
+                {lblOn('age') && <LabelList dataKey="count" position="top" fontSize={10} fill="var(--text-muted)" />}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={t('squad.chart.expiryTitle')}>
+        <ChartCard title={t('squad.chart.expiryTitle')} action={<LabelsBtn on={lblOn('expiry')} onClick={() => toggleLbl('expiry')} />}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={expiry} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
@@ -510,7 +512,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={ChartTooltip} />
               <Bar dataKey="count" fill="var(--info)" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                <LabelList dataKey="count" position="top" fontSize={10} fill="var(--text-muted)" />
+                {lblOn('expiry') && <LabelList dataKey="count" position="top" fontSize={10} fill="var(--text-muted)" />}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

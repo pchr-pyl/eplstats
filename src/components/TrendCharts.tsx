@@ -129,7 +129,7 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
             <Tooltip content={ChartTooltip} />
             <Bar dataKey="gfPerMp" fill="var(--brand)" radius={[4, 4, 0, 0]} name="gfPerMp" isAnimationActive={false}>
-              <LabelList dataKey="gfPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+              {lblOn('attack') && <LabelList dataKey="gfPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
             </Bar>
             <Line
               type="monotone"
@@ -155,7 +155,7 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
             <Tooltip content={ChartTooltip} />
             <Bar dataKey="gaPerMp" fill="var(--danger)" radius={[4, 4, 0, 0]} name="gaPerMp" isAnimationActive={false}>
-              <LabelList dataKey="gaPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />
+              {lblOn('defense') && <LabelList dataKey="gaPerMp" position="top" fontSize={10} fill="var(--text-muted)" formatter={numFmt} />}
             </Bar>
             <Line
               type="monotone"

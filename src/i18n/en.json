@@ -479,7 +479,9 @@
     "form": "Recent form",
     "next": "Next fixture",
     "pl": "Matches played",
-    "score": "Goals for–against"
+    "score": "Goals for–against",
+    "gfMinusXg": "Goals scored minus expected goals — positive means overperforming xG",
+    "gaMinusXga": "Goals against minus expected goals against — negative means keeper/defense outperforming"
   },
   "match": {
     "events": "Match events",

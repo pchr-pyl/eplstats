@@ -242,9 +242,12 @@ export function ClubsCompare({
     money = false,
   ) => (
     <div className="min-w-0">
-      <h4 className="mb-2 font-display text-sm font-semibold text-primary">
-        {title}
-      </h4>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h4 className="font-display text-sm font-semibold text-primary">
+          {title}
+        </h4>
+        <LabelsBtn on={lblOn(field)} onClick={() => toggleLbl(field)} />
+      </div>
       <div className="h-48 w-full">
         <ResponsiveContainer>
           <BarChart
@@ -286,15 +289,17 @@ export function ClubsCompare({
               radius={[4, 4, 0, 0]}
               isAnimationActive={false}
             >
-              <LabelList
-                dataKey={money ? 'weeklyBillM' : field}
-                position="top"
-                fontSize={10}
-                fill="var(--text-muted)"
-                formatter={(v: unknown) =>
-                  money ? `£${fmt(Number(v))}M` : fmt(Number(v))
-                }
-              />
+              {lblOn(field) && (
+                <LabelList
+                  dataKey={money ? 'weeklyBillM' : field}
+                  position="top"
+                  fontSize={10}
+                  fill="var(--text-muted)"
+                  formatter={(v: unknown) =>
+                    money ? `£${fmt(Number(v))}M` : fmt(Number(v))
+                  }
+                />
+              )}
               {squadRows.map((r) => (
                 <Cell key={r.slug} fill={r.color} />
               ))}
