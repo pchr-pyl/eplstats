@@ -6,12 +6,13 @@ import { useI18n } from '@/i18n/I18nContext';
 import type {
   ClubIndexEntry,
   LeagueSeasonData,
+  LeagueMwData,
   LeagueTableViewRow,
   Zone,
 } from '@/lib/types';
 import { fmt, signed } from '@/lib/format';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { loadLeagueSeason, formatDate, LoadFail, LOAD_FAILED } from './matchlog-shared';
+import { loadLeagueSeason, loadLeagueMw, formatDate, LoadFail, LOAD_FAILED } from './matchlog-shared';
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -67,6 +68,10 @@ export function LeagueHome({
   const [extra, setExtra] = useState<
     Record<string, LeagueSeasonData | null | typeof LOAD_FAILED>
   >({});
+  const [mw, setMw] = useState<number | null>(null);
+  const [mwExtra, setMwExtra] = useState<
+    Record<string, LeagueMwData | null | typeof LOAD_FAILED>
+  >({});
 
   const loaded = season === initial?.season ? initial : (extra[season] ?? null);
   const data: LeagueSeasonData | null =
@@ -86,11 +91,35 @@ export function LeagueHome({
     };
   }, [season, initial?.season, extra]);
 
+  useEffect(() => {
+    setMw(null);
+  }, [season]);
+
+  useEffect(() => {
+    if (!season || season in mwExtra) return;
+    let live = true;
+    loadLeagueMw(season).then((d) => {
+      if (live) setMwExtra((p) => ({ ...p, [season]: d }));
+    });
+    return () => {
+      live = false;
+    };
+  }, [season, mwExtra]);
+
+  const mwLoaded = mwExtra[season];
+  const mwLoading = mwLoaded === undefined;
+  const mwObj = mwLoaded === LOAD_FAILED || mwLoading ? null : mwLoaded;
+  const mwWeek = useMemo(() => {
+    if (mw == null || !mwObj) return null;
+    return mwObj.weeks.find((w) => w.wk === mw) ?? null;
+  }, [mw, mwObj]);
+
   const [tbSort, setTbSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'rank', dir: 'asc' });
   const tableRows: LeagueTableViewRow[] = useMemo(() => {
+    if (mwWeek) return (mwWeek.views[view] ?? []) as LeagueTableViewRow[];
     if (!data) return [];
     return (data.views[view] ?? []) as LeagueTableViewRow[];
-  }, [data, view]);
+  }, [data, view, mwWeek]);
 
   const sortedRows = useMemo(() => {
     const k = tbSort.key;
@@ -110,8 +139,9 @@ export function LeagueHome({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableRows, tbSort, lang, clubs]);
 
-  const hasNext = data ? Object.keys(data.next).length > 0 : false;
-  const zones = data?.zones ?? {};
+  const hasNext = !mwWeek && data ? Object.keys(data.next).length > 0 : false;
+  const zones = mwWeek ? mwWeek.zones : (data?.zones ?? {});
+  const zonesProjected = mwWeek ? true : (data?.zonesProjected ?? false);
   const zoneLegend = useMemo(() => {
     const present = new Set(Object.values(zones).filter(Boolean));
     return (['cl', 'el', 'ecl', 'rel'] as const).filter((z) => present.has(z));
@@ -204,7 +234,7 @@ export function LeagueHome({
               onClick={() => setView(k)}
               className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 view === k
-                  ? 'bg-brand text-on-brand'
+                  ? 'bg-brand text-surface'
                   : 'text-muted hover:bg-bg-secondary hover:text-primary'
               }`}
             >
@@ -212,6 +242,42 @@ export function LeagueHome({
             </button>
           ))}
         </div>
+        {mwLoading ? (
+          <div className="flex items-center gap-3 border-b border-border bg-surface-elevated px-3 py-2">
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-border border-t-brand" aria-label="loading" />
+          </div>
+        ) : mwObj && mwObj.weeks.length > 1 ? (
+          <div className="flex items-center gap-3 border-b border-border bg-surface-elevated px-3 py-2">
+            <span className="text-xs font-medium text-muted">
+              {t('home.rounds.mw')} {(mw != null
+                ? (mwObj.weeks.find((w) => w.wk === mw)?.wk ?? mwObj.weeks[mwObj.weeks.length - 1].wk)
+                : mwObj.weeks[mwObj.weeks.length - 1].wk)}
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={mwObj.weeks.length - 1}
+              value={mw != null ? (mwObj.weeks.findIndex((w) => w.wk === mw)) : mwObj.weeks.length - 1}
+              onChange={(e) => {
+                const i = parseInt(e.target.value, 10);
+                const w = mwObj.weeks[i]?.wk;
+                if (w != null) setMw(w);
+              }}
+              style={{ accentColor: 'var(--brand)' }}
+              className="h-2 w-full min-w-0"
+              aria-label={t('home.rounds.mw')}
+            />
+            {mw != null && (
+              <button
+                type="button"
+                onClick={() => setMw(null)}
+                className="whitespace-nowrap rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-medium text-surface"
+              >
+                {t('home.latest')}
+              </button>
+            )}
+          </div>
+        ) : null}
         <div className="overflow-x-auto">
           <table className="w-full min-w-0 sm:min-w-[820px] border-collapse">
             <thead className="bg-surface-elevated">
@@ -264,8 +330,8 @@ export function LeagueHome({
             <tbody>
               {sortedRows.map((r) => {
                 const z: Zone = view === 'all' ? (zones[r.slug] ?? null) : null;
-                const fm = data?.form?.[r.slug] ?? [];
-                const nx = data?.next?.[r.slug];
+                const fm = (mwWeek ? mwWeek.form?.[r.slug] : data?.form?.[r.slug]) ?? [];
+                const nx = !mwWeek ? data?.next?.[r.slug] : undefined;
                 return (
                   <tr
                     key={r.slug}
@@ -350,7 +416,7 @@ export function LeagueHome({
             </tbody>
           </table>
         </div>
-        {(view === 'all' && (zoneLegend.length > 0 || data?.zonesProjected)) && (
+        {(view === 'all' && (zoneLegend.length > 0 || zonesProjected)) && (
           <div className="flex flex-wrap items-center gap-4 border-t border-border px-4 py-3 text-xs text-muted">
             {zoneLegend.map((z) => (
               <span key={z} className="flex items-center gap-1.5">
@@ -358,51 +424,54 @@ export function LeagueHome({
                 {t(`home.zones.${z}`)}
               </span>
             ))}
-            {data?.zonesProjected && <span>{t('home.zones.projected')}</span>}
+            {zonesProjected && <span>{t('home.zones.projected')}</span>}
           </div>
         )}
       </section>
 
-      {(data?.rounds?.last || data?.rounds?.next) && (
+      {(mwWeek || data?.rounds?.last || data?.rounds?.next) && (
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {(['last', 'next'] as const).map((k) => {
-            const rd = data?.rounds?.[k];
-            if (!rd) return null;
-            return (
-              <div
-                key={k}
-                className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none"
-              >
-                <h3 className="mb-3 text-sm font-semibold text-primary">
-                  {t(`home.rounds.${k === 'last' ? 'results' : 'fixtures'}`)} · {t('home.rounds.mw')} {rd.wk}
-                </h3>
-                <div className="flex flex-col divide-y divide-border-light">
-                  {rd.matches.map((m, i) => (
-                    <div key={i} className="flex items-center gap-2 py-1.5 text-sm">
-                      <span className="flex-1 truncate text-right text-primary">
-                        {m.home ? nameOf(m.home) : '—'}
+          {(
+            mwWeek
+              ? [{ key: 'results', title: t('home.rounds.results'), wk: mwWeek.wk, matches: mwWeek.matches }]
+              : ([
+                  data?.rounds?.last ? { key: 'last', title: t('home.rounds.results'), wk: data.rounds.last.wk, matches: data.rounds.last.matches } : null,
+                  data?.rounds?.next ? { key: 'next', title: t('home.rounds.fixtures'), wk: data.rounds.next.wk, matches: data.rounds.next.matches } : null,
+                ].filter(Boolean) as { key: string; title: string; wk: number; matches: import('@/lib/types').LeagueRoundMatch[] }[])
+          ).map((rd) => (
+            <div
+              key={rd.key}
+              className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none"
+            >
+              <h3 className="mb-3 text-sm font-semibold text-primary">
+                {rd.title} · {t('home.rounds.mw')} {rd.wk}
+              </h3>
+              <div className="flex flex-col divide-y divide-border-light">
+                {rd.matches.map((m, i) => (
+                  <div key={i} className="flex items-center gap-2 py-1.5 text-sm">
+                    <span className="flex-1 truncate text-right text-primary">
+                      {m.home ? nameOf(m.home) : '—'}
+                    </span>
+                    {m.home && <ClubCrest slug={m.home} size={16} />}
+                    <span className="w-20 shrink-0 text-center">
+                      <span className="block font-semibold leading-tight text-primary">
+                        {m.score ?? (m.time || '—')}
                       </span>
-                      {m.home && <ClubCrest slug={m.home} size={16} />}
-                      <span className="w-20 shrink-0 text-center">
-                        <span className="block font-semibold leading-tight text-primary">
-                          {m.score ?? (m.time || '—')}
+                      {m.date && (
+                        <span className="block text-[10px] leading-tight text-muted">
+                          {formatDate(m.date)}
                         </span>
-                        {m.date && (
-                          <span className="block text-[10px] leading-tight text-muted">
-                            {formatDate(m.date)}
-                          </span>
-                        )}
-                      </span>
-                      {m.away && <ClubCrest slug={m.away} size={16} />}
-                      <span className="flex-1 truncate text-primary">
-                        {m.away ? nameOf(m.away) : '—'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                      )}
+                    </span>
+                    {m.away && <ClubCrest slug={m.away} size={16} />}
+                    <span className="flex-1 truncate text-primary">
+                      {m.away ? nameOf(m.away) : '—'}
+                    </span>
+                  </div>
+                ))}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </section>
       )}
 

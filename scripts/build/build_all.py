@@ -923,17 +923,24 @@ def _table_notes_zones(season, clubs):
     return zones
 
 
-def _understat_season(season, clubs):
+def _understat_name2slug(clubs):
+    """understat team title -> slug (re-uses club name / understatName)."""
+    m = {}
+    for c in clubs.values():
+        if c.get("understatName"):
+            m[c["understatName"]] = c["slug"]
+        m[c["name"]] = c["slug"]
+    return m
+
+
+def _understat_season(season, clubs, name2slug=None):
     """per-club {mp,xg,xga,xpts,ptsSide} from league understat.json."""
     up = RAW / "league" / season / "understat.json"
     out = {}
     if not up.exists():
         return out
-    name2slug = {}
-    for c in clubs.values():
-        if c.get("understatName"):
-            name2slug[c["understatName"]] = c["slug"]
-        name2slug[c["name"]] = c["slug"]
+    if name2slug is None:
+        name2slug = _understat_name2slug(clubs)
     # fbref-ish names understat uses ("Manchester United", "Tottenham")
     for m in load_json(up)["dates"]:
         if not m.get("isResult"):
@@ -953,8 +960,32 @@ def _understat_season(season, clubs):
     return out
 
 
-def _rounds(season, clubs, name2slug):
-    """latest completed MW + next MW from league fixtures.json markdown."""
+def _understat_match_map(season, name2slug):
+    """{(date, home_slug, away_slug): {xgH,xgA,xptsH,xptsA}}."""
+    up = RAW / "league" / season / "understat.json"
+    out = {}
+    if not up.exists():
+        return out
+    for m in load_json(up)["dates"]:
+        if not m.get("isResult"):
+            continue
+        h = name2slug.get(m["h"]["title"])
+        a = name2slug.get(m["a"]["title"])
+        if not h or not a:
+            continue
+        f = m.get("forecast") or {}
+        xg_h = float(m["xG"]["h"])
+        xg_a = float(m["xG"]["a"])
+        xpts_h = 3 * float(f.get("w", 0)) + float(f.get("d", 0))
+        xpts_a = 3 * float(f.get("l", 0)) + float(f.get("d", 0))
+        out[(m["datetime"][:10], h, a)] = {
+            "xgH": xg_h, "xgA": xg_a,
+            "xptsH": xpts_h, "xptsA": xpts_a}
+    return out
+
+
+def _fixture_weeks(season, clubs, name2slug):
+    """{wk: [LeagueRoundMatch]} from league fixtures.json markdown."""
     fp = RAW / "league" / season / "fixtures.json"
     if not fp.exists():
         return {}
@@ -978,26 +1009,32 @@ def _rounds(season, clubs, name2slug):
             away = squad_slug(r[idx["Away"]]) if "Away" in idx else None
             score = strip_md(r[idx["Score"]]) if "Score" in idx else ""
             date = strip_md(r[idx["Date"]]) if "Date" in idx else ""
-            weeks.setdefault(wk.strip(), []).append({
+            wk_int = int(wk.strip())
+            weeks.setdefault(wk_int, []).append({
                 "date": date,
                 "time": strip_md(r[idx["Time"]]) if "Time" in idx else "",
                 "home": home, "away": away,
                 "score": score if score and score != "—" else None})
+    return weeks
+
+
+def _rounds(season, clubs, name2slug):
+    """latest completed MW + next MW from league fixtures.json markdown."""
+    weeks = _fixture_weeks(season, clubs, name2slug)
     if not weeks:
         return {}
-    played_wk = [int(w) for w, ms in weeks.items()
-                 if all(m["score"] for m in ms)]
+    played_wk = [w for w, ms in weeks.items() if all(m["score"] for m in ms)]
     last = max(played_wk) if played_wk else None
-    nxt = min((int(w) for w in weeks if last is None or int(w) > last),
-              default=None)
+    nxt = min((w for w in weeks if last is None or w > last), default=None)
     return {
-        "last": {"wk": last, "matches": weeks[str(last)]} if last else None,
-        "next": {"wk": nxt, "matches": weeks[str(nxt)]} if nxt else None}
+        "last": {"wk": last, "matches": weeks[last]} if last else None,
+        "next": {"wk": nxt, "matches": weeks[nxt]} if nxt else None}
 
 
 def league_season_files(all_club_matches, league, clubs):
     """public/data/league/{season}.json — home page summary payload."""
     name2slug = _opponent_map(clubs)
+    us_name2slug = _understat_name2slug(clubs)
     for season, rows in league.items():
         clubs_s = {r["slug"] for r in rows}
         views = {"all": [dict(r) for r in rows], "home": [], "away": [],
@@ -1044,7 +1081,7 @@ def league_season_files(all_club_matches, league, clubs):
             for i, v in enumerate(views[view], 1):
                 v["rank"] = i
         # xg view
-        xg_d = _understat_season(season, clubs)
+        xg_d = _understat_season(season, clubs, us_name2slug)
         pts_of = {r["slug"]: r["pts"] for r in rows}
         for slug, e in xg_d.items():
             if slug not in clubs_s:
@@ -1119,6 +1156,113 @@ def league_season_files(all_club_matches, league, clubs):
             "zones": zones, "zonesProjected": zones_projected,
             "summary": summary,
             "rounds": _rounds(season, clubs, name2slug)})
+
+        # matchweek time-slider snapshots
+        fixture_weeks = _fixture_weeks(season, clubs, name2slug)
+        max_wk = 0
+        club_pl = {}
+        for slug in clubs_s:
+            pl = [m for m in all_club_matches[slug][1]
+                  if m["season"] == season
+                  and m["competition"] == "Premier League"]
+            wms = []
+            for m in pl:
+                if m.get("round"):
+                    mm = re.search(r"Matchweek (\d+)", m["round"])
+                    if mm:
+                        wk = int(mm.group(1))
+                        if m["result"] in ("W", "D", "L"):
+                            wms.append((wk, m))
+                            if wk > max_wk:
+                                max_wk = wk
+            wms.sort(key=lambda x: x[1]["date"])
+            club_pl[slug] = wms
+
+        if max_wk > 0:
+            match_xg = _understat_match_map(season, us_name2slug)
+            mw_weeks = []
+
+            def _agg(slug, ms):
+                w = sum(1 for m in ms if m["result"] == "W")
+                d = sum(1 for m in ms if m["result"] == "D")
+                l = sum(1 for m in ms if m["result"] == "L")
+                gf = sum(m["gf"] for m in ms)
+                ga = sum(m["ga"] for m in ms)
+                return {"slug": slug, "rank": None, "mp": len(ms),
+                        "w": w, "d": d, "l": l, "gf": gf, "ga": ga,
+                        "gd": gf - ga, "pts": 3 * w + d}
+
+            for w in range(1, max_wk + 1):
+                wviews = {"all": [], "home": [], "away": [], "last5": [],
+                          "xg": []}
+                wform = {}
+                pts_of_w = {}
+                for slug in clubs_s:
+                    wms = club_pl.get(slug, [])
+                    cumulative = [m for wk, m in wms if wk <= w]
+                    home_ms = [m for m in cumulative if m["venue"] == "Home"]
+                    away_ms = [m for m in cumulative if m["venue"] == "Away"]
+                    last5 = cumulative[-5:]
+                    wviews["all"].append(_agg(slug, cumulative))
+                    wviews["home"].append(_agg(slug, home_ms))
+                    wviews["away"].append(_agg(slug, away_ms))
+                    wviews["last5"].append(_agg(slug, last5))
+                    wform[slug] = [{
+                        "result": m["result"], "gf": m["gf"], "ga": m["ga"],
+                        "opponent": name2slug.get(m["opponent"],
+                                                  m["opponent"]),
+                        "venue": "H" if m["venue"] == "Home" else "A",
+                        "date": m["date"]} for m in last5]
+                    pts_of_w[slug] = _agg(slug, cumulative)["pts"]
+                key = lambda v: (-v["pts"], -v["gd"], -v["gf"], v["slug"])
+                for view in ("all", "home", "away", "last5"):
+                    wviews[view].sort(key=key)
+                    for i, v in enumerate(wviews[view], 1):
+                        v["rank"] = i
+                # xg view
+                for slug in clubs_s:
+                    xg_sum = 0.0
+                    xga_sum = 0.0
+                    xpts_sum = 0.0
+                    n = 0
+                    for wk, m in club_pl.get(slug, []):
+                        if wk > w:
+                            continue
+                        if m["xg"] is None:
+                            continue
+                        opp = name2slug.get(m["opponent"], m["opponent"])
+                        home = slug if m["venue"] == "Home" else opp
+                        away = opp if m["venue"] == "Home" else slug
+                        hit = match_xg.get((m["date"], home, away))
+                        if not hit:
+                            continue
+                        xg_sum += m["xg"]
+                        xga_sum += m["xga"]
+                        xpts_sum += (hit["xptsH"] if m["venue"] == "Home"
+                                     else hit["xptsA"])
+                        n += 1
+                    if n == 0:
+                        continue
+                    xpts = round(xpts_sum, 2)
+                    wviews["xg"].append({
+                        "slug": slug, "rank": None, "mp": n,
+                        "xg": round(xg_sum, 2), "xga": round(xga_sum, 2),
+                        "xgd": round(xg_sum - xga_sum, 2), "xpts": xpts,
+                        "pts": pts_of_w.get(slug),
+                        "ptsMinusXpts": (round(pts_of_w[slug] - xpts, 2)
+                                         if slug in pts_of_w else None)})
+                wviews["xg"].sort(key=lambda v: (-v["xpts"], v["slug"]))
+                for i, v in enumerate(wviews["xg"], 1):
+                    v["rank"] = i
+                zones = {r["slug"]: ("cl" if r["rank"] <= 4 else
+                                     "el" if r["rank"] == 5 else
+                                     "rel" if r["rank"] >= 18 else None)
+                         for r in wviews["all"]}
+                mw_weeks.append({"wk": w, "views": wviews, "form": wform,
+                                 "zones": zones,
+                                 "matches": fixture_weeks.get(w, [])})
+            write_json(PUBLIC / "league-mw" / f"{season}.json",
+                       {"season": season, "weeks": mw_weeks})
 
 
 def keepers_by_season(keepers):

@@ -432,7 +432,8 @@
       "results": "Results",
       "fixtures": "Fixtures",
       "mw": "Matchweek"
-    }
+    },
+    "latest": "Latest"
   },
   "clubCompare": {
     "pickClubs": "Select up to 8 clubs",

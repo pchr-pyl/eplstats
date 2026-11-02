@@ -117,6 +117,31 @@ export function loadLeagueSeason(
   return p;
 }
 
+const leagueMwCache = new Map<
+  string,
+  Promise<import('@/lib/types').LeagueMwData | null | typeof LOAD_FAILED>
+>();
+
+export function loadLeagueMw(
+  season: string,
+): Promise<import('@/lib/types').LeagueMwData | null | typeof LOAD_FAILED> {
+  let p = leagueMwCache.get(`mw:${season}`);
+  if (!p) {
+    p = fetch(`${BASE_PATH}/data/league-mw/${season}.json`)
+      .then((r) =>
+        r.ok
+          ? (r.json() as Promise<import('@/lib/types').LeagueMwData>)
+          : Promise.reject(r.status),
+      )
+      .catch(() => {
+        leagueMwCache.delete(`mw:${season}`);
+        return LOAD_FAILED as typeof LOAD_FAILED;
+      });
+    leagueMwCache.set(`mw:${season}`, p);
+  }
+  return p;
+}
+
 export function LoadFail({ onRetry }: { onRetry: () => void }) {
   const { t } = useI18n();
   return (

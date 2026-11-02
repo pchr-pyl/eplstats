@@ -399,6 +399,25 @@ export interface LeagueSeasonData {
   };
 }
 
+export interface LeagueMwWeek {
+  wk: number;
+  views: {
+    all: LeagueTableViewRow[];
+    home: LeagueTableViewRow[];
+    away: LeagueTableViewRow[];
+    last5: LeagueTableViewRow[];
+    xg: LeagueTableViewRow[];
+  };
+  form: Record<string, LeagueFormMatch[]>;
+  zones: Record<string, Zone>;
+  matches: LeagueRoundMatch[];
+}
+
+export interface LeagueMwData {
+  season: string;
+  weeks: LeagueMwWeek[];
+}
+
 /* ------------------------------------------------- match detail (public) */
 export interface MatchEvent {
   minute: string | null;
