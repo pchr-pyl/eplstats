@@ -211,16 +211,66 @@ def extract_matchlog(html, base):
     return out
 
 
+# ---------------------------------------------------------------- league
+def _extract_squads(doc):
+    for t in doc.find_all("table"):
+        thead = t.find("thead")
+        h = collapse(thead.get_text()) if thead else ""
+        if "Squad" in h and ("Pts" in h or "MP" in h):
+            table = t
+            break
+    else:
+        return []
+    out, seen = [], set()
+    for a in table.find_all("a", href=re.compile(r"/en/squads/")):
+        m = re.search(r"/en/squads/([0-9a-f]+)/", a.get("href") or "")
+        if not m or m.group(1) in seen:
+            continue
+        seen.add(m.group(1))
+        href = a["href"]
+        out.append({"name": collapse(a.get_text()), "id": m.group(1),
+                    "url": FBREF + (href if href.startswith("/") else "/" + href)})
+    return out
+
+
+def _extract_keeperadv(doc, base):
+    squads = players = None
+    for t in doc.find_all("table"):
+        thead = t.find("thead")
+        rows = thead.find_all("tr") if thead else []
+        first = collapse(rows[-1].find_all(["td", "th"])[0].get_text()) if rows else ""
+        hdr = collapse(thead.get_text()) if thead else ""
+        if first == "Squad" and not squads:
+            squads = table_md(t, base) + "\n"
+        elif first in ("Rk", "Player") and not players and "Squad" in hdr:
+            players = table_md(t, base) + "\n"
+    return {"markdown_squads": squads, "markdown_players": players}
+
+
 # ---------------------------------------------------------------- payloads
 def convert(html, typ, url):
     """rawHtml + type -> payload dict (exactly the run.py task shapes)."""
     base = FBREF + "/"
-    if typ == "schedule":
+    if typ in ("schedule", "fixtures"):
         doc = parse_doc(html)
         md = to_markdown(doc.body, base) if doc.body else ""
         if not md.strip():
             raise ValueError(f"empty markdown from {url}")
         return {"markdown": md, "metadata": {"sourceURL": url}}
+    if typ == "table":
+        doc = parse_doc(html)
+        md = to_markdown(doc.body, base) if doc.body else ""
+        squads = _extract_squads(doc)
+        if not squads:
+            raise ValueError(f"no squads found on {url}")
+        return {"markdown": md, "squads": squads, "metadata": {"sourceURL": url}}
+    if typ == "keeperadv":
+        doc = parse_doc(html)
+        res = _extract_keeperadv(doc, base)
+        if not res.get("markdown_squads") and not res.get("markdown_players"):
+            raise ValueError(f"no keeperadv tables from {url}")
+        res["metadata"] = {"sourceURL": url}
+        return res
     if typ in ("shooting", "keeper", "misc"):
         tables = extract_matchlog(html, base)
         if not tables or not any(t["rows"] for t in tables):
@@ -247,6 +297,17 @@ def convert(html, typ, url):
         out["metadata"] = {"sourceURL": url}
         return out
     raise ValueError(f"unknown type {typ}")
+
+
+def league_url(season, kind):
+    if kind == "table":
+        return f"{FBREF}/en/comps/9/{season}/{season}-Premier-League-Stats"
+    if kind == "fixtures":
+        return (f"{FBREF}/en/comps/9/{season}/schedule/"
+                f"{season}-Premier-League-Scores-and-Fixtures")
+    if kind == "keeperadv":
+        return f"{FBREF}/en/comps/9/{season}/keepersadv/Premier-League-Stats"
+    raise ValueError(kind)
 
 
 def club_url(club, season, kind):
