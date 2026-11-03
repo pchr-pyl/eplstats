@@ -4,7 +4,7 @@ import { getClubIndex } from '@/lib/data';
 export const dynamic = 'force-static';
 
 const BASE = 'https://eplstats.pages.dev';
-const TABS = ['', '/attack', '/defense', '/squad', '/managers', '/matches', '/misc', '/compare'];
+const TABS = ['', '/attack', '/defense', '/squad', '/managers', '/matches', '/season', '/misc', '/compare'];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

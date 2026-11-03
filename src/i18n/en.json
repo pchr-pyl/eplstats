@@ -225,6 +225,7 @@
   "nav": {
     "overview": "Overview",
     "matches": "Scores & Fixtures",
+    "season": "Season detail",
     "attack": "Attack",
     "defense": "Defense",
     "misc": "Miscellaneous",
@@ -250,6 +251,34 @@
       "season": "Season",
       "topScorer": "Top scorer"
     }
+  },
+  "seasonDetail": {
+    "title": "Season detail",
+    "season": "Season",
+    "perMatch": "Per match",
+    "cumulative": "Cumulative",
+    "chart": {
+      "shots": "Shots vs shots conceded per match",
+      "gfGa": "Goals vs goals against",
+      "goals": "Goals & xG per match",
+      "cumGd": "Cumulative goal difference",
+      "keeper": "Shots on target faced & saves",
+      "possession": "Possession per match"
+    },
+    "kpi": {
+      "mp": "Matches",
+      "record": "W-D-L",
+      "gf": "Goals for",
+      "ga": "Goals against",
+      "xg": "xG",
+      "xga": "xGA",
+      "shPerMp": "Shots / match",
+      "shAPerMp": "Shots conceded / match",
+      "cs": "Clean sheets",
+      "poss": "Avg possession"
+    },
+    "note": "xG/xGA are Premier League only (Understat). Shot and keeper stats come from fbref match logs; blank where fbref has no coverage.",
+    "empty": "No played matches for this season and competition."
   },
   "defense": {
     "title": "Defense",

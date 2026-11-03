@@ -1,5 +1,5 @@
-import type { MatchRow, SeasonMatchlogs } from '@/lib/types';
-import { compInGroup, canonicalComp } from '@/lib/stats';
+import type { MatchRow, SeasonMatchlogs, CompGroup } from '@/lib/types';
+import { compInGroup } from '@/lib/stats';
 
 export type PaceSide = 'attack' | 'defense';
 
@@ -51,13 +51,15 @@ export const RACE_BY_KEY: Record<PaceSide, Record<RaceMetric, RaceDef>> = {
   >,
 };
 
-/** Per-match statline joined by date (PL rows only). */
+/** Per-match statline joined by date (group-filtered). */
 export interface MatchExtras {
   sh: number | null;
   sot: number | null;
   shA: number | null;
   sotA: number | null;
   saves: number | null;
+  crdY: number | null;
+  fls: number | null;
 }
 
 /** date -> extras. */
@@ -121,7 +123,7 @@ const num = (v: string | undefined): number | null => {
 };
 
 function blankExtras(): MatchExtras {
-  return { sh: null, sot: null, shA: null, sotA: null, saves: null };
+  return { sh: null, sot: null, shA: null, sotA: null, saves: null, crdY: null, fls: null };
 }
 
 function plCols(table: { columns: string[] } | undefined) {
@@ -131,10 +133,11 @@ function plCols(table: { columns: string[] } | undefined) {
 }
 
 /**
- * Extract PL per-match stats from a season's matchlogs:
- * sh/sot <- shooting.for, shA <- shooting.against, sotA/saves <- keeper.for.
+ * Extract per-match stats from a season's matchlogs:
+ * sh/sot <- shooting.for, shA <- shooting.against, sotA/saves <- keeper.for,
+ * crdY/fls <- misc.for.
  */
-export function extrasFrom(logs: SeasonMatchlogs | null): ExtrasMap {
+export function extrasFrom(logs: SeasonMatchlogs | null, group: CompGroup = 'premier-league'): ExtrasMap {
   const map: ExtrasMap = new Map();
   const get = (date: string) => {
     let e = map.get(date);
@@ -154,7 +157,7 @@ export function extrasFrom(logs: SeasonMatchlogs | null): ExtrasMap {
     const { cols, iDate, iComp } = meta;
     if (needed.some((c) => cols.indexOf(c) < 0)) return;
     for (const r of table!.rows) {
-      if (iComp >= 0 && canonicalComp(r[iComp] ?? '') !== 'Premier League') continue;
+      if (iComp >= 0 && !compInGroup(r[iComp] ?? '', group)) continue;
       const date = r[iDate] ?? '';
       if (!date) continue;
       assign(get(date), r, cols);
@@ -184,6 +187,14 @@ export function extrasFrom(logs: SeasonMatchlogs | null): ExtrasMap {
       e.saves = num(r[cols.indexOf('Saves')]);
     },
     ['SoTA', 'Saves'],
+  );
+  fill(
+    logs?.misc?.for,
+    (e, r, cols) => {
+      e.crdY = num(r[cols.indexOf('CrdY')]);
+      e.fls = num(r[cols.indexOf('Fls')]);
+    },
+    ['CrdY', 'Fls'],
   );
   return map;
 }
