@@ -30,6 +30,8 @@ def log_failure(kind, target, err):
 
 
 def find_results(obj):
+    if isinstance(obj, dict) and obj.get("rawHtml"):
+        return [obj]
     if isinstance(obj, dict):
         for k in ("results", "pages"):
             if k in obj and isinstance(obj[k], list):
@@ -47,13 +49,17 @@ def main():
     jobs = M.collect_jobs()
     saved = skipped = failed = unmatched = 0
     for arg in sys.argv[1:]:
-        results = find_results(json.loads(Path(arg).read_text(encoding="utf-8")))
+        obj = json.loads(Path(arg).read_text(encoding="utf-8"))
+        results = find_results(obj)
+        if not results and isinstance(obj, dict) and obj.get("rawHtml"):
+            results = [obj]
         if not results:
             print(f"no results in {arg}")
             continue
         print(f"{Path(arg).parent.name}: {len(results)} pages")
         for p in results:
-            url, html = p.get("url", ""), p.get("rawHtml", "")
+            url = p.get("url") or (p.get("metadata") or {}).get("sourceURL", "")
+            html = p.get("rawHtml", "")
             mm = M.MATCH_ID.search(url)
             mid = mm.group(1) if mm else None
             if not mid or mid not in jobs or not html:
