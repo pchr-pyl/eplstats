@@ -306,7 +306,7 @@ export function getInsights(): InsightsData {
       slug: p.slug,
       cur: p.cur,
       projRank: i + 1,
-      projPts: Math.round(p.projPts * 10) / 10,
+      projPts: p.projPts,
     }));
 
   // ---- next matchweek preview (from league-mw snapshot) ----

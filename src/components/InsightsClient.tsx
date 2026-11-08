@@ -208,7 +208,11 @@ export function InsightsClient({
                     dataKey="mp"
                     tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                   />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} width={32} />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                    width={32}
+                    allowDecimals={false}
+                  />
                   <Tooltip
                     contentStyle={{
                       background: 'var(--surface-elevated)',
@@ -218,6 +222,11 @@ export function InsightsClient({
                     }}
                     labelStyle={{ color: 'var(--text)' }}
                     labelFormatter={(v) => `${t('insights.xgRaceMp')} ${v}`}
+                    formatter={(v) =>
+                      typeof v === 'number'
+                        ? Number.isInteger(v) ? String(v) : v.toFixed(2)
+                        : '—'
+                    }
                   />
                   <Legend />
                   <Line
@@ -297,7 +306,7 @@ export function InsightsClient({
                       </td>
                       <td className="px-2 py-1.5 text-right tabular-nums text-muted">{p.cur}</td>
                       <td className="px-2 py-1.5 text-right font-semibold tabular-nums text-primary">
-                        {fmt(p.projPts, 0)}
+                        {fmt(p.projPts)}
                       </td>
                       <td className={`py-1.5 pl-2 text-right text-xs font-semibold tabular-nums ${
                         delta > 0 ? 'text-success' : delta < 0 ? 'text-danger' : 'text-muted'
