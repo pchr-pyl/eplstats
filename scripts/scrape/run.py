@@ -49,6 +49,12 @@ def valid_payload(path, required_keys):
         d = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return False
+    return payload_has_keys(d, required_keys)
+
+
+def payload_has_keys(d, required_keys):
+    if not isinstance(d, dict):
+        return False
     for k in required_keys:
         v = d.get(k)
         if not v:
@@ -95,6 +101,8 @@ def main():
     ap.add_argument("--headless", action="store_true",
                     help="try headless (fbref Cloudflare normally blocks it)")
     ap.add_argument("--delay", type=float, default=3.0)
+    ap.add_argument("--refresh", action="store_true",
+                    help="fetch existing files again; retain old data if fetching fails")
     args = ap.parse_args()
 
     out_root = Path(args.out_dir)
@@ -124,11 +132,13 @@ def main():
                     jobs.append(("club", t, club, s, out_root / "clubs" / slug / s / f"{t}.json"))
 
     print(f"{len(jobs)} candidate jobs", flush=True)
-    todo = [j for j in jobs if not valid_payload(j[4], REQUIRED_KEYS.get(j[1], ["markdown"]))]
+    todo = [j for j in jobs if args.refresh or
+            not valid_payload(j[4], REQUIRED_KEYS.get(j[1], ["markdown"]))]
     print(f"{len(todo)} to fetch ({len(jobs)-len(todo)} already done)", flush=True)
     if not todo:
         return
 
+    failures = 0
     with BrowserSession(headless=args.headless, delay=args.delay) as sess:
         for i, (kind, typ, club, season, out) in enumerate(todo):
             target = f"{kind}:{club['slug'] if club else 'league'}:{season}:{typ}"
@@ -136,13 +146,19 @@ def main():
             try:
                 fn = LEAGUE_TYPES[typ] if kind == "league" else CLUB_TYPES[typ]
                 payload = fn(sess, club, season)
+                if not payload_has_keys(payload, REQUIRED_KEYS.get(typ, ["markdown"])):
+                    raise ValueError(f"invalid {typ} payload; keeping existing file")
                 save_atomic(out, payload)
                 secs = time.time() - t0
                 log_timing(target, secs)
                 print(f"[{i+1}/{len(todo)}] OK {target} ({secs:.1f}s) -> {out.relative_to(out_root)}", flush=True)
             except Exception as e:
+                failures += 1
                 log_failure(kind, target, "", e)
             time.sleep(random.random() * 0.5)
+    if failures:
+        print(f"{failures} job(s) failed; existing files were retained", flush=True)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

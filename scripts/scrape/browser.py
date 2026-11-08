@@ -53,6 +53,7 @@ class BrowserSession:
         self._page.set_default_timeout(60000)
         self._origin = None  # origin currently cleared for
         self._last_fetch = 0.0
+        self._last_response = None
 
     # -- lifecycle ---------------------------------------------------------
     def close(self):
@@ -171,10 +172,19 @@ class BrowserSession:
 
     def fetch_retries(self, url, tries=5):
         """fetch with exponential backoff; refreshes the CF cookie on challenge."""
+        # players and keeper-squad use the same page, normally consecutively.
+        # Cache only the immediately preceding URL, never across sessions.
+        if self._last_response and self._last_response[0] == url:
+            return self._last_response[1]
+        self._last_response = None
         backoff = 5.0
         for i in range(tries):
             try:
-                return self.fetch(url)
+                result = self.fetch(url)
+                if not 200 <= result[0] < 300:
+                    raise ValueError(f"HTTP {result[0]} on {url}")
+                self._last_response = (url, result)
+                return result
             except RateLimited as e:
                 self.log(f"  {e.status} on {url}; backoff {backoff:.0f}s")
                 time.sleep(backoff + random.random() * 3)
