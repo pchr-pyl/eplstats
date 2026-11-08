@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Sun, Moon, ArrowLeftRight, ChevronDown, Newspaper } from 'lucide-react';
+import { Sun, Moon, ArrowLeftRight, ChevronDown, Newspaper, Users } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useTheme } from './ThemeProvider';
 import { useClubOptional } from './ClubProvider';
@@ -101,6 +101,15 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
               className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-secondary text-primary transition-colors hover:bg-brand-soft hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
             >
               <Newspaper size={17} />
+            </Link>
+
+            <Link
+              href="/players-compare/"
+              aria-label={t('app.comparePlayers')}
+              title={t('app.comparePlayers')}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-secondary text-primary transition-colors hover:bg-brand-soft hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+            >
+              <Users size={17} />
             </Link>
 
             <Link

@@ -48,6 +48,7 @@ const SECTION_TH: Record<string, string> = {
   managers: 'ผู้จัดการ',
   compare: 'เปรียบเทียบ',
   'clubs-compare': 'เปรียบเทียบสโมสร',
+  'players-compare': 'เปรียบเทียบนักเตะ',
 };
 
 function Kpi({ label, value, sub }: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {

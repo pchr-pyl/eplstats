@@ -4,6 +4,7 @@
     "subtitle": "Club-by-Club Analytics",
     "clubSwitcher": "Switch club",
     "compareClubs": "Compare clubs",
+    "comparePlayers": "Compare players",
     "insights": "Insights",
     "home": "All clubs"
   },
@@ -597,6 +598,7 @@
     "ko": "KO",
     "ft": "FT",
     "manager": "Manager",
+    "bench": "Bench",
     "att": "Attendance",
     "ref": "Referee",
     "pens": "pens",

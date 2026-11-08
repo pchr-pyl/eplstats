@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useI18n } from '@/i18n/I18nContext';
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
-const NON_CLUB = new Set(['admin', 'clubs-compare', 'api', 'data', '_next']);
+const NON_CLUB = new Set(['admin', 'clubs-compare', 'players-compare', 'api', 'data', '_next']);
 
 export function TrackView() {
   const pathname = usePathname();

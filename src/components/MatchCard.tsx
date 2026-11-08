@@ -128,74 +128,99 @@ function FactsTab({ d }: { d: MatchDetailData }) {
 
 function Pitch({ d }: { d: MatchDetailData }) {
   const { t } = useI18n();
-  const render = (side: 'home' | 'away') => {
+  type Dot = { name: string; number: string; top: number | null; left: number | null; right: number | null };
+  const players = (side: 'home' | 'away') => {
     const lu = d.lineups[side];
     const evs = d.events.filter((e) => e.side === side);
-    const dots = (d.pitch?.[side] ?? []) as { name: string; number: string; top: number | null; left: number | null; right: number | null }[];
+    const dots = (d.pitch?.[side] ?? []) as Dot[];
     const pos = new Map(dots.map((p) => [p.name, p]));
-    const subs = new Map(evs.filter((e) => e.type === 'sub').map((e) => [e.playerOut, e.playerIn]));
-    const cards = new Map(evs.filter((e) => ['yellow', 'second_yellow', 'red'].includes(e.type)).map((e) => [e.player, e.type]));
-    const scorers = new Map(evs.filter((e) => ['goal', 'pen_goal', 'own_goal'].includes(e.type)).map((e) => [e.player, true]));
-    const flip = side === 'home';
-    return (
-      <div className="relative mx-auto aspect-[3/4] w-full max-w-[260px]">
-        <svg viewBox="0 0 60 80" className="absolute inset-0 h-full w-full rounded-lg border border-border bg-[#1a7a4a]/90" aria-hidden>
-          <rect x="6" y="6" width="48" height="68" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth=".6" />
-          <line x1="6" y1="40" x2="54" y2="40" stroke="rgba(255,255,255,.5)" strokeWidth=".6" />
-          <circle cx="30" cy="40" r="6" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth=".6" />
-          <rect x="18" y="6" width="24" height="10" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth=".6" />
-          <rect x="18" y="64" width="24" height="10" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth=".6" />
-        </svg>
-        {lu.xi.map((p) => {
-          const dot = pos.get(p.name);
-          const top = dot?.top ?? 50;
-          const x = dot ? (dot.left ?? (dot.right != null ? 100 - dot.right : 50)) : 50;
-          return (
-            <div
-              key={p.name}
-              className="absolute flex w-11 -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-              style={{ top: `${top}%`, left: `${flip ? x : 100 - x}%` }}
-              title={`${p.number} ${p.name}`}
-            >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[9px] font-bold text-gray-900 shadow">
-                {p.number}
-              </span>
-              <span className="mt-0.5 max-w-16 truncate text-center text-[8px] font-semibold leading-tight text-white drop-shadow">
-                {p.name.split(' ').pop()}
-                {scorers.get(p.name) ? ' ⚽' : ''}
-                {cards.get(p.name) === 'yellow' ? ' 🟨' : ''}
-                {cards.get(p.name) === 'red' || cards.get(p.name) === 'second_yellow' ? ' 🟥' : ''}
-                {subs.get(p.name) ? ` ↓${evs.find((e) => e.playerOut === p.name)?.minute}’` : ''}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-  return (
-    <div className="flex flex-col gap-4 py-2 sm:flex-row sm:gap-6">
-      {(['home', 'away'] as const).map((side) => (
-        <div key={side} className="min-w-0 flex-1">
-          <div className="mb-2 flex items-center justify-center gap-2 text-sm font-semibold text-primary">
-            <Crest slug={d[side].slug} /> {d[side].name}
-            <span className="text-muted">({d[side].formation ?? '—'})</span>
-          </div>
-          {render(side)}
-          <div className="mt-2 text-center text-xs text-muted">
-            {t('match.manager')}: {d[side].manager ?? '—'}
-          </div>
-          <ul className="mt-2 space-y-0.5 text-xs text-muted">
-            {d.lineups[side].bench.map((p) => (
-              <li key={p.name} className="flex justify-center gap-2">
-                <span className="tabular-nums text-muted">{p.number}</span>
-                <span className="truncate">{p.name}</span>
-                {p.subInMin && <span className="text-brand">↑{p.subInMin}’</span>}
-              </li>
-            ))}
-          </ul>
+    const outMin = new Map(evs.filter((e) => e.type === 'sub').map((e) => [e.playerOut ?? '', e.minute] as const));
+    const cards = new Map(evs.filter((e) => ['yellow', 'second_yellow', 'red'].includes(e.type)).map((e) => [e.player ?? '', e.type] as const));
+    const goals = new Map<string, number>();
+    evs.filter((e) => ['goal', 'pen_goal'].includes(e.type)).forEach((e) => goals.set(e.player ?? '', (goals.get(e.player ?? '') ?? 0) + 1));
+    return lu.xi.map((p) => {
+      const dot = pos.get(p.name);
+      if (!dot) return null;
+      // fbref: one horizontal pitch. home -> left% (0..50), away -> right% (0..50); top% = lateral.
+      const x = side === 'home' ? (dot.left ?? 5) : 100 - (dot.right ?? 5);
+      const y = dot.top ?? 50;
+      const card = cards.get(p.name);
+      const g = goals.get(p.name);
+      const out = outMin.get(p.name);
+      const home = side === 'home';
+      return (
+        <div
+          key={`${side}-${p.name}`}
+          className="absolute z-10 flex w-[15%] -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+          style={{ left: `${x}%`, top: `${y}%` }}
+          title={`${p.number} ${p.name}`}
+        >
+          {out != null && <span className="mb-0.5 text-[9px] font-semibold leading-none tabular-nums text-muted sm:text-[10px]">{out}′</span>}
+          <span className="relative">
+            <span className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-[11px] font-bold tabular-nums shadow-sm sm:h-10 sm:w-10 sm:text-sm ${home ? 'border-brand bg-brand text-white' : 'border-border bg-surface-elevated text-primary'}`}>
+              {p.number}
+            </span>
+            {g ? <span className="absolute -bottom-1 -right-2 flex h-4 items-center justify-center rounded-full border border-border bg-surface px-1 text-[9px] font-bold leading-none text-primary shadow-sm">⚽{g > 1 ? g : ''}</span> : null}
+            {card ? <span className={`absolute -right-1 -top-1 h-3 w-2.5 rounded-[2px] shadow-sm sm:h-3.5 ${card === 'yellow' ? 'bg-yellow-400' : 'bg-red-600'}`} /> : null}
+            {out != null ? <span className="absolute -left-2 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold leading-none text-white shadow-sm">↓</span> : null}
+          </span>
+          <span className="mt-1 max-w-full truncate text-center text-[10px] font-semibold leading-tight text-primary sm:text-xs">
+            <span className="mr-1 font-normal text-muted">{p.number}</span>{p.name.split(' ').slice(-1)[0]}
+          </span>
         </div>
-      ))}
+      );
+    });
+  };
+  const head = (side: 'home' | 'away') => (
+    <div className={`flex min-w-0 flex-1 items-center gap-2 ${side === 'away' ? 'flex-row-reverse text-right' : ''}`}>
+      <Crest slug={d[side].slug} />
+      <span className="truncate text-sm font-bold text-primary">{d[side].name}</span>
+      <span className="text-sm font-semibold tabular-nums text-muted">{d[side].formation ?? '—'}</span>
+    </div>
+  );
+  const bench = (side: 'home' | 'away') => (
+    <div className="min-w-0 flex-1">
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{t('match.bench')}</h4>
+      <ul className="divide-y divide-border rounded-xl border border-border bg-surface text-sm">
+        {d.lineups[side].bench.map((p) => (
+          <li key={p.name} className="flex items-center gap-3 px-3 py-2">
+            <span className="w-6 text-right text-xs font-semibold tabular-nums text-muted">{p.number}</span>
+            <span className="min-w-0 flex-1 truncate text-primary">{p.name}</span>
+            {p.subInMin && <span className="text-xs font-semibold tabular-nums text-brand">↑ {p.subInMin}′</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+  const mgr = (side: 'home' | 'away') => (
+    <span className={`min-w-0 flex-1 truncate text-sm ${side === 'away' ? 'text-right' : ''}`}>
+      <span className="text-muted">{t('match.manager')}: </span><span className="font-semibold text-primary">{d[side].manager ?? '—'}</span>
+    </span>
+  );
+  return (
+    <div className="py-2">
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3">{head('home')}{head('away')}</div>
+        <div className="relative aspect-[3/2] w-full bg-bg-secondary sm:aspect-[16/9]">
+          <svg viewBox="0 0 120 80" preserveAspectRatio="none" className="absolute inset-0 h-full w-full text-border" aria-hidden>
+            <g fill="none" stroke="currentColor" strokeWidth=".5" vectorEffect="non-scaling-stroke">
+              <line x1="60" y1="0" x2="60" y2="80" vectorEffect="non-scaling-stroke" />
+              <ellipse cx="60" cy="40" rx="9" ry="13" vectorEffect="non-scaling-stroke" />
+              <rect x="-1" y="18" width="19" height="44" vectorEffect="non-scaling-stroke" />
+              <rect x="-1" y="30" width="7" height="20" vectorEffect="non-scaling-stroke" />
+              <rect x="102" y="18" width="19" height="44" vectorEffect="non-scaling-stroke" />
+              <rect x="114" y="30" width="7" height="20" vectorEffect="non-scaling-stroke" />
+            </g>
+          </svg>
+          <div className="absolute" style={{ left: '1%', right: '1%', top: '5%', bottom: '5%' }}>
+            {players('home')}{players('away')}
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-4 border-t border-border px-4 py-3">
+          {mgr('home')}{mgr('away')}
+        </div>
+      </div>
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">{bench('home')}{bench('away')}</div>
     </div>
   );
 }

@@ -1709,3 +1709,5 @@ def build_match_files(lm, clubs):
 
 if __name__ == "__main__":
     main()
+    import build_players_compare
+    build_players_compare.main()
