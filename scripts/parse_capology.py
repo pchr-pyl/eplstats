@@ -88,6 +88,9 @@ def parse_season(md: str) -> dict:
         b = block[1:]
         verified = b and "verified-green" in b[0]
         status_i = next((k for k, x in enumerate(b) if x in ("Active", "Inactive", "Loan")), None)
+        if status_i is None:
+            # not a salary row (e.g. Payroll Distribution table: name + %s)
+            continue
         p = {
             "name": NAME_RE.search(block[0]).group(1).strip(),
             "verified": bool(verified),

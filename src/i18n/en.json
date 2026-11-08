@@ -483,6 +483,14 @@
       "fixtures": "Fixtures",
       "mw": "Matchweek"
     },
+    "fixture": {
+      "title": "Match preview",
+      "kickoff": "Kickoff",
+      "stadium": "Stadium",
+      "rank": "Rank",
+      "form": "Form",
+      "h2h": "Head-to-head on fbref"
+    },
     "latest": "Latest"
   },
   "clubCompare": {

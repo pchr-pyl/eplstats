@@ -1,18 +1,23 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useI18n } from '@/i18n/I18nContext';
 import type {
   ClubIndexEntry,
+  LeagueFormMatch,
+  LeagueRoundMatch,
   LeagueSeasonData,
   LeagueMwData,
   LeagueTableViewRow,
+  MatchRow,
   Zone,
 } from '@/lib/types';
 import { fmt, signed, bkkKickoff } from '@/lib/format';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { loadLeagueSeason, loadLeagueMw, formatDate, LoadFail, LOAD_FAILED } from './matchlog-shared';
+import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, X } from 'lucide-react';
+import { loadLeagueSeason, loadLeagueMw, formatDate, LoadFail, LOAD_FAILED, RESULT_STYLE } from './matchlog-shared';
+import { MatchCard } from './MatchCard';
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -38,6 +43,36 @@ const ZONE_STYLE: Record<string, string> = {
   ecl: 'bg-[#00b87c]',
   rel: 'bg-danger',
 };
+
+function roundToMatchRows(matches: LeagueRoundMatch[], season: string, wk: number): MatchRow[] {
+  return matches.map((m) => {
+    const sm = m.score?.match(/(-?\d+)\s*[–-]\s*(-?\d+)/);
+    return {
+      season,
+      date: m.date,
+      time: m.time || null,
+      competition: 'Premier League',
+      round: `Matchweek ${wk}`,
+      venue: null,
+      result: null,
+      gf: sm ? parseInt(sm[1], 10) : null,
+      ga: sm ? parseInt(sm[2], 10) : null,
+      gfPens: null,
+      gaPens: null,
+      opponent: null,
+      possession: null,
+      attendance: null,
+      captain: null,
+      formation: null,
+      oppFormation: null,
+      referee: null,
+      notes: null,
+      matchId: m.matchId ?? null,
+      xg: null,
+      xga: null,
+    };
+  });
+}
 
 export function LeagueHome({
   clubs,
@@ -72,6 +107,15 @@ export function LeagueHome({
   const [mwExtra, setMwExtra] = useState<
     Record<string, LeagueMwData | null | typeof LOAD_FAILED>
   >({});
+  const [openMatch, setOpenMatch] = useState<{
+    mid: string;
+    rows: MatchRow[];
+    index: number;
+  } | null>(null);
+  const [openFixture, setOpenFixture] = useState<{
+    m: LeagueRoundMatch;
+    wk: number;
+  } | null>(null);
 
   const loaded = season === initial?.season ? initial : (extra[season] ?? null);
   const data: LeagueSeasonData | null =
@@ -140,6 +184,10 @@ export function LeagueHome({
   }, [tableRows, tbSort, lang, clubs]);
 
   const hasNext = !mwWeek && data ? Object.keys(data.next).length > 0 : false;
+  const allView = mwWeek ? mwWeek.views.all : (data?.views.all ?? []);
+  const formMap = mwWeek ? mwWeek.form : (data?.form ?? {});
+  const rowOf = (slug: string) => allView.find((r) => r.slug === slug);
+  const formOf = (slug: string): LeagueFormMatch[] => formMap[slug] ?? [];
   const zones = mwWeek ? mwWeek.zones : (data?.zones ?? {});
   const zonesProjected = mwWeek ? true : (data?.zonesProjected ?? false);
   const zoneLegend = useMemo(() => {
@@ -449,27 +497,47 @@ export function LeagueHome({
               <div className="flex flex-col divide-y divide-border-light">
                 {rd.matches.map((m, i) => {
                   const bk = bkkKickoff(m.date, m.time);
-                  return (
-                  <div key={i} className="flex items-center gap-2 py-1.5 text-sm">
-                    <span className="flex-1 truncate text-right text-primary">
-                      {m.home ? nameOf(m.home) : '—'}
-                    </span>
-                    {m.home && <ClubCrest slug={m.home} size={16} />}
-                    <span className="w-20 shrink-0 text-center">
-                      <span className="block font-semibold leading-tight text-primary">
-                        {m.score ?? (bk?.time || m.time || '—')}
+                  const played = !!(m.matchId && m.score);
+                  const inner = (
+                    <>
+                      <span className="flex-1 truncate text-right text-primary">
+                        {m.home ? nameOf(m.home) : '—'}
                       </span>
-                      {m.date && (
-                        <span className="block text-[10px] leading-tight text-muted">
-                          {bk?.date ?? formatDate(m.date)}
+                      {m.home && <ClubCrest slug={m.home} size={16} />}
+                      <span className="w-20 shrink-0 text-center">
+                        <span className="block font-semibold leading-tight text-primary">
+                          {m.score ?? (bk?.time || m.time || '—')}
                         </span>
-                      )}
-                    </span>
-                    {m.away && <ClubCrest slug={m.away} size={16} />}
-                    <span className="flex-1 truncate text-primary">
-                      {m.away ? nameOf(m.away) : '—'}
-                    </span>
-                  </div>
+                        {m.date && (
+                          <span className="block text-[10px] leading-tight text-muted">
+                            {bk?.date ?? formatDate(m.date)}
+                          </span>
+                        )}
+                      </span>
+                      {m.away && <ClubCrest slug={m.away} size={16} />}
+                      <span className="flex-1 truncate text-primary">
+                        {m.away ? nameOf(m.away) : '—'}
+                      </span>
+                    </>
+                  );
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      aria-expanded={openFixture?.m === m ? true : played ? undefined : false}
+                      onClick={() =>
+                        played
+                          ? setOpenMatch({
+                              mid: m.matchId!,
+                              rows: roundToMatchRows(rd.matches, season, rd.wk),
+                              index: i,
+                            })
+                          : setOpenFixture({ m, wk: rd.wk })
+                      }
+                      className="-mx-4 flex w-[calc(100%+2rem)] items-center gap-2 px-4 py-1.5 text-left text-sm transition-colors hover:bg-bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+                    >
+                      {inner}
+                    </button>
                   );
                 })}
               </div>
@@ -501,6 +569,202 @@ export function LeagueHome({
             ))}
         </div>
       </section>
+
+      {openFixture && (
+        <FixtureCard
+          m={openFixture.m}
+          wk={openFixture.wk}
+          nameOf={nameOf}
+          formOf={formOf}
+          rowOf={rowOf}
+          onClose={() => setOpenFixture(null)}
+        />
+      )}
+
+      {openMatch && (
+        <MatchCard
+          mid={openMatch.mid}
+          rows={openMatch.rows}
+          index={openMatch.index}
+          onNavigate={(i) => {
+            const dir = i > openMatch.index ? 1 : -1;
+            let j = i;
+            while (
+              j >= 0 &&
+              j < openMatch.rows.length &&
+              !openMatch.rows[j].matchId
+            )
+              j += dir;
+            const r = openMatch.rows[j];
+            if (r?.matchId)
+              setOpenMatch({ ...openMatch, mid: r.matchId, index: j });
+          }}
+          onClose={() => setOpenMatch(null)}
+        />
+      )}
     </main>
+  );
+}
+
+/* ------------------------------------------------- fixture preview modal */
+function FixtureCard({
+  m,
+  wk,
+  nameOf,
+  formOf,
+  rowOf,
+  onClose,
+}: {
+  m: LeagueRoundMatch;
+  wk: number;
+  nameOf: (slug: string) => string;
+  formOf: (slug: string) => LeagueFormMatch[];
+  rowOf: (slug: string) => LeagueTableViewRow | undefined;
+  onClose: () => void;
+}) {
+  const { t } = useI18n();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const lastFocus = useRef<Element | null>(null);
+
+  useEffect(() => {
+    lastFocus.current = document.activeElement;
+    document.body.style.overflow = 'hidden';
+    cardRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', onKey, true);
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey, true);
+      (lastFocus.current as HTMLElement | null)?.focus?.();
+    };
+  }, [onClose]);
+
+  const bk = bkkKickoff(m.date, m.time);
+  const when = bk
+    ? `${bk.date} · ${bk.time}`
+    : `${formatDate(m.date)}${m.time ? ` · ${m.time}` : ''}`;
+
+  const teamPanel = (slug: string | null) => {
+    if (!slug) return null;
+    const fm = formOf(slug);
+    const rec = fm.reduce(
+      (a, f) => {
+        a[f.result] += 1;
+        return a;
+      },
+      { W: 0, D: 0, L: 0 } as Record<'W' | 'D' | 'L', number>,
+    );
+    const row = rowOf(slug);
+    return (
+      <div className="flex min-w-0 flex-col items-center gap-2 text-center">
+        <ClubCrest slug={slug} size={44} />
+        <div className="text-sm font-bold text-primary">{nameOf(slug)}</div>
+        {row && (
+          <div className="text-xs text-muted">
+            {t('home.fixture.rank')} {row.rank ?? '—'} · {row.pts ?? '—'} {t('table.pts')}
+            {row.mp ? ` · ${row.mp} ${t('home.cols.pl')}` : ''}
+          </div>
+        )}
+        {fm.length > 0 && (
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+              {t('home.fixture.form')}
+            </span>
+            <span className="flex justify-center gap-0.5">
+              {fm.map((f, i) => (
+                <span
+                  key={i}
+                  title={`vs ${nameOf(f.opponent)} ${f.gf}-${f.ga}`}
+                  className={`flex h-5 w-5 items-center justify-center rounded-sm text-[10px] font-bold ${RESULT_STYLE[f.result] ?? 'bg-bg-secondary text-muted'}`}
+                >
+                  {f.result}
+                </span>
+              ))}
+            </span>
+            <span className="text-[10px] tabular-nums text-muted">
+              {rec.W}W {rec.D}D {rec.L}L
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={cardRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('home.fixture.title')}
+        tabIndex={-1}
+        className="matchcard-in flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-surface shadow-2xl outline-none sm:max-w-lg sm:rounded-2xl"
+      >
+        <div className="flex shrink-0 items-center gap-2 bg-[#15345b] px-4 py-3 text-xs text-white sm:px-6">
+          <span className="min-w-0 truncate">
+            Premier League · {t('home.rounds.mw')} {wk}
+          </span>
+          <button
+            type="button"
+            aria-label={t('match.close')}
+            onClick={onClose}
+            className="ml-auto rounded-lg p-1.5 hover:bg-white/10"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <div className="flex flex-col gap-5 overflow-y-auto px-4 py-5 sm:px-6">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            {teamPanel(m.home)}
+            <div className="flex flex-col items-center gap-1 text-center">
+              {m.score ? (
+                <span className="font-display text-3xl font-bold tabular-nums text-primary">
+                  {m.score}
+                </span>
+              ) : (
+                <span className="text-xs font-bold uppercase tracking-widest text-muted">
+                  {t('matchLog.upcoming')}
+                </span>
+              )}
+              <span className="text-xs tabular-nums text-muted">{when}</span>
+            </div>
+            {teamPanel(m.away)}
+          </div>
+          <div className="flex flex-col gap-1 border-t border-border pt-4 text-xs text-muted">
+            {m.stadium && (
+              <div>
+                {t('home.fixture.stadium')}: {m.stadium}
+              </div>
+            )}
+            {m.referee && (
+              <div>
+                {t('matchLog.referee')}: {m.referee}
+              </div>
+            )}
+            {m.h2h && (
+              <a
+                href={m.h2h}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-flex items-center gap-1 font-medium text-brand hover:underline"
+              >
+                {t('home.fixture.h2h')} <ExternalLink size={12} />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }

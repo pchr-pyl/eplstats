@@ -369,6 +369,10 @@ export interface LeagueRoundMatch {
   home: string | null;
   away: string | null;
   score: string | null;
+  matchId?: string | null;
+  stadium?: string | null;
+  referee?: string | null;
+  h2h?: string | null;
 }
 
 export interface LeagueSeasonData {

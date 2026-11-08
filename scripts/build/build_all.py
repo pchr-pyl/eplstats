@@ -1009,12 +1009,25 @@ def _fixture_weeks(season, clubs, name2slug):
             away = squad_slug(r[idx["Away"]]) if "Away" in idx else None
             score = strip_md(r[idx["Score"]]) if "Score" in idx else ""
             date = strip_md(r[idx["Date"]]) if "Date" in idx else ""
+            rep = r[idx["Match Report"]] if "Match Report" in idx and \
+                idx["Match Report"] < len(r) else ""
+            notes = r[idx["Notes"]] if "Notes" in idx and \
+                idx["Notes"] < len(r) else ""
+            mid_m = re.search(r"/en/matches/([0-9a-f]{8})", rep or "")
+            h2h_m = re.search(r"\((https://fbref\.com/en/stathead/matchup/[^)\s]+)",
+                              f"{rep or ''} {notes or ''}")
+            cell = lambda name: (strip_md(r[idx[name]])
+                                 if name in idx and idx[name] < len(r) else "")
             wk_int = int(wk.strip())
             weeks.setdefault(wk_int, []).append({
                 "date": date,
                 "time": strip_md(r[idx["Time"]]) if "Time" in idx else "",
                 "home": home, "away": away,
-                "score": score if score and score != "—" else None})
+                "score": score if score and score != "—" else None,
+                "matchId": mid_m.group(1) if mid_m else None,
+                "stadium": cell("Venue") or None,
+                "referee": cell("Referee") or None,
+                "h2h": h2h_m.group(1) if h2h_m else None})
     return weeks
 
 
