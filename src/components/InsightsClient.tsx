@@ -1,7 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import {
+  CartesianGrid, Legend, Line, LineChart, ResponsiveContainer,
+  Tooltip, XAxis, YAxis,
+} from 'recharts';
 import { ClubCrest } from './LeagueHome';
 import { ShareBtn } from './ShareBtn';
 import { useI18n } from '@/i18n/I18nContext';
@@ -9,7 +13,7 @@ import type { ClubIndexEntry } from '@/lib/types';
 import type { InsightsData, MwGame } from '@/lib/insights';
 import { formatDate } from './matchlog-shared';
 import { seasonShort } from '@/lib/stats';
-import { fmt } from '@/lib/format';
+import { fmt, bkkKickoff } from '@/lib/format';
 
 const RES_STYLE: Record<string, string> = {
   W: 'bg-success/15 text-success',
@@ -34,6 +38,7 @@ export function InsightsClient({
   clubs: ClubIndexEntry[];
 }) {
   const { t, lang } = useI18n();
+  const [raceSlug, setRaceSlug] = useState<string | null>(null);
   const clubOf = new Map(clubs.map((c) => [c.slug, c]));
   const nameOf = (slug: string) => {
     const c = clubOf.get(slug);
@@ -65,6 +70,20 @@ export function InsightsClient({
       <ClubCrest slug={g.away} size={14} />
     </span>
   );
+
+  const FormChips = ({ record }: { record: string }) =>
+    record ? (
+      <span className="flex shrink-0 items-center gap-0.5">
+        {record.split('').map((r, i) => (
+          <span
+            key={i}
+            className={`inline-flex h-3.5 w-3.5 items-center justify-center rounded-sm text-[8px] font-bold ${RES_STYLE[r] ?? ''}`}
+          >
+            {r}
+          </span>
+        ))}
+      </span>
+    ) : null;
 
   const RankRow = ({
     slug,
@@ -131,6 +150,190 @@ export function InsightsClient({
           </ul>
         </Card>
       )}
+
+      {data.preview && data.preview.games.length > 0 && (
+        <Card title={`${t('insights.previewTitle')} · ${t('home.rounds.mw')} ${data.preview.wk}`}>
+          <p className="mb-3 text-xs text-muted">{t('insights.previewNote')}</p>
+          <div className="flex flex-col divide-y divide-border-light">
+            {data.preview.games.map((g, i) => {
+              const bk = bkkKickoff(g.date, g.time);
+              return (
+                <div key={i} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm">
+                  <span className="w-24 shrink-0 text-xs tabular-nums text-muted">
+                    {bk ? `${bk.date} ${bk.time}` : formatDate(g.date)}
+                  </span>
+                  <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                    <ClubCrest slug={g.home} size={16} />
+                    <ClubLink slug={g.home} />
+                    <FormChips record={g.homeForm} />
+                  </span>
+                  <span className="font-display text-xs font-bold text-muted">{t('insights.vs')}</span>
+                  <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                    <ClubCrest slug={g.away} size={16} />
+                    <ClubLink slug={g.away} />
+                    <FormChips record={g.awayForm} />
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {data.xgRace.length > 0 && (() => {
+        const active = raceSlug ?? data.xgRace[0]?.slug ?? '';
+        const race = data.xgRace.find((r) => r.slug === active);
+        const chartData = (race?.points ?? []).map((p) => ({
+          mp: p.mp, goals: p.gf, xg: p.xg,
+        }));
+        return (
+          <Card title={t('insights.xgRaceTitle')}>
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <p className="mr-1 text-xs text-muted">{t('insights.xgRaceNote')}</p>
+              <select
+                value={active}
+                onChange={(e) => setRaceSlug(e.target.value)}
+                className="rounded-lg border border-border bg-surface px-2 py-1 text-xs font-medium text-primary"
+              >
+                {data.xgRace.map((r) => (
+                  <option key={r.slug} value={r.slug}>{nameOf(r.slug)}</option>
+                ))}
+              </select>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer>
+                <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke="var(--border-light)" vertical={false} />
+                  <XAxis
+                    dataKey="mp"
+                    tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                  />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} width={32} />
+                  <Tooltip
+                    contentStyle={{
+                      background: 'var(--surface-elevated)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 12,
+                      fontSize: 13,
+                    }}
+                    labelStyle={{ color: 'var(--text)' }}
+                    labelFormatter={(v) => `${t('insights.xgRaceMp')} ${v}`}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone" dataKey="goals" name={t('insights.xgRaceGoals')}
+                    stroke={colorOf(active)} strokeWidth={2.5} dot={false}
+                  />
+                  <Line
+                    type="monotone" dataKey="xg" name="xG"
+                    stroke="var(--info, #6366f1)" strokeWidth={2} strokeDasharray="5 4"
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        );
+      })()}
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Card title={t('insights.vaTitle')}>
+          <p className="mb-2 text-xs text-muted">{t('insights.vaNote')}</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] uppercase tracking-wide text-muted">
+                  <th className="py-1 pr-2 font-medium">{t('insights.vaClub')}</th>
+                  <th className="px-2 py-1 text-right font-medium">{t('insights.vaH')}</th>
+                  <th className="px-2 py-1 text-right font-medium">{t('insights.vaA')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.vaSplit.map((v) => (
+                  <tr key={v.slug} className="border-t border-border-light">
+                    <td className="py-1.5 pr-2">
+                      <ClubLink slug={v.slug} />
+                    </td>
+                    <td className="px-2 py-1.5 text-right tabular-nums text-primary">
+                      {v.home.pts}
+                      <span className="ml-1 text-[10px] text-muted">
+                        {v.home.w}-{v.home.d}-{v.home.l} · {v.home.gf}-{v.home.ga}
+                      </span>
+                    </td>
+                    <td className="px-2 py-1.5 text-right tabular-nums text-primary">
+                      {v.away.pts}
+                      <span className="ml-1 text-[10px] text-muted">
+                        {v.away.w}-{v.away.d}-{v.away.l} · {v.away.gf}-{v.away.ga}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        <Card title={t('insights.projTitle')}>
+          <p className="mb-2 text-xs text-muted">{t('insights.projNote')}</p>
+          <div className="max-h-80 overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-surface">
+                <tr className="text-left text-[11px] uppercase tracking-wide text-muted">
+                  <th className="py-1 pr-2 font-medium">#</th>
+                  <th className="px-2 py-1 font-medium">{t('insights.vaClub')}</th>
+                  <th className="px-2 py-1 text-right font-medium">{t('insights.projNow')}</th>
+                  <th className="px-2 py-1 text-right font-medium">{t('insights.projPts')}</th>
+                  <th className="py-1 pl-2 text-right font-medium">Δ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.projections.map((p) => {
+                  const delta = p.cur - p.projRank;
+                  return (
+                    <tr key={p.slug} className="border-t border-border-light">
+                      <td className="py-1.5 pr-2 tabular-nums text-muted">{p.projRank}</td>
+                      <td className="px-2 py-1.5">
+                        <ClubLink slug={p.slug} />
+                      </td>
+                      <td className="px-2 py-1.5 text-right tabular-nums text-muted">{p.cur}</td>
+                      <td className="px-2 py-1.5 text-right font-semibold tabular-nums text-primary">
+                        {fmt(p.projPts, 0)}
+                      </td>
+                      <td className={`py-1.5 pl-2 text-right text-xs font-semibold tabular-nums ${
+                        delta > 0 ? 'text-success' : delta < 0 ? 'text-danger' : 'text-muted'
+                      }`}>
+                        {delta > 0 ? `▲${delta}` : delta < 0 ? `▼${-delta}` : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+
+      <Card title={t('insights.dramaTitle')}>
+        <p className="mb-3 text-xs text-muted">{t('insights.dramaNote')}</p>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {(
+            [
+              ['comebackWins', data.drama.comebackWins, 'text-success'],
+              ['fightbacks', data.drama.fightbacks, 'text-brand'],
+              ['blownLeads', data.drama.blownLeads, 'text-danger'],
+              ['lateWinners', data.drama.lateWinners, 'text-primary'],
+            ] as const
+          ).map(([k, list, cls]) => (
+            <div key={k}>
+              <p className={`mb-1 text-xs font-medium ${cls}`}>{t(`insights.${k}`)}</p>
+              {list.length === 0 && <p className="text-xs text-muted">—</p>}
+              {list.map((x) => (
+                <RankRow key={x.slug} slug={x.slug} value={x.n} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </Card>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Card title={t('insights.formTitle')}>

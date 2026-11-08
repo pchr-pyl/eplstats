@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { getClubIndex, getLeague, getMatches } from './data';
 import type { MatchRow } from './types';
 
@@ -32,6 +34,61 @@ export interface StatClub {
   n: number;
 }
 
+export interface VaRec {
+  mp: number;
+  w: number;
+  d: number;
+  l: number;
+  gf: number;
+  ga: number;
+  pts: number;
+}
+
+export interface VaSplit {
+  slug: string;
+  home: VaRec;
+  away: VaRec;
+}
+
+export interface Projection {
+  slug: string;
+  cur: number;
+  projRank: number;
+  projPts: number;
+}
+
+export interface XgRacePoint {
+  mp: number;
+  gf: number;
+  xg: number | null;
+}
+
+export interface XgRaceClub {
+  slug: string;
+  points: XgRacePoint[];
+}
+
+export interface PreviewGame {
+  home: string;
+  away: string;
+  date: string;
+  time: string;
+  homeForm: string;
+  awayForm: string;
+}
+
+export interface Preview {
+  wk: number;
+  games: PreviewGame[];
+}
+
+export interface Drama {
+  comebackWins: StatClub[];
+  fightbacks: StatClub[];
+  blownLeads: StatClub[];
+  lateWinners: StatClub[];
+}
+
 export interface InsightsData {
   season: string;
   round: string | null;
@@ -49,6 +106,11 @@ export interface InsightsData {
   winless: StatClub[];
   winRun: StatClub[];
   nextBig: { home: string; away: string; date: string; rankSum: number } | null;
+  xgRace: XgRaceClub[];
+  vaSplit: VaSplit[];
+  projections: Projection[];
+  preview: Preview | null;
+  drama: Drama;
 }
 
 const PL = 'Premier League';
@@ -201,6 +263,166 @@ export function getInsights(): InsightsData {
       nextBig = cand;
   }
 
+  // ---- xG race: cumulative goals vs xG per played PL match ----
+  const xgRace: XgRaceClub[] = table.map((r) => {
+    let gf = 0;
+    let xg: number | null = null;
+    const points = (playedBy.get(r.slug) ?? []).map((m, i) => {
+      gf += m.gf ?? 0;
+      if (m.xg != null) xg = (xg ?? 0) + m.xg;
+      return { mp: i + 1, gf, xg };
+    });
+    return { slug: r.slug, points };
+  });
+
+  // ---- home/away splits ----
+  const vaSplit: VaSplit[] = table.map((r) => {
+    const rec = (): VaRec => ({ mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 });
+    const home = rec();
+    const away = rec();
+    for (const m of playedBy.get(r.slug) ?? []) {
+      const v = m.venue === 'Home' ? home : m.venue === 'Away' ? away : null;
+      if (!v || m.gf == null || m.ga == null) continue;
+      v.mp++;
+      v.gf += m.gf;
+      v.ga += m.ga;
+      if (m.result === 'W') { v.w++; v.pts += 3; }
+      else if (m.result === 'D') { v.d++; v.pts++; }
+      else if (m.result === 'L') v.l++;
+    }
+    return { slug: r.slug, home, away };
+  });
+
+  // ---- projected final table (PPG extrapolation, 38-game season) ----
+  const projections: Projection[] = table
+    .map((r) => {
+      const mp = r.mp ?? 0;
+      const pts = r.pts ?? 0;
+      const projPts = mp > 0 ? pts + (pts / mp) * (38 - mp) : 0;
+      return { slug: r.slug, cur: r.rank ?? 99, projPts };
+    })
+    .sort((a, b) => b.projPts - a.projPts)
+    .map((p, i) => ({
+      slug: p.slug,
+      cur: p.cur,
+      projRank: i + 1,
+      projPts: Math.round(p.projPts * 10) / 10,
+    }));
+
+  // ---- next matchweek preview (from league-mw snapshot) ----
+  let preview: Preview | null = null;
+  const mwPath = join(process.cwd(), 'public', 'data', 'league-mw', `${season}.json`);
+  if (existsSync(mwPath)) {
+    try {
+      const mw = JSON.parse(readFileSync(mwPath, 'utf-8')) as {
+        weeks?: { wk: number; matches?: { date: string; time: string; home: string; away: string; score: string | null }[] }[];
+      };
+      const lastWk = mw.weeks?.at(-1);
+      const upcoming = (lastWk?.matches ?? []).filter((m) => !m.score);
+      if (lastWk && upcoming.length) {
+        const formOf = new Map(form.map((f) => [f.slug, f.record]));
+        preview = {
+          wk: lastWk.wk,
+          games: upcoming
+            .slice()
+            .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+            .map((m) => ({
+              home: m.home,
+              away: m.away,
+              date: m.date,
+              time: m.time,
+              homeForm: formOf.get(m.home) ?? '',
+              awayForm: formOf.get(m.away) ?? '',
+            })),
+        };
+      }
+    } catch {
+      preview = null;
+    }
+  }
+
+  // ---- drama stats from match report events ----
+  const drama: Drama = { comebackWins: [], fightbacks: [], blownLeads: [], lateWinners: [] };
+  {
+    const GOAL = new Set(['goal', 'pen_goal', 'own_goal']);
+    const SCORE_RE = /(\d+)\s*[-:]\s*(\d+)/;
+    const MIN_RE = /^(\d+)/;
+    const bump = (arr: Map<string, number>, slug: string) =>
+      arr.set(slug, (arr.get(slug) ?? 0) + 1);
+    const comeback = new Map<string, number>();
+    const fightback = new Map<string, number>();
+    const blown = new Map<string, number>();
+    const lateWin = new Map<string, number>();
+    const matchDir = join(process.cwd(), 'public', 'data', 'match');
+    const seenMid = new Set<string>();
+    for (const rows of byId.values()) {
+      if (rows.length !== 2) continue;
+      const homeRow = rows.find((p) => p.m.venue === 'Home') ?? rows[0];
+      const awayRow = rows.find((p) => p.m.venue === 'Away') ?? rows[1];
+      const mid = homeRow.m.matchId;
+      if (!mid || seenMid.has(mid)) continue;
+      if (homeRow.m.season !== season || homeRow.m.competition !== PL) continue;
+      if (homeRow.m.result == null) continue;
+      const fp = join(matchDir, `${mid}.json`);
+      if (!existsSync(fp)) continue;
+      seenMid.add(mid);
+      let detail: {
+        events?: { minute: string | null; sort: number | null; type: string; score?: string | null }[];
+      };
+      try {
+        detail = JSON.parse(readFileSync(fp, 'utf-8'));
+      } catch {
+        continue;
+      }
+      // goal checkpoints: score after each goal event
+      const cps: { min: number; h: number; a: number }[] = [];
+      for (const e of detail.events ?? []) {
+        if (!GOAL.has(e.type) || !e.score) continue;
+        const sm = SCORE_RE.exec(e.score);
+        if (!sm) continue;
+        const mn = MIN_RE.exec(e.minute ?? '');
+        cps.push({ min: mn ? parseInt(mn[1], 10) : 0, h: +sm[1], a: +sm[2] });
+      }
+      if (!cps.length) continue;
+      const gf = homeRow.m.gf ?? cps.at(-1)!.h;
+      const ga = homeRow.m.ga ?? cps.at(-1)!.a;
+      const res = (gf > ga ? 'W' : gf < ga ? 'L' : 'D') as 'W' | 'D' | 'L';
+      const flags = { homeTrailed: false, homeLed: false, awayTrailed: false, awayLed: false };
+      for (const c of cps) {
+        if (c.h > c.a) { flags.homeLed = true; flags.awayTrailed = true; }
+        else if (c.a > c.h) { flags.awayLed = true; flags.homeTrailed = true; }
+      }
+      const sides: [string, 'W' | 'D' | 'L', boolean, boolean][] = [
+        [homeRow.slug, res, flags.homeTrailed, flags.homeLed],
+        [awayRow.slug, res === 'W' ? 'L' : res === 'L' ? 'W' : 'D', flags.awayTrailed, flags.awayLed],
+      ];
+      for (const [slug, r, trailed, led] of sides) {
+        if (trailed && r === 'W') bump(comeback, slug);
+        else if (trailed && r === 'D') bump(fightback, slug);
+        if (led && r !== 'W') bump(blown, slug);
+      }
+      // late winner: last goal >=80' turned tie/trail into the final win
+      const last = cps.at(-1)!;
+      const prev = cps.length > 1 ? cps[cps.length - 2]! : { min: 0, h: 0, a: 0 };
+      if (last.min >= 80) {
+        const wHome = last.h > last.a;
+        const wAway = last.a > last.h;
+        const decided = (wHome && gf > ga) || (wAway && ga > gf);
+        const wasLevel = prev.h === prev.a;
+        const winnerWasBehind = wHome ? prev.h < prev.a : prev.a < prev.h;
+        if (decided && (wasLevel || winnerWasBehind)) {
+          bump(lateWin, wHome ? homeRow.slug : awayRow.slug);
+        }
+      }
+    }
+    const toStat = (m: Map<string, number>) =>
+      [...m.entries()].map(([slug, n]) => ({ slug, n })).sort(sortN).slice(0, 5);
+    drama.comebackWins = toStat(comeback);
+    drama.fightbacks = toStat(fightback);
+    drama.blownLeads = toStat(blown);
+    drama.lateWinners = toStat(lateWin);
+  }
+
   return {
     season,
     round,
@@ -218,5 +440,10 @@ export function getInsights(): InsightsData {
     winless,
     winRun,
     nextBig,
+    xgRace,
+    vaSplit,
+    projections,
+    preview,
+    drama,
   };
 }
