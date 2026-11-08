@@ -10,7 +10,7 @@ import type {
   LeagueTableViewRow,
   Zone,
 } from '@/lib/types';
-import { fmt, signed } from '@/lib/format';
+import { fmt, signed, bkkKickoff } from '@/lib/format';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { loadLeagueSeason, loadLeagueMw, formatDate, LoadFail, LOAD_FAILED } from './matchlog-shared';
 
@@ -447,7 +447,9 @@ export function LeagueHome({
                 {rd.title} · {t('home.rounds.mw')} {rd.wk}
               </h3>
               <div className="flex flex-col divide-y divide-border-light">
-                {rd.matches.map((m, i) => (
+                {rd.matches.map((m, i) => {
+                  const bk = bkkKickoff(m.date, m.time);
+                  return (
                   <div key={i} className="flex items-center gap-2 py-1.5 text-sm">
                     <span className="flex-1 truncate text-right text-primary">
                       {m.home ? nameOf(m.home) : '—'}
@@ -455,11 +457,11 @@ export function LeagueHome({
                     {m.home && <ClubCrest slug={m.home} size={16} />}
                     <span className="w-20 shrink-0 text-center">
                       <span className="block font-semibold leading-tight text-primary">
-                        {m.score ?? (m.time || '—')}
+                        {m.score ?? (bk?.time || m.time || '—')}
                       </span>
                       {m.date && (
                         <span className="block text-[10px] leading-tight text-muted">
-                          {formatDate(m.date)}
+                          {bk?.date ?? formatDate(m.date)}
                         </span>
                       )}
                     </span>
@@ -468,7 +470,8 @@ export function LeagueHome({
                       {m.away ? nameOf(m.away) : '—'}
                     </span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}

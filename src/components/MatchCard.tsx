@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { useClubOptional } from '@/components/ClubProvider';
-import { fmt } from '@/lib/format';
+import { fmt, bkkKickoff } from '@/lib/format';
 import { ChevronLeft, ChevronRight, X, ExternalLink } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -506,7 +506,12 @@ export function MatchCard({
             <span className="min-w-0 truncate">
               {d?.competition ?? row?.competition}
               {(d?.round ?? row?.round) ? ` · ${d?.round ?? row?.round}` : ''}
-              {' · '}{d?.date ?? row?.date}{d?.kickoff ? ` ${d.kickoff}` : row?.time ? ` ${row.time}` : ''}
+              {' · '}{(() => {
+                const dt = d?.date ?? row?.date ?? '';
+                const kk = d?.kickoff ?? row?.time;
+                const bk = bkkKickoff(dt, kk);
+                return bk ? `${bk.date} ${bk.time}` : `${dt}${kk ? ` ${kk}` : ''}`;
+              })()}
             </span>
             <span className="ml-auto flex items-center gap-1">
               <button type="button" aria-label={t('match.prev')}

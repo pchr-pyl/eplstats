@@ -7,7 +7,7 @@ import type { MatchRow, CompGroup, MatchlogTable, SeasonMatchlogs } from '@/lib/
 import { compInGroup, canonicalComp } from '@/lib/stats';
 import { useClubOptional } from './ClubProvider';
 import { MatchCard } from '@/components/MatchCard';
-import { fmt, dash } from '@/lib/format';
+import { fmt, dash, bkkKickoff } from '@/lib/format';
 
 export const COMP_SHORT: Record<string, string> = {
   'Premier League': 'PL',
@@ -473,6 +473,7 @@ export function ScoresList({
       {rows.map((m, i) => {
         const played = m.result != null;
         const isOpen = open === i;
+        const bk = bkkKickoff(m.date, m.time);
         const meta = played
           ? [
               m.round,
@@ -490,7 +491,7 @@ export function ScoresList({
         const rowContent = (
           <div className="flex items-center gap-3">
             <span className="w-16 shrink-0 text-xs tabular-nums text-muted">
-              {formatDate(m.date)}
+              {bk?.date ?? formatDate(m.date)}
             </span>
             {showComp && (
               <span className="w-10 shrink-0 rounded bg-bg-secondary px-1 py-0.5 text-center text-[10px] font-semibold text-muted">
@@ -514,7 +515,7 @@ export function ScoresList({
             ) : (
               <span className="shrink-0 text-xs text-muted">
                 {t('matchLog.upcoming')}
-                {m.time ? ` · ${m.time}` : ''}
+                {(bk?.time ?? m.time) ? ` · ${bk?.time ?? m.time}` : ''}
               </span>
             )}
             {played && (
