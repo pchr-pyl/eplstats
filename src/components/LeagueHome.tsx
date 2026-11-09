@@ -350,7 +350,8 @@ export function LeagueHome({
                         { k: 'w', h: 'W', tip: t('colTip.w') },
                         { k: 'd', h: 'D', tip: t('colTip.d') },
                         { k: 'l', h: 'L', tip: t('colTip.l') },
-                        { k: null, h: t('home.cols.score'), tip: t('colTip.score') },
+                        { k: 'gf', h: 'GF', tip: t('colTip.gf') },
+                        { k: 'ga', h: 'GA', tip: t('colTip.ga') },
                         { k: 'gd', h: 'GD', tip: t('colTip.gd') },
                         { k: 'pts', h: t('table.pts'), tip: t('colTip.pts') },
                         { k: null, h: t('matchLog.form'), tip: t('colTip.form') },
@@ -364,7 +365,7 @@ export function LeagueHome({
                     className={`border-b border-border px-1.5 py-3 text-xs sm:px-3 font-semibold uppercase tracking-wider text-muted ${
                       i < 2 ? 'text-left' : 'text-right'
                     } ${c.k ? 'cursor-pointer select-none hover:bg-bg-secondary' : ''} ${
-                      !isXg && [3,4,5,6,10].includes(i) ? 'hidden sm:table-cell' : isXg && [2,5,7,8].includes(i) ? 'hidden sm:table-cell' : ''
+                      !isXg && [3,4,5,10].includes(i) ? 'hidden sm:table-cell' : isXg && [2,5,7,8].includes(i) ? 'hidden sm:table-cell' : ''
                     }`}
                   >
                     <span className={`inline-flex items-center gap-0.5 ${i < 2 ? '' : 'justify-end'}`}>
@@ -419,9 +420,8 @@ export function LeagueHome({
                         <td className="hidden px-1.5 py-2.5 text-right sm:px-3 text-sm text-secondary sm:table-cell">{r.w}</td>
                         <td className="hidden px-1.5 py-2.5 text-right sm:px-3 text-sm text-secondary sm:table-cell">{r.d}</td>
                         <td className="hidden px-1.5 py-2.5 text-right sm:px-3 text-sm text-secondary sm:table-cell">{r.l}</td>
-                        <td className="hidden px-1.5 py-2.5 text-right sm:px-3 text-sm text-secondary sm:table-cell">
-                          {r.gf}-{r.ga}
-                        </td>
+                        <td className="px-1.5 py-2.5 text-right sm:px-3 text-sm text-secondary">{r.gf ?? '—'}</td>
+                        <td className="px-1.5 py-2.5 text-right sm:px-3 text-sm text-secondary">{r.ga ?? '—'}</td>
                         <td className="px-1.5 py-2.5 text-right sm:px-3 text-sm text-secondary">
                           {(r.gd ?? 0) > 0 ? `+${r.gd}` : r.gd}
                         </td>
