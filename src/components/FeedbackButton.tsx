@@ -46,7 +46,12 @@ export function FeedbackButton() {
     );
   };
 
-  if (pathname?.startsWith('/admin')) return null;
+  if (
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/tactical-board') ||
+    pathname?.includes('/tactics')
+  )
+    return null;
 
   const submit = async () => {
     if (!message.trim() || state === 'sending') return;

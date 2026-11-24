@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Sun, Moon, ArrowLeftRight, ChevronDown, Newspaper, Users } from 'lucide-react';
+import { Sun, Moon, ArrowLeftRight, ChevronDown, Newspaper, Users, ClipboardList } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useTheme } from './ThemeProvider';
 import { useClubOptional } from './ClubProvider';
@@ -51,10 +51,16 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
     return norm === target;
   };
 
+  const isGlobalActive = (href: string) => {
+    const clean = href.replace(/\/$/, '') || '/';
+    return norm === clean;
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
-        <div className="flex items-center justify-between gap-3 py-4 sm:gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 py-3 sm:gap-4">
+          {/* Left: Brand / Club Title */}
           <div className="flex min-w-0 flex-col gap-0.5">
             <div className="flex items-center gap-2">
               {club ? (
@@ -83,7 +89,81 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
             <p className="hidden min-[400px]:block truncate text-xs text-muted sm:text-sm">{subtitle}</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Center: Global Navigation with clear labels */}
+          <nav
+            aria-label="Main navigation"
+            className="order-3 flex w-full items-center justify-center gap-1.5 overflow-x-auto pb-0.5 xl:order-2 xl:w-auto xl:pb-0"
+          >
+            <Link
+              href="/"
+              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:text-sm ${
+                isGlobalActive('/')
+                  ? 'border-brand/40 bg-brand-soft text-brand'
+                  : 'border-border bg-bg-secondary text-primary hover:bg-brand-soft hover:text-brand'
+              }`}
+            >
+              <img
+                aria-hidden
+                src={`${BASE_PATH}/epl-logo.svg`}
+                width={18}
+                height={8}
+                alt=""
+                className="epl-logo inline-block shrink-0 object-contain"
+              />
+              <span>{t('app.home')}</span>
+            </Link>
+
+            <Link
+              href="/insights/"
+              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:text-sm ${
+                isGlobalActive('/insights/')
+                  ? 'border-brand/40 bg-brand-soft text-brand'
+                  : 'border-border bg-bg-secondary text-primary hover:bg-brand-soft hover:text-brand'
+              }`}
+            >
+              <Newspaper size={15} className="shrink-0" />
+              <span>{t('app.insights')}</span>
+            </Link>
+
+            <Link
+              href="/players-compare/"
+              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:text-sm ${
+                isGlobalActive('/players-compare/')
+                  ? 'border-brand/40 bg-brand-soft text-brand'
+                  : 'border-border bg-bg-secondary text-primary hover:bg-brand-soft hover:text-brand'
+              }`}
+            >
+              <Users size={15} className="shrink-0" />
+              <span>{t('app.comparePlayers')}</span>
+            </Link>
+
+            <Link
+              href="/clubs-compare/"
+              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:text-sm ${
+                isGlobalActive('/clubs-compare/')
+                  ? 'border-brand/40 bg-brand-soft text-brand'
+                  : 'border-border bg-bg-secondary text-primary hover:bg-brand-soft hover:text-brand'
+              }`}
+            >
+              <ArrowLeftRight size={15} className="shrink-0" />
+              <span>{t('app.compareClubs')}</span>
+            </Link>
+
+            <Link
+              href="/tactical-board/"
+              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:text-sm ${
+                isGlobalActive('/tactical-board/')
+                  ? 'border-brand/40 bg-brand-soft text-brand'
+                  : 'border-border bg-bg-secondary text-primary hover:bg-brand-soft hover:text-brand'
+              }`}
+            >
+              <ClipboardList size={15} className="shrink-0" />
+              <span>{t('app.tacticalBoard')}</span>
+            </Link>
+          </nav>
+
+          {/* Right: Club Switcher + Lang + Theme */}
+          <div className="order-2 flex items-center gap-2 xl:order-3">
             {club && clubs.length > 1 && (
               <ClubSwitcher
                 club={club}
@@ -93,49 +173,6 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
                 lang={lang}
               />
             )}
-
-            <Link
-              href="/insights/"
-              aria-label={t('app.insights')}
-              title={t('app.insights')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-secondary text-primary transition-colors hover:bg-brand-soft hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
-            >
-              <Newspaper size={17} />
-            </Link>
-
-            <Link
-              href="/players-compare/"
-              aria-label={t('app.comparePlayers')}
-              title={t('app.comparePlayers')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-secondary text-primary transition-colors hover:bg-brand-soft hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
-            >
-              <Users size={17} />
-            </Link>
-
-            <Link
-              href="/clubs-compare/"
-              aria-label={t('app.compareClubs')}
-              title={t('app.compareClubs')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-secondary text-primary transition-colors hover:bg-brand-soft hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
-            >
-              <ArrowLeftRight size={17} />
-            </Link>
-
-            <Link
-              href="/"
-              aria-label={t('app.home')}
-              title={t('app.home')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-secondary text-primary transition-colors hover:bg-brand-soft hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
-            >
-              <img
-                aria-hidden
-                src={`${BASE_PATH}/epl-logo.svg`}
-                width={18}
-                height={8}
-                alt=""
-                className="epl-logo inline-block object-contain"
-              />
-            </Link>
 
             <div className="flex items-center rounded-full bg-bg-secondary p-1">
               <button
@@ -176,7 +213,7 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
         </div>
 
         {club && (
-          <nav className="flex items-center gap-2 overflow-x-auto pb-4">
+          <nav className="flex items-center gap-2 overflow-x-auto pb-3">
             {SUBNAV.filter(({ key }) => key !== 'managers' || hasManagers).map(
               ({ sub, key }) => {
                 const href = `${base}/${sub}/`;

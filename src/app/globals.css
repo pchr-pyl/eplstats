@@ -23,6 +23,22 @@
   --info: #2563eb;
   --info-soft: #dbeafe;
   --chart-neutral: #a1a1aa;
+  /* Tactical Board Studio — Light Mode defaults (high contrast, solid opaque surfaces) */
+  --tb-canvas: #e8eef5;
+  --tb-bar: #ffffff;
+  --tb-panel: #f8fafc;
+  --tb-card: #ffffff;
+  --tb-input: #f1f5f9;
+  --tb-hover: #e2e8f0;
+  --tb-border: #cbd5e1;
+  --tb-border-subtle: #e2e8f0;
+  --tb-text: #0f172a;
+  --tb-text-2: #334155;
+  --tb-muted: #475569;
+  --tb-accent: #059669;
+  --tb-accent-soft: #d1fae5;
+  --tb-info: #0369a1;
+  --tb-info-soft: #e0f2fe;
 }
 
 [data-theme='dark'] {
@@ -48,6 +64,22 @@
   --info: #60a5fa;
   --info-soft: #16233a;
   --chart-neutral: #7d7578;
+  /* Tactical Board Studio — Dark Mode (high contrast, solid opaque surfaces) */
+  --tb-canvas: #090d14;
+  --tb-bar: #111824;
+  --tb-panel: #0f1621;
+  --tb-card: #182232;
+  --tb-input: #0c121c;
+  --tb-hover: #243247;
+  --tb-border: #334155;
+  --tb-border-subtle: #233044;
+  --tb-text: #f8fafc;
+  --tb-text-2: #cbd5e1;
+  --tb-muted: #94a3b8;
+  --tb-accent: #34d399;
+  --tb-accent-soft: rgba(16, 185, 129, 0.2);
+  --tb-info: #38bdf8;
+  --tb-info-soft: rgba(56, 189, 248, 0.18);
 }
 
 /* Per-club brand override: [club] layout sets --club-brand-light/dark inline. */
@@ -89,6 +121,58 @@
   --font-body: var(--font-ibm-plex);
   --font-display: var(--font-trirong);
   --font-alt: var(--font-sarabun);
+  --color-tb-canvas: var(--tb-canvas);
+  --color-tb-bar: var(--tb-bar);
+  --color-tb-panel: var(--tb-panel);
+  --color-tb-card: var(--tb-card);
+  --color-tb-input: var(--tb-input);
+  --color-tb-hover: var(--tb-hover);
+  --color-tb-border: var(--tb-border);
+  --color-tb-border-subtle: var(--tb-border-subtle);
+  --color-tb-text: var(--tb-text);
+  --color-tb-text-2: var(--tb-text-2);
+  --color-tb-muted: var(--tb-muted);
+  --color-tb-accent: var(--tb-accent);
+  --color-tb-accent-soft: var(--tb-accent-soft);
+  --color-tb-info: var(--tb-info);
+  --color-tb-info-soft: var(--tb-info-soft);
+}
+
+/* Explicit override hook for .tb-studio when data-tb-theme is set */
+.tb-studio[data-tb-theme='dark'] {
+  --tb-canvas: #090d14;
+  --tb-bar: #111824;
+  --tb-panel: #0f1621;
+  --tb-card: #182232;
+  --tb-input: #0c121c;
+  --tb-hover: #243247;
+  --tb-border: #334155;
+  --tb-border-subtle: #233044;
+  --tb-text: #f8fafc;
+  --tb-text-2: #cbd5e1;
+  --tb-muted: #94a3b8;
+  --tb-accent: #34d399;
+  --tb-accent-soft: rgba(16, 185, 129, 0.2);
+  --tb-info: #38bdf8;
+  --tb-info-soft: rgba(56, 189, 248, 0.18);
+}
+
+.tb-studio[data-tb-theme='light'] {
+  --tb-canvas: #e8eef5;
+  --tb-bar: #ffffff;
+  --tb-panel: #f8fafc;
+  --tb-card: #ffffff;
+  --tb-input: #f1f5f9;
+  --tb-hover: #e2e8f0;
+  --tb-border: #cbd5e1;
+  --tb-border-subtle: #e2e8f0;
+  --tb-text: #0f172a;
+  --tb-text-2: #334155;
+  --tb-muted: #475569;
+  --tb-accent: #059669;
+  --tb-accent-soft: #d1fae5;
+  --tb-info: #0369a1;
+  --tb-info-soft: #e0f2fe;
 }
 
 body {

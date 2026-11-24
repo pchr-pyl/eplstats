@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/clubs-compare/`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE}/players-compare/`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE}/insights/`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE}/tactical-board/`, changeFrequency: 'weekly', priority: 0.9 },
     ...getClubIndex().flatMap((c) =>
       TABS.map((t) => ({
         url: `${BASE}/${c.slug}${t}/`,
