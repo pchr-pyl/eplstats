@@ -49,6 +49,9 @@ const SECTION_TH: Record<string, string> = {
   compare: 'เปรียบเทียบ',
   'clubs-compare': 'เปรียบเทียบสโมสร',
   'players-compare': 'เปรียบเทียบนักเตะ',
+  insights: 'อินไซต์',
+  europe: 'เวทียุโรป',
+  'tactical-board': 'กระดานแท็กติก',
 };
 
 function Kpi({ label, value, sub }: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {

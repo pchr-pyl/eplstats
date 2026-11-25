@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Sun, Moon, ArrowLeftRight, ChevronDown, Newspaper, Users, ClipboardList } from 'lucide-react';
+import { Sun, Moon, ArrowLeftRight, ChevronDown, Newspaper, Users, ClipboardList, Globe } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useTheme } from './ThemeProvider';
 import { useClubOptional } from './ClubProvider';
@@ -111,6 +111,18 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
                 className="epl-logo inline-block shrink-0 object-contain"
               />
               <span>{t('app.home')}</span>
+            </Link>
+
+            <Link
+              href="/europe/"
+              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:text-sm ${
+                isGlobalActive('/europe/')
+                  ? 'border-brand/40 bg-brand-soft text-brand'
+                  : 'border-border bg-bg-secondary text-primary hover:bg-brand-soft hover:text-brand'
+              }`}
+            >
+              <Globe size={15} className="shrink-0" />
+              <span>{t('app.europe')}</span>
             </Link>
 
             <Link
