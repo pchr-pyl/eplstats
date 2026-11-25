@@ -13,9 +13,10 @@ import {
   TooltipContentProps,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Gauge, Trophy } from 'lucide-react';
 import { useClub, useClubData } from '@/components/ClubProvider';
 import { LOAD_FAILED, loadMatchlogs } from '@/components/matchlog-shared';
+import { ShareBtn } from '@/components/ShareBtn';
 import { seasonShort } from '@/lib/stats';
 import { fmt, pct, signed } from '@/lib/format';
 import type { MatchRow } from '@/lib/types';
@@ -46,8 +47,15 @@ const fill = (s: string, v: Vars) =>
 const ord = (x: number): string => {
   const s = String(x);
   if (x % 100 >= 11 && x % 100 <= 13) return `${s}th`;
-  const suffix = ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[x % 10] ?? 'th';
+  const suffix =
+    ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[x % 10] ?? 'th';
   return `${s}${suffix}`;
+};
+
+const RESULT_BADGE: Record<string, string> = {
+  W: 'bg-success-soft text-success',
+  D: 'bg-bg-secondary text-muted',
+  L: 'bg-danger-soft text-danger',
 };
 
 /* ------------------------------------------------ metric/card config per side */
@@ -71,25 +79,144 @@ const noPer = () => null;
 
 const CARDS: Record<PaceSide, CardDef[]> = {
   attack: [
-    { label: 'Pts', kind: 'int', lower: false, get: (a) => a.pts, per: (a) => (a.k ? a.pts / a.k : null), cov: noCov },
-    { label: 'GF', kind: 'int', lower: false, get: (a) => a.gf, per: (a) => (a.k ? a.gf / a.k : null), cov: noCov },
-    { label: 'xG', kind: 'dec', lower: false, get: (a) => (a.xgN ? a.xg : null), per: (a) => (a.xgN ? a.xg / a.xgN : null), cov: covXg },
-    { label: 'GF−xG', kind: 'dec', lower: false, get: (a) => (a.xgN ? a.gf - a.xg : null), per: noPer, cov: noCov },
-    { label: 'Sh', kind: 'int', lower: false, get: (a) => (a.shN ? a.sh : null), per: (a) => (a.shN ? a.sh / a.shN : null), cov: covSh },
-    { label: 'SoT', kind: 'int', lower: false, get: (a) => (a.shN ? a.sot : null), per: (a) => (a.shN ? a.sot / a.shN : null), cov: covSh },
-    { label: 'SoT%', kind: 'pct', lower: false, get: (a) => (a.shN && a.sh ? a.sot / a.sh : null), per: noPer, cov: covSh },
-    { label: 'G/Sh', kind: 'dec', lower: false, get: (a) => (a.shN && a.sh ? a.shGf / a.sh : null), per: noPer, cov: covSh },
+    {
+      label: 'Pts',
+      kind: 'int',
+      lower: false,
+      get: (a) => a.pts,
+      per: (a) => (a.k ? a.pts / a.k : null),
+      cov: noCov,
+    },
+    {
+      label: 'GF',
+      kind: 'int',
+      lower: false,
+      get: (a) => a.gf,
+      per: (a) => (a.k ? a.gf / a.k : null),
+      cov: noCov,
+    },
+    {
+      label: 'xG',
+      kind: 'dec',
+      lower: false,
+      get: (a) => (a.xgN ? a.xg : null),
+      per: (a) => (a.xgN ? a.xg / a.xgN : null),
+      cov: covXg,
+    },
+    {
+      label: 'GF−xG',
+      kind: 'dec',
+      lower: false,
+      get: (a) => (a.xgN ? a.gf - a.xg : null),
+      per: noPer,
+      cov: noCov,
+    },
+    {
+      label: 'Sh',
+      kind: 'int',
+      lower: false,
+      get: (a) => (a.shN ? a.sh : null),
+      per: (a) => (a.shN ? a.sh / a.shN : null),
+      cov: covSh,
+    },
+    {
+      label: 'SoT',
+      kind: 'int',
+      lower: false,
+      get: (a) => (a.shN ? a.sot : null),
+      per: (a) => (a.shN ? a.sot / a.shN : null),
+      cov: covSh,
+    },
+    {
+      label: 'SoT%',
+      kind: 'pct',
+      lower: false,
+      get: (a) => (a.shN && a.sh ? a.sot / a.sh : null),
+      per: noPer,
+      cov: covSh,
+    },
+    {
+      label: 'G/Sh',
+      kind: 'dec',
+      lower: false,
+      get: (a) => (a.shN && a.sh ? a.shGf / a.sh : null),
+      per: noPer,
+      cov: covSh,
+    },
   ],
   defense: [
-    { label: 'Pts', kind: 'int', lower: false, get: (a) => a.pts, per: (a) => (a.k ? a.pts / a.k : null), cov: noCov },
-    { label: 'GA', kind: 'int', lower: true, get: (a) => a.ga, per: (a) => (a.k ? a.ga / a.k : null), cov: noCov },
-    { label: 'xGA', kind: 'dec', lower: true, get: (a) => (a.xgN ? a.xga : null), per: (a) => (a.xgN ? a.xga / a.xgN : null), cov: covXg },
-    { label: 'GA−xGA', kind: 'dec', lower: true, get: (a) => (a.xgN ? a.ga - a.xga : null), per: noPer, cov: noCov },
-    { label: 'ShA', kind: 'int', lower: true, get: (a) => (a.shAN ? a.shA : null), per: (a) => (a.shAN ? a.shA / a.shAN : null), cov: covShA },
-    { label: 'SoTA', kind: 'int', lower: true, get: (a) => (a.kN ? a.sotA : null), per: (a) => (a.kN ? a.sotA / a.kN : null), cov: covK },
-    { label: 'Saves', kind: 'int', lower: null, get: (a) => (a.kN ? a.saves : null), per: (a) => (a.kN ? a.saves / a.kN : null), cov: covK },
-    { label: 'Save%', kind: 'pct', lower: false, get: (a) => (a.kN && a.sotA ? a.saves / a.sotA : null), per: noPer, cov: covK },
-    { label: 'CS', kind: 'int', lower: false, get: (a) => a.cs, per: (a) => (a.k ? a.cs / a.k : null), cov: noCov },
+    {
+      label: 'Pts',
+      kind: 'int',
+      lower: false,
+      get: (a) => a.pts,
+      per: (a) => (a.k ? a.pts / a.k : null),
+      cov: noCov,
+    },
+    {
+      label: 'GA',
+      kind: 'int',
+      lower: true,
+      get: (a) => a.ga,
+      per: (a) => (a.k ? a.ga / a.k : null),
+      cov: noCov,
+    },
+    {
+      label: 'xGA',
+      kind: 'dec',
+      lower: true,
+      get: (a) => (a.xgN ? a.xga : null),
+      per: (a) => (a.xgN ? a.xga / a.xgN : null),
+      cov: covXg,
+    },
+    {
+      label: 'GA−xGA',
+      kind: 'dec',
+      lower: true,
+      get: (a) => (a.xgN ? a.ga - a.xga : null),
+      per: noPer,
+      cov: noCov,
+    },
+    {
+      label: 'ShA',
+      kind: 'int',
+      lower: true,
+      get: (a) => (a.shAN ? a.shA : null),
+      per: (a) => (a.shAN ? a.shA / a.shAN : null),
+      cov: covShA,
+    },
+    {
+      label: 'SoTA',
+      kind: 'int',
+      lower: true,
+      get: (a) => (a.kN ? a.sotA : null),
+      per: (a) => (a.kN ? a.sotA / a.kN : null),
+      cov: covK,
+    },
+    {
+      label: 'Saves',
+      kind: 'int',
+      lower: null,
+      get: (a) => (a.kN ? a.saves : null),
+      per: (a) => (a.kN ? a.saves / a.kN : null),
+      cov: covK,
+    },
+    {
+      label: 'Save%',
+      kind: 'pct',
+      lower: false,
+      get: (a) => (a.kN && a.sotA ? a.saves / a.sotA : null),
+      per: noPer,
+      cov: covK,
+    },
+    {
+      label: 'CS',
+      kind: 'int',
+      lower: false,
+      get: (a) => a.cs,
+      per: (a) => (a.k ? a.cs / a.k : null),
+      cov: noCov,
+    },
   ],
 };
 
@@ -127,7 +254,7 @@ function Seg<T extends string>({
     <div
       role="group"
       aria-label={label}
-      className="inline-flex rounded-lg border border-border bg-surface p-0.5"
+      className="inline-flex rounded-xl border border-border bg-bg-secondary/70 p-0.5"
     >
       {options.map((o) => (
         <button
@@ -135,10 +262,10 @@ function Seg<T extends string>({
           type="button"
           aria-pressed={value === o.v}
           onClick={() => onChange(o.v)}
-          className={`whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-brand ${
+          className={`whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-brand ${
             value === o.v
-              ? 'bg-surface-elevated font-medium text-primary shadow-sm dark:shadow-none'
-              : 'text-muted hover:text-secondary'
+              ? 'bg-primary text-surface shadow-sm dark:shadow-none'
+              : 'text-muted hover:text-primary'
           }`}
         >
           {o.label}
@@ -149,10 +276,22 @@ function Seg<T extends string>({
 }
 
 const PACE_TIP: Record<string, string> = {
-  Pts: 'pts', GF: 'gf', xG: 'xg', 'GF−xG': 'gfMinusXg',
-  Sh: 'sh', SoT: 'sot', 'SoT%': 'sotPct', 'G/Sh': 'gPerSh',
-  GA: 'ga', xGA: 'xga', 'GA−xGA': 'gaMinusXga', ShA: 'sha',
-  SoTA: 'sota', Saves: 'saves', 'Save%': 'savePct', CS: 'cs',
+  Pts: 'pts',
+  GF: 'gf',
+  xG: 'xg',
+  'GF−xG': 'gfMinusXg',
+  Sh: 'sh',
+  SoT: 'sot',
+  'SoT%': 'sotPct',
+  'G/Sh': 'gPerSh',
+  GA: 'ga',
+  xGA: 'xga',
+  'GA−xGA': 'gaMinusXga',
+  ShA: 'sha',
+  SoTA: 'sota',
+  Saves: 'saves',
+  'Save%': 'savePct',
+  CS: 'cs',
 };
 
 function fmtKind(v: number | null, kind: CardDef['kind']): string {
@@ -161,41 +300,72 @@ function fmtKind(v: number | null, kind: CardDef['kind']): string {
   return fmt(v, kind === 'int' ? 0 : 2);
 }
 
-function RaceTooltip({ side, metric }: { side: PaceSide; metric: RaceMetric }) {
-  const dec = RACE_BY_KEY[side][metric].dec;
-  return function Tip({ active, payload, label }: TooltipContentProps) {
-    if (!active || !payload?.length) return null;
-    const items = [...payload]
-      .filter((e) => typeof e.value === 'number')
-      .sort((a, b) => (b.value as number) - (a.value as number));
-    return (
-      <div className="rounded-lg border border-border bg-surface-elevated p-3 shadow-sm">
-        <p className="mb-1 text-xs font-semibold text-primary">
-          {RACE_BY_KEY[side][metric].label} · {label}
-        </p>
-        <div className="flex flex-col gap-0.5">
-          {items.map((e, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs">
+function RaceChartTooltip({
+  active,
+  payload,
+  label,
+  side,
+  metric,
+  currentShort,
+}: TooltipContentProps & {
+  side: PaceSide;
+  metric: RaceMetric;
+  currentShort: string;
+}) {
+  if (!active || !payload?.length) return null;
+  const def = RACE_BY_KEY[side][metric];
+  const items = [...payload]
+    .filter((e) => typeof e.value === 'number')
+    .sort((a, b) => (b.value as number) - (a.value as number));
+  return (
+    <div className="rounded-xl border border-border bg-surface-elevated p-3 shadow-md">
+      <p className="mb-1.5 border-b border-border pb-1 font-display text-xs font-bold text-primary">
+        {def.label} · GW {label}
+      </p>
+      <div className="flex flex-col gap-1">
+        {items.map((e, i) => {
+          const isCur = e.name === currentShort;
+          return (
+            <div
+              key={i}
+              className="flex items-center justify-between gap-4 text-xs"
+            >
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: e.color ?? e.stroke }}
+                />
+                <span
+                  className={
+                    isCur ? 'font-bold text-primary' : 'text-secondary'
+                  }
+                >
+                  {e.name}
+                </span>
+              </span>
               <span
-                className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: e.color ?? e.stroke }}
-              />
-              <span className="text-secondary">{e.name}:</span>
-              <span className="ml-auto font-semibold tabular-nums text-primary">
-                {fmt(e.value as number, dec)}
+                className={`tabular-nums ${
+                  isCur
+                    ? 'font-extrabold text-brand'
+                    : 'font-semibold text-primary'
+                }`}
+              >
+                {fmt(e.value as number, def.dec)}
               </span>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
-    );
-  };
+    </div>
+  );
 }
 
 /* ------------------------------------------------ main */
 
 export function SeasonPace({ side }: { side: PaceSide }) {
   const { t, lang } = useI18n();
+  const th = lang === 'th';
+  const tx = (en: string, thText: string) => (th ? thText : en);
   const { club } = useClub();
   const { matches } = useClubData();
   const cards = CARDS[side];
@@ -207,7 +377,10 @@ export function SeasonPace({ side }: { side: PaceSide }) {
   const scope = useMemo(() => [...seasonMap.keys()].sort(), [seasonMap]);
   const scopeKey = scope.join('|');
   const current = scope[scope.length - 1] ?? '';
-  const curGames = useMemo(() => seasonMap.get(current) ?? [], [seasonMap, current]);
+  const curGames = useMemo(
+    () => seasonMap.get(current) ?? [],
+    [seasonMap, current],
+  );
   const playedCur = curGames.length;
 
   const [nRaw, setN] = useState<number | null>(null);
@@ -224,7 +397,9 @@ export function SeasonPace({ side }: { side: PaceSide }) {
   );
   const xMax = range === 'early' ? Math.min(38, Math.max(n + 5, 10)) : 38;
 
-  const [extrasMaps, setExtrasMaps] = useState<Record<string, ExtrasMap> | null>(null);
+  const [extrasMaps, setExtrasMaps] = useState<Record<string, ExtrasMap> | null>(
+    null,
+  );
   useEffect(() => {
     let live = true;
     const seasons = scopeKey ? scopeKey.split('|') : [];
@@ -254,7 +429,10 @@ export function SeasonPace({ side }: { side: PaceSide }) {
   const chartData = useMemo(() => {
     const series = new Map<string, number[]>();
     for (const s of scope) {
-      series.set(s, cumSeries(seasonMap.get(s) ?? [], extrasMaps?.[s] ?? null, metric));
+      series.set(
+        s,
+        cumSeries(seasonMap.get(s) ?? [], extrasMaps?.[s] ?? null, metric),
+      );
     }
     const rows: Record<string, number>[] = [];
     for (let k = 1; k <= xMax; k += 1) {
@@ -280,7 +458,16 @@ export function SeasonPace({ side }: { side: PaceSide }) {
   }, [aggs, metric, metricDef.lower]);
   const curRank = ranked.findIndex((a) => a.season === current) + 1;
 
-  const [rkSort, setRkSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(null);
+  // Quick comparison pills: up to 4 most recent prior seasons
+  const quickCompareSeasons = useMemo(
+    () => scope.filter((s) => s !== current).slice(-4).reverse(),
+    [scope, current],
+  );
+
+  const [rkSort, setRkSort] = useState<{
+    key: string;
+    dir: 'asc' | 'desc';
+  } | null>(null);
   const sortedRanked = useMemo(() => {
     if (!rkSort || rkSort.key === 'rank') return ranked;
     const card = cards.find((c) => c.label === rkSort.key);
@@ -299,13 +486,18 @@ export function SeasonPace({ side }: { side: PaceSide }) {
         return String(av).localeCompare(String(bv));
       return (av as number) - (bv as number);
     };
-    return [...ranked].sort((a, b) => (rkSort.dir === 'asc' ? cmp(a, b) : -cmp(a, b)));
+    return [...ranked].sort((a, b) =>
+      rkSort.dir === 'asc' ? cmp(a, b) : -cmp(a, b),
+    );
   }, [ranked, rkSort, cards]);
 
   const likeRows = useMemo(() => {
     const find = (m: MatchRow) =>
-      cmpGames.find((c) => c.opponent === m.opponent && c.venue === m.venue) ?? null;
-    return curGames.slice(0, n).map((m, i) => ({ k: i + 1, cur: m, cmp: find(m) }));
+      cmpGames.find((c) => c.opponent === m.opponent && c.venue === m.venue) ??
+      null;
+    return curGames
+      .slice(0, n)
+      .map((m, i) => ({ k: i + 1, cur: m, cmp: find(m) }));
   }, [curGames, cmpGames, n]);
 
   const likeTotals = useMemo(() => {
@@ -334,35 +526,69 @@ export function SeasonPace({ side }: { side: PaceSide }) {
   const venue = (m: MatchRow) =>
     m.venue === 'Home' ? t('pace.home') : m.venue === 'Away' ? t('pace.away') : '—';
   const score = (m: MatchRow) => `${m.gf}–${m.ga}`;
-  const ptsOf = (m: MatchRow) => (m.result === 'W' ? 3 : m.result === 'D' ? 1 : 0);
+  const ptsOf = (m: MatchRow) =>
+    m.result === 'W' ? 3 : m.result === 'D' ? 1 : 0;
   const extrasOf = (m: MatchRow) => extrasMaps?.[m.season]?.get(m.date);
 
   const axisTick = { fill: 'var(--text-muted)', fontSize: 11 };
-  const gridStroke = 'var(--border)';
+  const gridStroke = 'var(--border-light)';
   const others = scope.filter((s) => s !== current && s !== compare);
+  const currentShort = seasonShort(current);
+  const likePtsDelta = likeTotals.cp - likeTotals.cmpPts;
 
   if (!current) return null;
 
   return (
-    <>
-      {/* controls + duel cards */}
-      <section className="flex min-w-0 flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-primary">
-            {t('pace.title')}
-            <span className="rounded bg-bg-secondary px-1.5 py-0.5 text-[10px] font-semibold tracking-wider text-muted">
-              PL
+    <div className="flex min-w-0 flex-col gap-6">
+      {/* ------------------------------------------------ Control Header + Duel Cards */}
+      <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
+          <div>
+            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+              <Gauge size={13} className="text-brand" />
+              <span>{tx('Premier League Pace', 'สปีดออกสตาร์ทพรีเมียร์ลีก')}</span>
+              <span className="rounded bg-brand-soft px-1.5 py-0.5 text-[10px] font-bold text-brand">
+                PL
+              </span>
+            </div>
+            <h2 className="mt-1 font-display text-lg font-bold tracking-tight text-primary sm:text-xl">
+              {t('pace.title')}
+            </h2>
+            <p className="mt-0.5 text-xs text-muted">{t('pace.plOnly')}</p>
+          </div>
+
+          {/* Active season duel pill */}
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-bg-secondary/60 px-3 py-1.5 text-xs font-bold">
+            <span className="inline-flex items-center gap-1.5 text-primary">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: 'var(--brand)' }}
+              />
+              {seasonLabel(current)}
             </span>
-          </h2>
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5">
-            <span className="text-sm text-muted">
+            <span className="text-muted">vs</span>
+            <span className="inline-flex items-center gap-1.5 text-primary">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: 'var(--info)' }}
+              />
+              {compare ? seasonLabel(compare) : '—'}
+            </span>
+          </div>
+        </div>
+
+        {/* Controls Bar */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* N Games Slider */}
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-bg-secondary/50 px-3 py-1.5">
+            <span className="text-xs font-semibold text-secondary">
               {fill(t('pace.afterN'), { n })}
             </span>
             <button
               type="button"
               aria-label="decrease"
               onClick={() => setN(Math.max(1, n - 1))}
-              className="rounded px-1.5 text-muted hover:text-primary focus-visible:outline-2 focus-visible:outline-brand"
+              className="flex h-6 w-6 items-center justify-center rounded-md border border-border bg-surface text-xs font-bold text-secondary transition-colors hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-brand"
             >
               −
             </button>
@@ -373,69 +599,110 @@ export function SeasonPace({ side }: { side: PaceSide }) {
               value={n}
               onChange={(e) => setN(Number(e.target.value))}
               aria-label="N"
-              className="w-32 accent-[var(--brand)]"
+              className="w-28 accent-[var(--brand)] sm:w-32"
             />
             <button
               type="button"
               aria-label="increase"
               onClick={() => setN(Math.min(38, n + 1))}
-              className="rounded px-1.5 text-muted hover:text-primary focus-visible:outline-2 focus-visible:outline-brand"
+              className="flex h-6 w-6 items-center justify-center rounded-md border border-border bg-surface text-xs font-bold text-secondary transition-colors hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-brand"
             >
               +
             </button>
           </div>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            {t('pace.compareVs')}
-            <select
-              value={compare ?? ''}
-              onChange={(e) => setCmp(e.target.value)}
-              className="rounded-lg border border-border bg-surface px-2 py-1.5 text-sm text-primary focus-visible:outline-2 focus-visible:outline-brand"
-            >
-              {scope
-                .filter((s) => s !== current)
-                .map((s) => (
-                  <option key={s} value={s}>
-                    {seasonLabel(s)}
-                  </option>
-                ))}
-            </select>
-          </label>
+
+          {/* Season comparison pills + full select */}
+          <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-bg-secondary/50 px-2.5 py-1">
+            <span className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted">
+              {t('pace.compareVs')}
+            </span>
+            {quickCompareSeasons.map((s) => {
+              const active = s === compare;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setCmp(s)}
+                  aria-pressed={active}
+                  className={`rounded-lg px-2 py-1 text-xs font-bold tabular-nums transition-colors ${
+                    active
+                      ? 'bg-info text-surface'
+                      : 'text-muted hover:bg-surface hover:text-primary'
+                  }`}
+                >
+                  {seasonShort(s)}
+                </button>
+              );
+            })}
+            {scope.length > 5 && (
+              <select
+                aria-label={t('pace.compareVs')}
+                value={compare ?? ''}
+                onChange={(e) => setCmp(e.target.value)}
+                className="cursor-pointer rounded-lg border border-border bg-surface px-2 py-1 text-xs font-semibold tabular-nums text-primary focus-visible:outline-2 focus-visible:outline-brand"
+              >
+                {scope
+                  .filter((s) => s !== current)
+                  .reverse()
+                  .map((s) => (
+                    <option key={s} value={s} className="bg-surface text-primary">
+                      {seasonLabel(s)}
+                    </option>
+                  ))}
+              </select>
+            )}
+          </div>
+
+          {/* Race Metric Switcher */}
           <Seg
             label={t('pace.raceMetric')}
             value={metric}
             onChange={setMetric}
             options={raceDefs.map((d) => ({ v: d.key, label: d.label }))}
           />
-          <label className="flex cursor-pointer items-center gap-1.5 text-sm text-muted">
-            <input
-              type="checkbox"
-              checked={showAll}
-              onChange={(e) => setShowAll(e.target.checked)}
-              className="accent-[var(--brand)]"
+
+          {/* Show all seasons toggle pill */}
+          <button
+            type="button"
+            aria-pressed={showAll}
+            onClick={() => setShowAll((v) => !v)}
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-colors ${
+              showAll
+                ? 'border-brand/40 bg-brand-soft text-brand'
+                : 'border-border bg-surface text-muted hover:text-primary'
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                showAll ? 'bg-brand' : 'bg-border'
+              }`}
             />
             {t('pace.showAll')}
-          </label>
+          </button>
         </div>
-        <p className="-mt-2 text-xs text-muted">{t('pace.plOnly')}</p>
 
-        <div className="flex flex-col gap-3">
-          <h3 className="font-display text-lg font-semibold text-primary">
-            {fill(t('pace.duelTitle'), {
-              cur: seasonLabel(current),
-              cmp: compare ? seasonLabel(compare) : '—',
-              n,
-            })}
-          </h3>
-          {playedCur < n && (
-            <p className="text-xs text-warning">
-              {fill(t('pace.currentShort'), {
+        {/* Duel Cards */}
+        <div className="flex flex-col gap-3 pt-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-display text-sm font-bold text-primary sm:text-base">
+              {fill(t('pace.duelTitle'), {
                 cur: seasonLabel(current),
-                n: playedCur,
+                cmp: compare ? seasonLabel(compare) : '—',
+                n,
               })}
-            </p>
-          )}
+            </h3>
+            {playedCur < n && (
+              <span className="rounded-lg bg-warning-soft px-2.5 py-1 text-xs font-semibold text-warning">
+                {fill(t('pace.currentShort'), {
+                  cur: seasonLabel(current),
+                  n: playedCur,
+                })}
+              </span>
+            )}
+          </div>
+
           {curAgg && (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {cards.map((c) => {
                 const cur = c.get(curAgg);
                 const cmp = cmpAgg ? c.get(cmpAgg) : null;
@@ -460,40 +727,77 @@ export function SeasonPace({ side }: { side: PaceSide }) {
                       : signed(delta, c.kind === 'int' ? 0 : 2);
                 const cov = c.cov(curAgg);
                 const cmpCov = cmpAgg ? c.cov(cmpAgg) : null;
+                const hairline = better
+                  ? 'var(--success)'
+                  : worse
+                    ? 'var(--danger)'
+                    : 'var(--border)';
+
                 return (
                   <div
                     key={c.label}
-                    className="flex flex-col rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none"
+                    className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-bg-secondary/40 p-3.5"
                   >
-                    <span className="text-xs font-medium text-muted">{c.label}</span>
-                    <span className="mt-2 font-body text-2xl font-bold text-primary">
-                      {fmtKind(cur, c.kind)}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 top-0 h-[2px]"
+                      style={{ background: hairline }}
+                    />
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
+                        {c.label}
+                      </span>
+                      <span
+                        className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                          better
+                            ? 'bg-success-soft text-success'
+                            : worse
+                              ? 'bg-danger-soft text-danger'
+                              : 'bg-bg-secondary text-muted'
+                        }`}
+                      >
+                        {deltaText}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex items-baseline gap-1.5">
+                      <span className="font-display text-2xl font-extrabold tabular-nums text-primary">
+                        {c.label === 'GF−xG' || c.label === 'GA−xGA'
+                          ? cur != null
+                            ? signed(cur, 2)
+                            : '—'
+                          : fmtKind(cur, c.kind)}
+                      </span>
                       {cov && cur != null && cov[0] < cov[1] && (
-                        <span className="ml-1 text-xs font-normal text-muted">
+                        <span className="text-[11px] tabular-nums text-muted">
                           ({cov[0]}/{cov[1]})
                         </span>
                       )}
-                    </span>
-                    <span className="mt-1 text-xs text-muted">
-                      {t('pace.vsShort')} {compare ? seasonLabel(compare) : '—'}:{' '}
-                      <span className="font-medium text-secondary">
-                        {fmtKind(cmp, c.kind)}
-                        {cmpCov && cmp != null && cmpCov[0] < cmpCov[1] &&
-                          ` (${cmpCov[0]}/${cmpCov[1]})`}
+                    </div>
+
+                    <div className="mt-1.5 flex items-center justify-between gap-2 text-[11px] text-muted">
+                      <span className="truncate">
+                        {t('pace.vsShort')}{' '}
+                        {compare ? seasonShort(compare) : '—'}:{' '}
+                        <strong className="tabular-nums text-secondary">
+                          {c.label === 'GF−xG' || c.label === 'GA−xGA'
+                            ? cmp != null
+                              ? signed(cmp, 2)
+                              : '—'
+                            : fmtKind(cmp, c.kind)}
+                          {cmpCov &&
+                            cmp != null &&
+                            cmpCov[0] < cmpCov[1] &&
+                            ` (${cmpCov[0]}/${cmpCov[1]})`}
+                        </strong>
                       </span>
-                    </span>
-                    <span
-                      className={`mt-1 text-sm font-semibold tabular-nums ${
-                        better ? 'text-success' : worse ? 'text-danger' : 'text-muted'
-                      }`}
-                    >
-                      {deltaText}
-                    </span>
-                    {c.per(curAgg) != null && (
-                      <span className="text-[11px] text-muted">
-                        {fmt(c.per(curAgg), 2)} {t('pace.perGame')}
-                      </span>
-                    )}
+                      {c.per(curAgg) != null && (
+                        <span className="shrink-0 tabular-nums">
+                          {fmt(c.per(curAgg), 2)}
+                          {t('pace.perGame')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -502,63 +806,104 @@ export function SeasonPace({ side }: { side: PaceSide }) {
         </div>
       </section>
 
-      {/* race chart */}
-      <section className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
-        <div className="mb-3 flex flex-wrap items-center gap-4">
-          <h3 className="font-display text-lg font-semibold text-primary">
-            {fill(t('pace.raceTitle'), { metric: metricDef.label })}
-          </h3>
-          <Seg
-            label="x-range"
-            value={range}
-            onChange={setRange}
-            options={[
-              { v: 'early', label: t('pace.range.early') },
-              { v: 'full', label: t('pace.range.full') },
-            ]}
-          />
-          <span className="flex items-center gap-1.5 text-xs text-muted">
-            <span className="inline-block h-0.5 w-5" style={{ background: 'var(--brand)' }} />
-            {seasonShort(current)}
-          </span>
-          {compare && (
-            <span className="flex items-center gap-1.5 text-xs text-muted">
-              <span
-                className="inline-block h-0 w-5 border-t-2 border-dashed"
-                style={{ borderColor: 'var(--info)' }}
-              />
-              {seasonShort(compare)}
-            </span>
-          )}
-          {showAll && others.length > 0 && (
-            <span className="flex items-center gap-1.5 text-xs text-muted">
-              <span
-                className="inline-block h-0.5 w-5 opacity-40"
-                style={{ background: 'var(--text-muted)' }}
-              />
-              {t('pace.otherSeasons')}
-            </span>
-          )}
+      {/* ------------------------------------------------ Cumulative Race Chart */}
+      <section className="min-w-0 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+              {tx('Cumulative Trajectory', 'กราฟสะสมตามจำนวนนัด')}
+            </p>
+            <h3 className="mt-0.5 font-display text-base font-bold tracking-tight text-primary sm:text-lg">
+              {fill(t('pace.raceTitle'), { metric: metricDef.label })}
+            </h3>
+            <div className="mt-2 flex flex-wrap items-center gap-3.5">
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                <span
+                  className="inline-block h-[3px] w-5 rounded-full"
+                  style={{ background: 'var(--brand)' }}
+                />
+                {currentShort}
+              </span>
+              {compare && (
+                <span className="flex items-center gap-1.5 text-xs font-medium text-secondary">
+                  <span
+                    className="inline-block h-0 w-5 border-t-2 border-dashed"
+                    style={{ borderColor: 'var(--info)' }}
+                  />
+                  {seasonShort(compare)}
+                </span>
+              )}
+              {showAll && others.length > 0 && (
+                <span className="flex items-center gap-1.5 text-xs text-muted">
+                  <span
+                    className="inline-block h-0.5 w-5 opacity-40"
+                    style={{ background: 'var(--text-muted)' }}
+                  />
+                  {t('pace.otherSeasons')}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Seg
+              label="x-range"
+              value={range}
+              onChange={setRange}
+              options={[
+                { v: 'early', label: t('pace.range.early') },
+                { v: 'full', label: t('pace.range.full') },
+              ]}
+            />
+            <ShareBtn />
+          </div>
         </div>
-        <ResponsiveContainer width="100%" height={320}>
-          <ComposedChart data={chartData} margin={{ top: 8, right: 12, bottom: 8, left: 0 }}>
-            <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
+
+        <ResponsiveContainer width="100%" height={310}>
+          <ComposedChart
+            data={chartData}
+            margin={{ top: 12, right: 12, bottom: 8, left: 0 }}
+          >
+            <CartesianGrid
+              stroke={gridStroke}
+              strokeDasharray="3 3"
+              vertical={false}
+            />
             <XAxis
               dataKey="k"
               type="number"
               domain={[1, xMax]}
               tick={axisTick}
-              axisLine={{ stroke: gridStroke }}
+              axisLine={{ stroke: 'var(--border)' }}
               tickLine={false}
               tickCount={10}
             />
-            <YAxis tick={axisTick} axisLine={false} tickLine={false} width={36} />
-            <Tooltip content={RaceTooltip({ side, metric })} />
+            <YAxis
+              tick={axisTick}
+              axisLine={false}
+              tickLine={false}
+              width={38}
+            />
+            <Tooltip
+              content={(props) => (
+                <RaceChartTooltip
+                  {...props}
+                  side={side}
+                  metric={metric}
+                  currentShort={currentShort}
+                />
+              )}
+            />
             <ReferenceLine
               x={n}
               stroke="var(--text-muted)"
               strokeDasharray="4 4"
-              label={{ value: `N=${n}`, position: 'top', fill: 'var(--text-muted)', fontSize: 11 }}
+              label={{
+                value: `N=${n}`,
+                position: 'top',
+                fill: 'var(--text-muted)',
+                fontSize: 11,
+              }}
             />
             {showAll &&
               others.map((s) => (
@@ -568,8 +913,8 @@ export function SeasonPace({ side }: { side: PaceSide }) {
                   dataKey={s}
                   name={seasonShort(s)}
                   stroke="var(--text-muted)"
-                  strokeOpacity={0.35}
-                  strokeWidth={1}
+                  strokeOpacity={0.32}
+                  strokeWidth={1.2}
                   dot={false}
                   isAnimationActive={false}
                 />
@@ -580,7 +925,7 @@ export function SeasonPace({ side }: { side: PaceSide }) {
                 dataKey={compare}
                 name={seasonShort(compare)}
                 stroke="var(--info)"
-                strokeWidth={2}
+                strokeWidth={2.2}
                 strokeDasharray="6 4"
                 dot={false}
                 isAnimationActive={false}
@@ -589,48 +934,70 @@ export function SeasonPace({ side }: { side: PaceSide }) {
             <Line
               type="monotone"
               dataKey={current}
-              name={seasonShort(current)}
+              name={currentShort}
               stroke="var(--brand)"
               strokeWidth={3}
               dot={false}
+              activeDot={{ r: 5 }}
               isAnimationActive={false}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </section>
 
-      {/* ranking table */}
-      <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
-        <div className="border-b border-border px-4 py-3">
-          <h3 className="font-display text-lg font-semibold text-primary">
-            {fill(t('pace.rankTitle'), { n })}
-          </h3>
+      {/* ------------------------------------------------ Start Ranking Table */}
+      <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-5">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+              {tx('Historical Benchmark', 'เทียบอันดับประวัติศาสตร์')}
+            </p>
+            <h3 className="mt-0.5 font-display text-base font-bold tracking-tight text-primary sm:text-lg">
+              {fill(t('pace.rankTitle'), { n })}
+            </h3>
+          </div>
           {curRank > 0 && (
-            <p className="mt-0.5 text-xs text-muted">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1 text-xs font-bold text-brand">
+              <Trophy size={12} />
               {fill(t('pace.rankBadge'), {
                 rank: lang === 'th' ? curRank : ord(curRank),
                 total: scope.length,
                 metric: metricDef.label,
               })}
-            </p>
+            </span>
           )}
         </div>
+
         <div className="max-h-[60vh] overflow-auto">
           <table className="w-full min-w-[900px] border-collapse">
             <thead className="sticky top-0 z-10 bg-surface-elevated">
               <tr>
-                {([
+                {[
                   { k: 'rank', h: '#', tip: t('colTip.rank'), left: true },
-                  { k: 'season', h: t('pace.season'), tip: t('colTip.season'), left: true },
-                  { k: cards[0].label, h: cards[0].label, tip: PACE_TIP[cards[0].label] ? t(`colTip.${PACE_TIP[cards[0].label]}`) : '', left: false },
+                  {
+                    k: 'season',
+                    h: t('pace.season'),
+                    tip: t('colTip.season'),
+                    left: true,
+                  },
+                  {
+                    k: cards[0].label,
+                    h: cards[0].label,
+                    tip: PACE_TIP[cards[0].label]
+                      ? t(`colTip.${PACE_TIP[cards[0].label]}`)
+                      : '',
+                    left: false,
+                  },
                   { k: 'wdl', h: 'W-D-L', tip: t('colTip.w'), left: false },
                   ...cards.slice(1).map((c) => ({
                     k: c.label,
                     h: c.label,
-                    tip: PACE_TIP[c.label] ? t(`colTip.${PACE_TIP[c.label]}`) : '',
+                    tip: PACE_TIP[c.label]
+                      ? t(`colTip.${PACE_TIP[c.label]}`)
+                      : '',
                     left: false,
                   })),
-                ]).map((col) => (
+                ].map((col) => (
                   <th
                     key={col.k}
                     title={col.tip || undefined}
@@ -639,20 +1006,38 @@ export function SeasonPace({ side }: { side: PaceSide }) {
                         ? setRkSort(null)
                         : setRkSort((prev) =>
                             prev?.key === col.k
-                              ? { key: col.k, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+                              ? {
+                                  key: col.k,
+                                  dir: prev.dir === 'asc' ? 'desc' : 'asc',
+                                }
                               : {
                                   key: col.k,
-                                  dir: cards.find((c) => c.label === col.k)?.lower ? 'asc' : 'desc',
-                                }
+                                  dir: cards.find((c) => c.label === col.k)
+                                    ?.lower
+                                    ? 'asc'
+                                    : 'desc',
+                                },
                           )
                     }
-                    className={`cursor-pointer select-none whitespace-nowrap border-b border-border px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${col.left ? 'text-left' : 'text-right'}`}
+                    className={`cursor-pointer select-none whitespace-nowrap border-b border-border px-2.5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
+                      col.left ? 'text-left' : 'text-right'
+                    }`}
                   >
-                    <span className={`inline-flex items-center gap-0.5 ${col.left ? '' : 'justify-end'}`}>
+                    <span
+                      className={`inline-flex items-center gap-0.5 ${
+                        col.left ? '' : 'justify-end'
+                      }`}
+                    >
                       {col.h}
-                      {rkSort?.key === col.k
-                        ? (rkSort.dir === 'asc' ? <ArrowUp size={11} /> : <ArrowDown size={11} />)
-                        : <ArrowUpDown size={11} className="opacity-30" />}
+                      {rkSort?.key === col.k ? (
+                        rkSort.dir === 'asc' ? (
+                          <ArrowUp size={11} className="text-brand" />
+                        ) : (
+                          <ArrowDown size={11} className="text-brand" />
+                        )
+                      ) : (
+                        <ArrowUpDown size={11} className="opacity-30" />
+                      )}
                     </span>
                   </th>
                 ))}
@@ -665,7 +1050,7 @@ export function SeasonPace({ side }: { side: PaceSide }) {
                 return (
                   <tr
                     key={a.season}
-                    className="border-b border-border"
+                    className="border-b border-border transition-colors hover:bg-bg-secondary"
                     style={
                       isCur
                         ? { background: 'var(--brand-soft)' }
@@ -674,32 +1059,66 @@ export function SeasonPace({ side }: { side: PaceSide }) {
                           : undefined
                     }
                   >
-                    <td className="px-2.5 py-2 text-xs tabular-nums text-muted">{i + 1}</td>
-                    <td className="whitespace-nowrap px-2.5 py-2 text-xs font-semibold text-primary">
-                      {seasonLabel(a.season)}
-                      {isCur && <span className="ml-1 text-[10px] text-brand">●</span>}
+                    <td className="px-2.5 py-2.5 text-xs font-bold tabular-nums text-muted">
+                      {i + 1}
                     </td>
-                    <td className="px-2.5 py-2 text-right text-xs tabular-nums text-secondary">
+                    <td className="whitespace-nowrap px-2.5 py-2.5 text-xs font-bold text-primary">
+                      {seasonLabel(a.season)}
+                      {isCur && (
+                        <span className="ml-1.5 rounded bg-brand px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-surface">
+                          {tx('Now', 'ล่าสุด')}
+                        </span>
+                      )}
+                      {isCmp && (
+                        <span className="ml-1.5 rounded bg-info px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-surface">
+                          {tx('Cmp', 'เทียบ')}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-2.5 py-2.5 text-right text-xs font-bold tabular-nums text-primary">
                       {fmtKind(cards[0].get(a), cards[0].kind)}
                     </td>
-                    <td className="px-2.5 py-2 text-right text-xs tabular-nums text-secondary">
+                    <td className="px-2.5 py-2.5 text-right text-xs tabular-nums text-secondary">
                       {a.w}-{a.d}-{a.l}
                     </td>
                     {cards.slice(1).map((c) => {
                       const v = c.get(a);
                       const cv = c.cov(a);
+                      const isSignedDelta =
+                        c.label === 'GF−xG' || c.label === 'GA−xGA';
+                      const good =
+                        isSignedDelta && v != null
+                          ? c.lower
+                            ? v < 0
+                            : v > 0
+                          : false;
+                      const bad =
+                        isSignedDelta && v != null
+                          ? c.lower
+                            ? v > 0
+                            : v < 0
+                          : false;
                       return (
                         <td
                           key={c.label}
-                          className="px-2.5 py-2 text-right text-xs tabular-nums text-secondary"
+                          className={`px-2.5 py-2.5 text-right text-xs tabular-nums ${
+                            good
+                              ? 'font-bold text-success'
+                              : bad
+                                ? 'font-bold text-danger'
+                                : 'text-secondary'
+                          }`}
                         >
-                          {c.label === 'GF−xG' || c.label === 'GA−xGA'
+                          {isSignedDelta
                             ? v != null
-                              ? signed(v)
+                              ? signed(v, 2)
                               : '—'
                             : fmtKind(v, c.kind)}
                           {cv && v != null && cv[0] < cv[1] && (
-                            <span className="text-muted"> ({cv[0]}/{cv[1]})</span>
+                            <span className="font-normal text-muted">
+                              {' '}
+                              ({cv[0]}/{cv[1]})
+                            </span>
                           )}
                         </td>
                       );
@@ -712,51 +1131,71 @@ export function SeasonPace({ side }: { side: PaceSide }) {
         </div>
       </section>
 
-      {/* like-for-like */}
+      {/* ------------------------------------------------ Like-for-Like Fixtures */}
       {compare && (
-        <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
-          <div className="border-b border-border px-4 py-3">
-            <h3 className="font-display text-lg font-semibold text-primary">
-              {t('pace.likeTitle')}
-            </h3>
-            <p className="mt-0.5 text-xs text-muted">{t('pace.likeNote')}</p>
+        <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-5">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+                {tx('Fixture-Adjusted Comparison', 'เทียบคู่แข่งและสนามเดียวกัน')}
+              </p>
+              <h3 className="mt-0.5 font-display text-base font-bold tracking-tight text-primary sm:text-lg">
+                {t('pace.likeTitle')}
+              </h3>
+              <p className="mt-0.5 text-xs text-muted">{t('pace.likeNote')}</p>
+            </div>
+            {likeTotals.mp > 0 && (
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-bold tabular-nums ${
+                  likePtsDelta > 0
+                    ? 'bg-success-soft text-success'
+                    : likePtsDelta < 0
+                      ? 'bg-danger-soft text-danger'
+                      : 'bg-bg-secondary text-muted'
+                }`}
+              >
+                {t('pace.matchedPairs')} {likeTotals.mp}/{likeRows.length} ·{' '}
+                {signed(likePtsDelta, 0)} pts
+              </span>
+            )}
           </div>
+
           <div className="overflow-auto">
             <table className="w-full min-w-[760px] border-collapse">
               <thead className="bg-surface-elevated">
                 <tr>
-                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted">
                     {t('pace.gw')}
                   </th>
-                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted">
                     {t('pace.opponent')}
                   </th>
-                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted">
                     {t('pace.venue')}
                   </th>
-                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-right text-[11px] font-bold uppercase tracking-wider text-brand">
                     {seasonLabel(current)}
                   </th>
                   {likeCols.map((c) => (
                     <th
                       key={`c-${c.label}`}
-                      className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted"
+                      className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-right text-[11px] font-bold uppercase tracking-wider text-muted"
                     >
                       {c.label}
                     </th>
                   ))}
-                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-right text-[11px] font-bold uppercase tracking-wider text-info">
                     {seasonLabel(compare)}
                   </th>
                   {likeCols.map((c) => (
                     <th
                       key={`p-${c.label}`}
-                      className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted"
+                      className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-right text-[11px] font-bold uppercase tracking-wider text-muted"
                     >
                       {c.label}
                     </th>
                   ))}
-                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <th className="whitespace-nowrap border-b border-border px-2.5 py-2.5 text-right text-[11px] font-bold uppercase tracking-wider text-muted">
                     {t('pace.deltaPts')}
                   </th>
                 </tr>
@@ -765,48 +1204,89 @@ export function SeasonPace({ side }: { side: PaceSide }) {
                 {likeRows.map((r) => {
                   const d = r.cmp ? ptsOf(r.cur) - ptsOf(r.cmp) : null;
                   return (
-                    <tr key={r.k} className="border-b border-border">
-                      <td className="px-2.5 py-2 text-xs tabular-nums text-muted">{r.k}</td>
-                      <td className="whitespace-nowrap px-2.5 py-2 text-xs font-medium text-primary">
+                    <tr
+                      key={r.k}
+                      className="border-b border-border transition-colors hover:bg-bg-secondary"
+                    >
+                      <td className="px-2.5 py-2.5 text-xs tabular-nums text-muted">
+                        {r.k}
+                      </td>
+                      <td className="whitespace-nowrap px-2.5 py-2.5 text-xs font-semibold text-primary">
                         {r.cur.opponent ?? '—'}
                       </td>
-                      <td className="px-2.5 py-2 text-xs text-muted">{venue(r.cur)}</td>
-                      <td className="px-2.5 py-2 text-right text-xs tabular-nums text-secondary">
-                        {score(r.cur)}
+                      <td className="px-2.5 py-2.5 text-xs text-muted">
+                        {venue(r.cur)}
+                      </td>
+                      <td className="whitespace-nowrap px-2.5 py-2.5 text-right text-xs tabular-nums">
+                        <span className="inline-flex items-center gap-1.5">
+                          {r.cur.result && (
+                            <span
+                              className={`rounded px-1 py-0.5 text-[10px] font-bold ${
+                                RESULT_BADGE[r.cur.result] ??
+                                'bg-bg-secondary text-muted'
+                              }`}
+                            >
+                              {r.cur.result}
+                            </span>
+                          )}
+                          <span className="font-semibold text-primary">
+                            {score(r.cur)}
+                          </span>
+                        </span>
                       </td>
                       {likeCols.map((c) => (
                         <td
                           key={`c-${c.label}`}
-                          className="px-2.5 py-2 text-right text-xs tabular-nums text-secondary"
+                          className="px-2.5 py-2.5 text-right text-xs tabular-nums text-secondary"
                         >
                           {fmt(c.get(r.cur, extrasOf(r.cur)), c.dec)}
                         </td>
                       ))}
                       {r.cmp ? (
                         <>
-                          <td className="px-2.5 py-2 text-right text-xs tabular-nums text-secondary">
-                            {score(r.cmp)}
+                          <td className="whitespace-nowrap px-2.5 py-2.5 text-right text-xs tabular-nums">
+                            <span className="inline-flex items-center gap-1.5">
+                              {r.cmp.result && (
+                                <span
+                                  className={`rounded px-1 py-0.5 text-[10px] font-bold ${
+                                    RESULT_BADGE[r.cmp.result] ??
+                                    'bg-bg-secondary text-muted'
+                                  }`}
+                                >
+                                  {r.cmp.result}
+                                </span>
+                              )}
+                              <span className="font-medium text-secondary">
+                                {score(r.cmp)}
+                              </span>
+                            </span>
                           </td>
                           {likeCols.map((c) => (
                             <td
                               key={`p-${c.label}`}
-                              className="px-2.5 py-2 text-right text-xs tabular-nums text-secondary"
+                              className="px-2.5 py-2.5 text-right text-xs tabular-nums text-secondary"
                             >
                               {fmt(c.get(r.cmp!, extrasOf(r.cmp!)), c.dec)}
                             </td>
                           ))}
-                          <td
-                            className={`px-2.5 py-2 text-right text-xs font-semibold tabular-nums ${
-                              d! > 0 ? 'text-success' : d! < 0 ? 'text-danger' : 'text-muted'
-                            }`}
-                          >
-                            {signed(d, 0)}
+                          <td className="px-2.5 py-2.5 text-right text-xs font-bold tabular-nums">
+                            <span
+                              className={`inline-block rounded px-1.5 py-0.5 ${
+                                d! > 0
+                                  ? 'bg-success-soft text-success'
+                                  : d! < 0
+                                    ? 'bg-danger-soft text-danger'
+                                    : 'text-muted'
+                              }`}
+                            >
+                              {signed(d, 0)}
+                            </span>
                           </td>
                         </>
                       ) : (
                         <td
                           colSpan={likeCols.length + 2}
-                          className="px-2.5 py-2 text-right text-xs text-muted"
+                          className="px-2.5 py-2.5 text-right text-xs italic text-muted"
                         >
                           {t('pace.noFixture')}
                         </td>
@@ -817,41 +1297,44 @@ export function SeasonPace({ side }: { side: PaceSide }) {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-border bg-surface-elevated">
-                  <td colSpan={3} className="px-2.5 py-2 text-xs font-semibold text-primary">
+                  <td
+                    colSpan={3}
+                    className="px-2.5 py-2.5 text-xs font-bold text-primary"
+                  >
                     {t('pace.matchedPairs')} {likeTotals.mp}/{likeRows.length}
                   </td>
-                  <td className="px-2.5 py-2 text-right text-xs font-semibold tabular-nums text-primary">
+                  <td className="px-2.5 py-2.5 text-right text-xs font-bold tabular-nums text-primary">
                     {likeTotals.cp} pts
                   </td>
                   {likeTotals.sums.map((s, i) => (
                     <td
                       key={`tc-${i}`}
-                      className="px-2.5 py-2 text-right text-xs font-semibold tabular-nums text-primary"
+                      className="px-2.5 py-2.5 text-right text-xs font-bold tabular-nums text-primary"
                     >
                       {s.n ? fmt(s.cur, likeCols[i].dec) : '—'}
                     </td>
                   ))}
-                  <td className="px-2.5 py-2 text-right text-xs font-semibold tabular-nums text-primary">
+                  <td className="px-2.5 py-2.5 text-right text-xs font-bold tabular-nums text-primary">
                     {likeTotals.cmpPts} pts
                   </td>
                   {likeTotals.sums.map((s, i) => (
                     <td
                       key={`tp-${i}`}
-                      className="px-2.5 py-2 text-right text-xs font-semibold tabular-nums text-primary"
+                      className="px-2.5 py-2.5 text-right text-xs font-bold tabular-nums text-primary"
                     >
                       {s.n ? fmt(s.cmp, likeCols[i].dec) : '—'}
                     </td>
                   ))}
                   <td
-                    className={`px-2.5 py-2 text-right text-xs font-semibold tabular-nums ${
-                      likeTotals.cp - likeTotals.cmpPts > 0
+                    className={`px-2.5 py-2.5 text-right text-xs font-bold tabular-nums ${
+                      likePtsDelta > 0
                         ? 'text-success'
-                        : likeTotals.cp - likeTotals.cmpPts < 0
+                        : likePtsDelta < 0
                           ? 'text-danger'
                           : 'text-muted'
                     }`}
                   >
-                    {signed(likeTotals.cp - likeTotals.cmpPts, 0)}
+                    {signed(likePtsDelta, 0)}
                   </td>
                 </tr>
               </tfoot>
@@ -859,6 +1342,6 @@ export function SeasonPace({ side }: { side: PaceSide }) {
           </div>
         </section>
       )}
-    </>
+    </div>
   );
 }

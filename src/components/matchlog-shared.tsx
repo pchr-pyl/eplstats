@@ -1,13 +1,25 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
-import { ChevronDown } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Calendar,
+  ChevronRight,
+  Clock,
+  RefreshCw,
+} from 'lucide-react';
 import type { MatchRow, CompGroup, MatchlogTable, SeasonMatchlogs } from '@/lib/types';
 import { compInGroup, canonicalComp } from '@/lib/stats';
 import { useClubOptional } from './ClubProvider';
 import { MatchCard } from '@/components/MatchCard';
 import { fmt, dash, bkkKickoff } from '@/lib/format';
+
+export type VenueFilter = 'all' | 'Home' | 'Away';
+export type ResultFilter = 'all' | 'W' | 'D' | 'L';
 
 export const COMP_SHORT: Record<string, string> = {
   'Premier League': 'PL',
@@ -145,13 +157,17 @@ export function loadLeagueMw(
 export function LoadFail({ onRetry }: { onRetry: () => void }) {
   const { t } = useI18n();
   return (
-    <div className="flex items-center gap-3 px-4 py-6 text-sm text-muted">
-      <span>{t('matchLog.loadFail')}</span>
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-danger/25 bg-danger-soft/40 px-4 py-4 text-sm text-secondary m-4">
+      <div className="flex items-center gap-2.5">
+        <AlertCircle size={16} className="shrink-0 text-danger" />
+        <span>{t('matchLog.loadFail')}</span>
+      </div>
       <button
         type="button"
         onClick={onRetry}
-        className="rounded-full border border-border bg-bg-secondary px-3 py-1 font-medium text-primary transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-semibold text-primary transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
       >
+        <RefreshCw size={12} />
         {t('matchLog.retry')}
       </button>
     </div>
@@ -159,14 +175,52 @@ export function LoadFail({ onRetry }: { onRetry: () => void }) {
 }
 
 const COL_TIP: Record<string, string> = {
-  GF: 'gf', GA: 'ga', xG: 'xg', xGA: 'xga', Sh: 'sh', SoT: 'sot',
-  'SoT%': 'sotPct', 'G/Sh': 'gPerSh', PK: 'pk', PKatt: 'pkatt',
-  SoTA: 'sota', Saves: 'saves', 'Save%': 'savePct', CS: 'cs',
-  CrdY: 'crdY', CrdR: 'crdR', MP: 'mp',
+  GF: 'gf',
+  GA: 'ga',
+  xG: 'xg',
+  xGA: 'xga',
+  Sh: 'sh',
+  SoT: 'sot',
+  'SoT%': 'sotPct',
+  'G/Sh': 'gPerSh',
+  PK: 'pk',
+  PKatt: 'pkatt',
+  SoTA: 'sota',
+  Saves: 'saves',
+  'Save%': 'savePct',
+  CS: 'cs',
+  CrdY: 'crdY',
+  CrdR: 'crdR',
+  MP: 'mp',
 };
 
+const EXTRA_COL_TIP: Record<string, { en: string; th: string }> = {
+  '2CrdY': { en: 'Second yellow card', th: 'ใบเหลืองที่สอง' },
+  Fls: { en: 'Fouls committed', th: 'ทำฟาวล์' },
+  Fld: { en: 'Fouls drawn', th: 'โดนทำฟาวล์' },
+  Off: { en: 'Offsides', th: 'ล้ำหน้า' },
+  Crs: { en: 'Crosses', th: 'ครอส' },
+  CK: { en: 'Corner kicks', th: 'เตะมุม' },
+  Int: { en: 'Interceptions', th: 'สกัดบอล' },
+  TklW: { en: 'Tackles won', th: 'แท็กเกิลชนะ' },
+  PKwon: { en: 'Penalties won', th: 'ได้จุดโทษ' },
+  PKcon: { en: 'Penalties conceded', th: 'เสียจุดโทษ' },
+  OG: { en: 'Own goals', th: 'เข้าประตูตัวเอง' },
+  Recov: { en: 'Ball recoveries', th: 'เก็บบอลคืน' },
+  'G/SoT': { en: 'Goals per shot on target', th: 'ประตูต่อยิงตรงกรอบ' },
+  Dist: { en: 'Average shot distance', th: 'ระยะยิงเฉลี่ย' },
+  FK: { en: 'Shots from free kicks', th: 'ยิงจากฟรีคิก' },
+  PKA: { en: 'Penalties allowed', th: 'เสียประตูจากจุดโทษ' },
+  PKsv: { en: 'Penalties saved', th: 'เซฟจุดโทษ' },
+  PKm: { en: 'Penalties missed by opponent', th: 'คู่แข่งยิงจุดโทษพลาด' },
+};
+
+const FLOAT_COLS = new Set(['SoT%', 'G/Sh', 'G/SoT', 'Save%', 'Dist', 'Won%', 'xG', 'xGA', 'npxG']);
+
 export function formatDate(iso: string): string {
-  const [y, m, d] = iso.split('-');
+  const parts = iso.split('-');
+  if (parts.length < 3) return iso;
+  const [y, m, d] = parts;
   return `${d}/${m}/${y.slice(-2)}`;
 }
 
@@ -175,6 +229,35 @@ export function scoreText(m: MatchRow): string {
   let s = `${m.gf}–${m.ga}`;
   if (m.gfPens != null && m.gaPens != null) s += ` (${m.gfPens}–${m.gaPens} p)`;
   return s;
+}
+
+export function filterStatRows(
+  table: MatchlogTable,
+  group: CompGroup,
+  venueFilter: VenueFilter = 'all',
+  resultFilter: ResultFilter = 'all',
+  searchQuery = '',
+): string[][] {
+  const cols = table.columns;
+  const compIdx = cols.indexOf('Comp');
+  const venueIdx = cols.indexOf('Venue');
+  const resultIdx = cols.indexOf('Result');
+  const oppIdx = cols.indexOf('Opponent');
+  const q = searchQuery.trim().toLowerCase();
+
+  return table.rows.filter((r) => {
+    if (compIdx >= 0 && !compInGroup(r[compIdx] ?? '', group)) return false;
+    if (venueFilter !== 'all' && venueIdx >= 0 && (r[venueIdx] ?? '') !== venueFilter) {
+      return false;
+    }
+    if (resultFilter !== 'all' && resultIdx >= 0 && (r[resultIdx] ?? '') !== resultFilter) {
+      return false;
+    }
+    if (q && oppIdx >= 0 && !(r[oppIdx] ?? '').toLowerCase().includes(q)) {
+      return false;
+    }
+    return true;
+  });
 }
 
 export function SideToggle({
@@ -188,7 +271,7 @@ export function SideToggle({
   const ctx = useClubOptional();
   const forLabel = ctx?.club.shortName ?? t('matchLog.side.for');
   return (
-    <span className="ml-auto flex shrink-0 gap-1 rounded-full bg-bg-secondary p-0.5">
+    <span className="ml-auto inline-flex shrink-0 items-center gap-0.5 rounded-full border border-border bg-bg-secondary p-0.5">
       {(['for', 'against'] as const).map((s) => {
         const active = s === side;
         return (
@@ -197,8 +280,10 @@ export function SideToggle({
             type="button"
             onClick={() => onChange(s)}
             aria-pressed={active}
-            className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
-              active ? 'bg-surface text-primary shadow-sm' : 'text-muted hover:text-primary'
+            className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
+              active
+                ? 'bg-surface text-primary shadow-sm ring-1 ring-border/70'
+                : 'text-muted hover:text-primary'
             }`}
           >
             {s === 'for' ? forLabel : t('matchLog.side.against')}
@@ -207,6 +292,15 @@ export function SideToggle({
       })}
     </span>
   );
+}
+
+function formatStatCell(col: string, raw: string): string {
+  if (!raw) return '—';
+  if (FLOAT_COLS.has(col) || raw.includes('.')) {
+    const n = parseFloat(raw);
+    if (!Number.isNaN(n)) return fmt(n, 2);
+  }
+  return raw;
 }
 
 function totalsRow(view: string[], rows: string[][], totalLabel: string): string[] {
@@ -307,73 +401,226 @@ function totalsRow(view: string[], rows: string[][], totalLabel: string): string
     }
     const sum = sums[ci];
     if (sum === null) return '—';
+    if (FLOAT_COLS.has(col)) return fmt(sum, 2);
     return Number.isInteger(sum) ? fmt(sum, 0) : fmt(sum, 2);
   });
 
   return out;
 }
 
-export function StatTable({ table, group }: { table: MatchlogTable; group: CompGroup }) {
-  const { t } = useI18n();
+function venueBadgeStyle(v: string): string {
+  if (v === 'Home') return 'bg-brand-soft text-brand';
+  if (v === 'Away') return 'bg-bg-secondary text-secondary';
+  if (v === 'Neutral') return 'bg-warning-soft text-warning';
+  return 'bg-bg-secondary text-muted';
+}
+
+function venueShort(v: string, th: boolean): string {
+  if (v === 'Home') return th ? 'เหย้า' : 'H';
+  if (v === 'Away') return th ? 'เยือน' : 'A';
+  if (v === 'Neutral') return th ? 'กลาง' : 'N';
+  return v || '—';
+}
+
+const COMP_BADGE_STYLE: Record<string, string> = {
+  PL: 'bg-brand-soft/75 text-brand',
+  UCL: 'bg-info-soft text-info',
+  UEL: 'bg-warning-soft text-warning',
+  UECL: 'bg-success-soft text-success',
+  FA: 'bg-danger-soft/70 text-danger',
+  EFL: 'bg-bg-secondary text-secondary',
+};
+
+export function StatTable({
+  table,
+  group,
+  venueFilter = 'all',
+  resultFilter = 'all',
+  searchQuery = '',
+  contained = true,
+}: {
+  table: MatchlogTable;
+  group: CompGroup;
+  venueFilter?: VenueFilter;
+  resultFilter?: ResultFilter;
+  searchQuery?: string;
+  contained?: boolean;
+}) {
+  const { t, lang } = useI18n();
+  const th = lang === 'th';
+  const [sort, setSort] = useState<{ ci: number; dir: 'asc' | 'desc' } | null>(null);
+
   const cols = table.columns;
-  const compIdx = cols.indexOf('Comp');
   const oppIdx = cols.indexOf('Opponent');
   const endIdx = cols[cols.length - 1] === 'Match Report' ? cols.length - 1 : cols.length;
-  const view = cols.slice(0, endIdx);
-  const rows = table.rows.filter(
-    (r) => compIdx < 0 || compInGroup(r[compIdx] ?? '', group),
+  const view = useMemo(() => cols.slice(0, endIdx), [cols, endIdx]);
+
+  const filteredRows = useMemo(
+    () => filterStatRows(table, group, venueFilter, resultFilter, searchQuery),
+    [table, group, venueFilter, resultFilter, searchQuery],
   );
 
-  if (rows.length === 0) {
-    return <p className="px-4 py-6 text-sm text-muted">{t('matchLog.noStatData')}</p>;
+  const activeSort = sort && sort.ci < view.length ? sort : null;
+
+  const sortedRows = useMemo(() => {
+    if (!activeSort) return filteredRows;
+    const { ci, dir } = activeSort;
+    const col = view[ci];
+    const isNumeric = ci > oppIdx || col === 'GF' || col === 'GA';
+    const copy = [...filteredRows];
+    copy.sort((a, b) => {
+      const av = (a[ci] ?? '').trim();
+      const bv = (b[ci] ?? '').trim();
+      if (!av && !bv) return 0;
+      if (!av) return 1;
+      if (!bv) return -1;
+      let cmp = 0;
+      if (isNumeric) {
+        const an = parseFloat(av);
+        const bn = parseFloat(bv);
+        if (Number.isNaN(an) && Number.isNaN(bn)) cmp = av.localeCompare(bv);
+        else if (Number.isNaN(an)) return 1;
+        else if (Number.isNaN(bn)) return -1;
+        else cmp = an - bn;
+      } else {
+        cmp = av.localeCompare(bv);
+      }
+      return dir === 'asc' ? cmp : -cmp;
+    });
+    return copy;
+  }, [filteredRows, activeSort, view, oppIdx]);
+
+  const toggleSort = (ci: number) => {
+    const col = view[ci];
+    const defaultDir: 'asc' | 'desc' =
+      ci > oppIdx || col === 'GF' || col === 'GA' || col === 'Date' ? 'desc' : 'asc';
+    setSort((prev) => {
+      if (!prev || prev.ci !== ci) return { ci, dir: defaultDir };
+      if (prev.dir === defaultDir) {
+        return { ci, dir: defaultDir === 'desc' ? 'asc' : 'desc' };
+      }
+      return null;
+    });
+  };
+
+  if (filteredRows.length === 0) {
+    return (
+      <div className="px-5 py-10 text-center">
+        <p className="text-sm font-medium text-secondary">{t('matchLog.noStatData')}</p>
+        <p className="mt-1 text-xs text-muted">
+          {th
+            ? 'ลองปรับตัวกรองรายการ สนาม ผลการแข่งขัน หรือคำค้นหา'
+            : 'Try adjusting the competition, venue, result, or search filters.'}
+        </p>
+      </div>
+    );
   }
 
-  const totalRow = totalsRow(view, rows, t('matchLog.total'));
+  const totalRow = totalsRow(view, filteredRows, t('matchLog.total'));
 
   return (
-    <div className="max-h-[560px] overflow-auto">
-      <table className="w-full min-w-[720px] border-collapse">
-        <thead className="sticky top-0 z-10 bg-surface-elevated">
-          <tr>
-            {view.map((c, i) => (
-              <th
-                key={`${c}-${i}`}
-                title={COL_TIP[c] ? t(`colTip.${COL_TIP[c]}`) : undefined}
-                className={`whitespace-nowrap border-b border-border px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted ${
-                  i > oppIdx ? 'text-right' : 'text-left'
-                }`}
-              >
-                {c}
-              </th>
-            ))}
+    <div className={`${contained ? 'max-h-[560px]' : 'max-h-[72vh]'} overflow-auto`}>
+      <table className="w-full min-w-[760px] border-collapse">
+        <thead className="sticky top-0 z-10 bg-surface-elevated/95 backdrop-blur-sm">
+          <tr className="border-b border-border">
+            {view.map((c, i) => {
+              const tipKey = COL_TIP[c];
+              const extraTip = EXTRA_COL_TIP[c];
+              const title = tipKey
+                ? t(`colTip.${tipKey}`)
+                : extraTip
+                  ? th
+                    ? extraTip.th
+                    : extraTip.en
+                  : undefined;
+              const isRight = i > oppIdx || c === 'GF' || c === 'GA';
+              const isSorted = activeSort?.ci === i;
+              const sortable = c !== 'Time' && c !== 'Day';
+
+              return (
+                <th
+                  key={`${c}-${i}`}
+                  title={title}
+                  className={`whitespace-nowrap px-2.5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-muted ${
+                    isRight ? 'text-right' : 'text-left'
+                  }`}
+                >
+                  {sortable ? (
+                    <button
+                      type="button"
+                      onClick={() => toggleSort(i)}
+                      className={`inline-flex items-center gap-1 transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
+                        isSorted ? 'text-brand' : ''
+                      } ${isRight ? 'flex-row-reverse' : ''}`}
+                    >
+                      <span>{c}</span>
+                      {isSorted ? (
+                        activeSort.dir === 'asc' ? (
+                          <ArrowUp size={11} />
+                        ) : (
+                          <ArrowDown size={11} />
+                        )
+                      ) : (
+                        <ArrowUpDown size={10} className="opacity-35" />
+                      )}
+                    </button>
+                  ) : (
+                    c
+                  )}
+                </th>
+              );
+            })}
           </tr>
         </thead>
-        <tbody>
-          {rows.map((r, ri) => (
-            <tr key={ri} className="border-b border-border transition-colors hover:bg-bg-secondary">
+        <tbody className="divide-y divide-border-light">
+          {sortedRows.map((r, ri) => (
+            <tr
+              key={`${r[0] ?? ri}-${r[oppIdx] ?? ''}-${ri}`}
+              className="group transition-colors hover:bg-brand-soft/35"
+            >
               {view.map((c, ci) => {
                 const v = r[ci] ?? '';
                 if (c === 'Date') {
                   return (
-                    <td key={ci} className="whitespace-nowrap px-2.5 py-2 text-xs tabular-nums text-muted">
+                    <td
+                      key={ci}
+                      className="whitespace-nowrap px-2.5 py-2.5 text-xs font-medium tabular-nums text-muted"
+                    >
                       {formatDate(v)}
                     </td>
                   );
                 }
                 if (c === 'Comp') {
+                  const short = COMP_SHORT[canonicalComp(v)] ?? v;
                   return (
-                    <td key={ci} className="px-2.5 py-2">
-                      <span className="rounded bg-bg-secondary px-1 py-0.5 text-[10px] font-semibold text-muted">
-                        {COMP_SHORT[canonicalComp(v)] ?? v}
+                    <td key={ci} className="whitespace-nowrap px-2.5 py-2.5">
+                      <span
+                        className={`inline-flex rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide ${
+                          COMP_BADGE_STYLE[short] ?? 'bg-bg-secondary text-muted'
+                        }`}
+                      >
+                        {short}
+                      </span>
+                    </td>
+                  );
+                }
+                if (c === 'Venue') {
+                  return (
+                    <td key={ci} className="whitespace-nowrap px-2.5 py-2.5">
+                      <span
+                        className={`inline-flex rounded-md px-1.5 py-0.5 text-[10px] font-bold ${venueBadgeStyle(v)}`}
+                        title={v ? t(`matchLog.venue.${v}`) : undefined}
+                      >
+                        {venueShort(v, th)}
                       </span>
                     </td>
                   );
                 }
                 if (c === 'Result') {
                   return (
-                    <td key={ci} className="px-2.5 py-2">
+                    <td key={ci} className="whitespace-nowrap px-2.5 py-2.5">
                       <span
-                        className={`rounded px-1 py-0.5 text-xs font-bold ${
+                        className={`inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold ${
                           RESULT_STYLE[v] ?? 'bg-bg-secondary text-muted'
                         }`}
                       >
@@ -384,37 +631,109 @@ export function StatTable({ table, group }: { table: MatchlogTable; group: CompG
                 }
                 if (c === 'Opponent') {
                   return (
-                    <td key={ci} className="whitespace-nowrap px-2.5 py-2 text-xs font-medium text-primary">
+                    <td
+                      key={ci}
+                      className="whitespace-nowrap px-2.5 py-2.5 text-xs font-semibold text-primary transition-colors group-hover:text-brand"
+                    >
                       {dash(v)}
                     </td>
                   );
                 }
+                if (c === 'GF' || c === 'GA') {
+                  return (
+                    <td
+                      key={ci}
+                      className="whitespace-nowrap px-2.5 py-2.5 text-right text-xs font-semibold tabular-nums text-primary"
+                    >
+                      {v || '—'}
+                    </td>
+                  );
+                }
+                if (c === 'CrdY') {
+                  const n = parseInt(v, 10);
+                  return (
+                    <td key={ci} className="whitespace-nowrap px-2.5 py-2.5 text-right text-xs tabular-nums">
+                      {!Number.isNaN(n) && n > 0 ? (
+                        <span className="inline-flex min-w-[22px] justify-center rounded-md bg-warning-soft px-1.5 py-0.5 font-bold text-warning">
+                          {n}
+                        </span>
+                      ) : (
+                        <span className="text-muted">{v || '—'}</span>
+                      )}
+                    </td>
+                  );
+                }
+                if (c === 'CrdR' || c === '2CrdY') {
+                  const n = parseInt(v, 10);
+                  return (
+                    <td key={ci} className="whitespace-nowrap px-2.5 py-2.5 text-right text-xs tabular-nums">
+                      {!Number.isNaN(n) && n > 0 ? (
+                        <span className="inline-flex min-w-[22px] justify-center rounded-md bg-danger-soft px-1.5 py-0.5 font-bold text-danger">
+                          {n}
+                        </span>
+                      ) : (
+                        <span className="text-muted">{v || '—'}</span>
+                      )}
+                    </td>
+                  );
+                }
+                if (c === 'OG' || c === 'PKcon') {
+                  const n = parseInt(v, 10);
+                  return (
+                    <td
+                      key={ci}
+                      className={`whitespace-nowrap px-2.5 py-2.5 text-right text-xs tabular-nums ${
+                        !Number.isNaN(n) && n > 0 ? 'font-bold text-danger' : 'text-secondary'
+                      }`}
+                    >
+                      {v || '—'}
+                    </td>
+                  );
+                }
+                if (c === 'PKwon') {
+                  const n = parseInt(v, 10);
+                  return (
+                    <td
+                      key={ci}
+                      className={`whitespace-nowrap px-2.5 py-2.5 text-right text-xs tabular-nums ${
+                        !Number.isNaN(n) && n > 0 ? 'font-bold text-success' : 'text-secondary'
+                      }`}
+                    >
+                      {v || '—'}
+                    </td>
+                  );
+                }
+
+                const formatted = formatStatCell(c, v);
                 return (
                   <td
                     key={ci}
-                    className={`whitespace-nowrap px-2.5 py-2 text-xs tabular-nums ${
+                    className={`whitespace-nowrap px-2.5 py-2.5 text-xs tabular-nums ${
                       ci > oppIdx ? 'text-right text-secondary' : 'text-left text-muted'
                     }`}
                   >
-                    {v || '—'}
+                    {formatted}
                   </td>
                 );
               })}
             </tr>
           ))}
         </tbody>
-        <tfoot className="sticky bottom-0 z-10 bg-surface-elevated">
+        <tfoot className="sticky bottom-0 z-10 bg-surface-elevated/95 backdrop-blur-sm">
           <tr className="border-t-2 border-border">
-            {view.map((_, ci) => (
-              <td
-                key={ci}
-                className={`whitespace-nowrap px-2.5 py-2 text-xs tabular-nums font-semibold text-primary ${
-                  ci > oppIdx ? 'text-right' : 'text-left'
-                }`}
-              >
-                {totalRow[ci] ?? ''}
-              </td>
-            ))}
+            {view.map((c, ci) => {
+              const isRight = ci > oppIdx || c === 'GF' || c === 'GA';
+              return (
+                <td
+                  key={ci}
+                  className={`whitespace-nowrap px-2.5 py-2.5 text-xs font-bold tabular-nums text-primary ${
+                    isRight ? 'text-right' : 'text-left'
+                  }`}
+                >
+                  {totalRow[ci] ?? ''}
+                </td>
+              );
+            })}
           </tr>
         </tfoot>
       </table>
@@ -434,7 +753,8 @@ export function ScoresList({
   showComp: boolean;
   contained?: boolean;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const th = lang === 'th';
   const [open, setOpen] = useState<number | null>(null);
   const [openMid, setOpenMid] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -468,84 +788,179 @@ export function ScoresList({
   return (
     <ul
       ref={listRef}
-      className={`divide-y divide-border ${contained ? 'max-h-[560px] overflow-y-auto' : ''}`}
+      className={`divide-y divide-border-light ${contained ? 'max-h-[560px] overflow-y-auto' : ''}`}
     >
       {rows.map((m, i) => {
         const played = m.result != null;
         const isOpen = open === i;
         const bk = bkkKickoff(m.date, m.time);
-        const meta = played
+        const compShort = COMP_SHORT[m.competition] ?? m.competition;
+        const hasXg = played && m.xg != null && m.xga != null;
+        const xgDiff = hasXg ? (m.xg ?? 0) - (m.xga ?? 0) : 0;
+
+        const secondaryMeta = played
           ? [
-              m.round,
-              m.venue ? t(`matchLog.venue.${m.venue}`) : null,
-              m.possession != null ? `${t('matchLog.poss')} ${fmt(m.possession, 0)}%` : null,
-              m.xg != null ? `xG ${fmt(m.xg, 2)}` : null,
-              m.xga != null ? `xGA ${fmt(m.xga, 2)}` : null,
+              m.possession != null
+                ? `${t('matchLog.poss')} ${
+                    Number.isInteger(m.possession)
+                      ? fmt(m.possession, 0)
+                      : fmt(m.possession, 2)
+                  }%`
+                : null,
               m.formation ? `${t('matchLog.form')} ${m.formation}` : null,
-              m.attendance != null ? `${t('matchLog.att')} ${m.attendance.toLocaleString()}` : null,
+              m.attendance != null
+                ? `${t('matchLog.att')} ${m.attendance.toLocaleString()}`
+                : null,
               m.referee,
               m.notes,
             ].filter(Boolean)
-          : [];
+          : [m.round, m.notes].filter(Boolean);
 
-        const rowContent = (
-          <div className="flex items-center gap-3">
-            <span className="w-16 shrink-0 text-xs tabular-nums text-muted">
-              {bk?.date ?? formatDate(m.date)}
-            </span>
-            {showComp && (
-              <span className="w-10 shrink-0 rounded bg-bg-secondary px-1 py-0.5 text-center text-[10px] font-semibold text-muted">
-                {COMP_SHORT[m.competition] ?? m.competition}
-              </span>
-            )}
-            <span
-              className={`w-7 shrink-0 rounded px-1 py-0.5 text-center text-xs font-bold ${
-                RESULT_STYLE[m.result ?? ''] ?? 'bg-bg-secondary text-muted'
-              }`}
-            >
-              {m.result ?? '—'}
-            </span>
-            <span className="min-w-0 flex-1 truncate text-left text-sm font-medium text-primary">
-              {dash(m.opponent)}
-            </span>
-            {played ? (
-              <span className="shrink-0 font-display text-sm font-semibold tabular-nums text-primary">
-                {scoreText(m)}
-              </span>
-            ) : (
-              <span className="shrink-0 text-xs text-muted">
-                {t('matchLog.upcoming')}
-                {(bk?.time ?? m.time) ? ` · ${bk?.time ?? m.time}` : ''}
-              </span>
-            )}
-            {played && (
-              <ChevronDown
-                size={14}
-                aria-hidden
-                className={`shrink-0 text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}
-              />
+        const rowBody = (
+          <div className="flex flex-col gap-1.5">
+            {/* Primary line */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              {/* Date column */}
+              <div className="flex w-[4.5rem] shrink-0 flex-col">
+                <span className="text-xs font-semibold tabular-nums text-primary">
+                  {bk?.date ?? formatDate(m.date)}
+                </span>
+                {m.round && (
+                  <span className="truncate text-[10px] text-muted" title={m.round}>
+                    {m.round.replace('Matchweek ', 'MW ')}
+                  </span>
+                )}
+              </div>
+
+              {/* Competition + Venue pills */}
+              <div className="flex shrink-0 items-center gap-1.5">
+                {showComp && (
+                  <span
+                    className={`inline-flex w-11 justify-center rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide ${
+                      COMP_BADGE_STYLE[compShort] ?? 'bg-bg-secondary text-muted'
+                    }`}
+                  >
+                    {compShort}
+                  </span>
+                )}
+                {m.venue && (
+                  <span
+                    className={`inline-flex min-w-[26px] justify-center rounded-md px-1.5 py-0.5 text-[10px] font-bold ${venueBadgeStyle(m.venue)}`}
+                    title={t(`matchLog.venue.${m.venue}`)}
+                  >
+                    {venueShort(m.venue, th)}
+                  </span>
+                )}
+              </div>
+
+              {/* Opponent */}
+              <div className="min-w-0 flex-1">
+                <span className="block truncate text-left text-sm font-semibold text-primary transition-colors group-hover:text-brand">
+                  {dash(m.opponent)}
+                </span>
+              </div>
+
+              {/* Right: Score + W/D/L pill OR Upcoming BKK Kickoff badge */}
+              {played ? (
+                <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+                  {hasXg && (
+                    <span
+                      className={`hidden items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold tabular-nums md:inline-flex ${
+                        xgDiff > 0.25
+                          ? 'bg-success-soft/70 text-success'
+                          : xgDiff < -0.25
+                            ? 'bg-danger-soft/70 text-danger'
+                            : 'bg-bg-secondary text-secondary'
+                      }`}
+                    >
+                      <span className="text-[10px] uppercase opacity-75">xG</span>
+                      <span>
+                        {fmt(m.xg, 2)}–{fmt(m.xga, 2)}
+                      </span>
+                    </span>
+                  )}
+                  <span className="min-w-[3.2rem] text-right font-display text-sm font-bold tabular-nums text-primary sm:text-base">
+                    {scoreText(m)}
+                  </span>
+                  <span
+                    className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs font-bold ${
+                      RESULT_STYLE[m.result ?? ''] ?? 'bg-bg-secondary text-muted'
+                    }`}
+                  >
+                    {m.result}
+                  </span>
+                  <ChevronRight
+                    size={15}
+                    aria-hidden
+                    className={`shrink-0 text-muted transition-all group-hover:translate-x-0.5 group-hover:text-brand ${
+                      isOpen ? 'rotate-90 text-brand' : ''
+                    }`}
+                  />
+                </div>
+              ) : (
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {(bk?.time ?? m.time) && (
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-brand/25 bg-brand-soft/70 px-2 py-0.5 text-[11px] font-bold tabular-nums text-brand">
+                      <Clock size={11} />
+                      <span>{bk?.time ?? m.time}</span>
+                      {bk && <span className="hidden text-[9px] font-semibold opacity-80 sm:inline">BKK</span>}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-border bg-bg-secondary px-2 py-0.5 text-[11px] font-semibold text-secondary">
+                    <Calendar size={11} className="text-muted" />
+                    <span>{t('matchLog.upcoming')}</span>
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Secondary meta row (xG on mobile + possession/formation/attendance/ref) */}
+            {(hasXg || secondaryMeta.length > 0) && (
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 pl-0 text-[11px] text-muted sm:pl-[5.25rem]">
+                {hasXg && (
+                  <span
+                    className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold tabular-nums md:hidden ${
+                      xgDiff > 0.25
+                        ? 'bg-success-soft/70 text-success'
+                        : xgDiff < -0.25
+                          ? 'bg-danger-soft/70 text-danger'
+                          : 'bg-bg-secondary text-secondary'
+                    }`}
+                  >
+                    xG {fmt(m.xg, 2)}–{fmt(m.xga, 2)}
+                  </span>
+                )}
+                {secondaryMeta.map((item, idx) => (
+                  <span key={idx} className="inline-flex items-center gap-2.5">
+                    {idx > 0 && <span className="text-border">·</span>}
+                    <span className="truncate">{item}</span>
+                  </span>
+                ))}
+              </div>
             )}
           </div>
         );
 
         return (
-          <li key={`${m.date}-${i}`} className={played ? '' : 'px-4 py-2.5'}>
+          <li
+            key={`${m.date}-${m.opponent ?? ''}-${i}`}
+            className={played ? '' : 'bg-bg-secondary/30 px-4 py-3'}
+          >
             {played ? (
               <button
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => openAt(i)}
-                className="block w-full px-4 py-2.5 text-left transition-colors hover:bg-bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+                className={`group relative block w-full border-l-2 px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
+                  isOpen
+                    ? 'border-l-brand bg-brand-soft/45'
+                    : 'border-l-transparent hover:border-l-brand hover:bg-brand-soft/30'
+                }`}
               >
-                {rowContent}
-                {meta.length > 0 && (
-                  <div className="mt-1 truncate pl-16 text-xs text-muted sm:pl-[7.5rem]">
-                    {meta.join(' · ')}
-                  </div>
-                )}
+                {rowBody}
               </button>
             ) : (
-              <div className="transition-colors">{rowContent}</div>
+              <div className="border-l-2 border-l-brand/40 pl-3">{rowBody}</div>
             )}
           </li>
         );

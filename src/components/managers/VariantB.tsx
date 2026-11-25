@@ -1,11 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, ListFilter } from 'lucide-react';
 import { fmt, pct, signed } from '@/lib/format';
 import { seasonShort } from '@/lib/stats';
+import { ScoresList } from '@/components/matchlog-shared';
 import {
   csRate,
+  daysInCharge,
   displayName,
   gaPer,
   gfPer,
@@ -14,6 +16,7 @@ import {
   ppg,
   StatBase,
   StintStat,
+  tenureDuration,
   VariantProps,
   winRate,
   xgaPer,
@@ -53,7 +56,7 @@ function WdlBar({ s }: { s: StatBase }) {
       <span className="text-sm text-secondary tabular-nums whitespace-nowrap">
         {s.w}–{s.d}–{s.l}
       </span>
-      <span className="flex h-1.5 w-16 overflow-hidden rounded-full bg-bg-secondary">
+      <span className="flex h-2 w-16 overflow-hidden rounded-full bg-bg-secondary" aria-hidden>
         {seg(s.w, 'var(--success)')}
         {seg(s.d, 'var(--chart-neutral)')}
         {seg(s.l, 'var(--danger)')}
@@ -62,28 +65,41 @@ function WdlBar({ s }: { s: StatBase }) {
   );
 }
 
-function PpgBar({ s }: { s: StatBase }) {
+function PpgBar({ s, highlight = false }: { s: StatBase; highlight?: boolean }) {
   const p = ppg(s);
   if (p == null) return <span className="text-muted">—</span>;
   return (
     <div className="flex items-center justify-end gap-2">
-      <span className="text-sm text-secondary tabular-nums">{fmt(p)}</span>
-      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-bg-secondary">
+      <span
+        className={`text-sm tabular-nums ${
+          highlight ? 'font-bold text-success' : 'font-semibold text-primary'
+        }`}
+      >
+        {fmt(p, 2)}
+      </span>
+      <span className="h-2 w-16 overflow-hidden rounded-full bg-bg-secondary" aria-hidden>
         <span
           className="block h-full rounded-full"
-          style={{ width: `${(Math.min(p, 3) / 3) * 100}%`, background: 'var(--brand)' }}
+          style={{
+            width: `${(Math.min(p, 3) / 3) * 100}%`,
+            background: highlight ? 'var(--success)' : 'var(--brand)',
+          }}
         />
       </span>
     </div>
   );
 }
 
-export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
+export function VariantB({ data, lang, hasXg, minN, group }: VariantProps) {
   const L = (th: string, en: string) => (lang === 'th' ? th : en);
   const [sortKey, setSortKey] = useState<SortKey>('ppg');
   const [dir, setDir] = useState<1 | -1>(-1);
   const [hideInterim, setHideInterim] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
+  const [resFilter, setResFilter] = useState<'all' | 'W' | 'D' | 'L'>('all');
+
+  const showComp = group === 'all' || group === 'europe';
 
   const { ranked, small } = useMemo(() => {
     const vis = data.filter((s) => s.mp > 0 && !(hideInterim && s.stint.interim));
@@ -103,7 +119,7 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
     };
   }, [data, sortKey, dir, hideInterim, minN]);
 
-  // best per column among ranked stints (>= 10 matches)
+  // best per column among ranked stints (>= minN matches)
   const best = useMemo(() => {
     const out = new Map<SortKey, number>();
     const keys = (hasXg
@@ -129,10 +145,21 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
     }
   };
 
+  const toggleExpand = (id: string) => {
+    if (expanded === id) {
+      setExpanded(null);
+      setLogOpenFor(null);
+    } else {
+      setExpanded(id);
+      setLogOpenFor(null);
+      setResFilter('all');
+    }
+  };
+
   const isBest = (s: StintStat, k: SortKey, v: number | null) =>
     s.mp >= minN && v != null && best.get(k) === v;
   const bestCls = (on: boolean) =>
-    on ? 'font-semibold text-primary underline decoration-brand decoration-2 underline-offset-4' : '';
+    on ? 'font-bold text-success' : 'text-secondary';
 
   const th = (k: SortKey | null, label: string, left = false) => (
     <th
@@ -140,18 +167,18 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
       aria-sort={
         k === sortKey ? (dir === 1 ? 'ascending' : 'descending') : undefined
       }
-      className={`px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted whitespace-nowrap ${left ? 'text-left' : 'text-right'}`}
+      className={`px-3 py-3 text-[11px] font-bold uppercase tracking-wider text-muted whitespace-nowrap ${left ? 'text-left' : 'text-right'}`}
     >
       {k ? (
         <button
           type="button"
           onClick={() => sortBy(k)}
-          className={`uppercase tracking-wider hover:text-secondary focus-visible:outline-2 focus-visible:outline-brand ${
+          className={`uppercase tracking-wider hover:text-primary focus-visible:outline-2 focus-visible:outline-brand ${
             sortKey === k ? 'text-primary' : ''
           }`}
         >
           {label}
-          {sortKey === k && <span aria-hidden> {dir === 1 ? '↑' : '↓'}</span>}
+          {sortKey === k && <span aria-hidden className="ml-0.5 text-brand">{dir === 1 ? '↑' : '↓'}</span>}
         </button>
       ) : (
         label
@@ -159,26 +186,88 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
     </th>
   );
 
-  const metricCells = (s: StatBase & { id?: string }, st?: StintStat) => {
+  const metricCells = (s: StatBase, st?: StintStat) => {
     const mark = (k: SortKey, v: number | null) => (st ? isBest(st, k, v) : false);
-    const w = winRate(s), g = gfPer(s), a = gaPer(s), c = csRate(s), x = xgPer(s), xa = xgaPer(s), xd = xgdPer(s);
+    const p = ppg(s), w = winRate(s), g = gfPer(s), a = gaPer(s), c = csRate(s), x = xgPer(s), xa = xgaPer(s), xd = xgdPer(s);
     return (
       <>
-        <td className="px-3 py-2.5"><PpgBar s={s} /></td>
-        <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('win', w))}`}>{pct(w, 2)}</td>
-        <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('gf', g))}`}>{fmt(g)}</td>
-        <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('ga', a))}`}>{fmt(a)}</td>
-        <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('cs', c))}`}>{pct(c, 2)}</td>
+        <td className="px-3 py-2.5"><PpgBar s={s} highlight={mark('ppg', p)} /></td>
+        <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('win', w))}`}>{pct(w, 2)}</td>
+        <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('gf', g))}`}>{fmt(g, 2)}</td>
+        <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('ga', a))}`}>{fmt(a, 2)}</td>
+        <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('cs', c))}`}>{pct(c, 2)}</td>
         {hasXg && (
           <>
-            <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('xg', x))}`}>{fmt(x)}</td>
-            <td className={`px-3 py-2.5 text-right text-sm text-secondary tabular-nums ${bestCls(mark('xga', xa))}`}>{fmt(xa)}</td>
-            <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('xgd', xd))} ${xd == null ? 'text-muted' : xd >= 0 ? 'text-success' : 'text-danger'}`}>{signed(xd)}</td>
+            <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('xg', x))}`}>{fmt(x, 2)}</td>
+            <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${bestCls(mark('xga', xa))}`}>{fmt(xa, 2)}</td>
+            <td className={`px-3 py-2.5 text-right text-sm tabular-nums ${mark('xgd', xd) ? 'font-bold' : ''} ${xd == null ? 'text-muted' : xd >= 0 ? 'text-success' : 'text-danger'}`}>{signed(xd, 2)}</td>
           </>
         )}
       </>
     );
   };
+
+  const renderMatchLogBlock = (s: StintStat) => {
+    const logOpen = logOpenFor === s.id;
+    const rev = [...s.games].reverse();
+    const visible = resFilter === 'all' ? rev : rev.filter((m) => m.result === resFilter);
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <button
+            type="button"
+            aria-expanded={logOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLogOpenFor(logOpen ? null : s.id);
+              setResFilter('all');
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-brand/40 hover:bg-brand-soft hover:text-brand"
+          >
+            <ListFilter size={13} />
+            <span>
+              {logOpen
+                ? L('ซ่อนบันทึกการแข่งขัน', 'Hide match log')
+                : L('เปิดดูบันทึกการแข่งขัน', 'Show match log')}
+              {' '}({s.games.length})
+            </span>
+          </button>
+
+          {logOpen && (
+            <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+              {(['all', 'W', 'D', 'L'] as const).map((r) => {
+                const count = r === 'all' ? s.mp : r === 'W' ? s.w : r === 'D' ? s.d : s.l;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setResFilter(r)}
+                    className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold tabular-nums transition-colors ${
+                      resFilter === r
+                        ? 'border-brand bg-brand-soft text-brand'
+                        : 'border-border bg-surface text-secondary hover:text-primary'
+                    }`}
+                  >
+                    {r === 'all' ? L('ทั้งหมด', 'All') : r} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        {logOpen && (
+          <div
+            className="overflow-hidden rounded-xl border border-border bg-surface"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ScoresList rows={visible} showComp={showComp} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const colCount = hasXg ? 13 : 10;
 
   const tableRow = (s: StintStat, rank: number | null) => {
     const open = expanded === s.id;
@@ -188,55 +277,75 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
         key={s.id}
         tabIndex={0}
         aria-expanded={open}
-        onClick={() => setExpanded(open ? null : s.id)}
+        onClick={() => toggleExpand(s.id)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setExpanded(open ? null : s.id);
+            toggleExpand(s.id);
           }
         }}
-        className={`cursor-pointer border-b border-border transition-colors hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-brand ${
-          smallSample ? 'opacity-55' : ''
-        }`}
+        className={`cursor-pointer border-b border-border transition-colors hover:bg-bg-secondary/70 focus-visible:outline-2 focus-visible:outline-brand ${
+          open ? 'bg-bg-secondary/50' : ''
+        } ${smallSample ? 'opacity-65' : ''}`}
       >
-        <td className="px-3 py-2.5 text-right text-sm text-muted tabular-nums">{rank ?? ''}</td>
-        <td className="px-3 py-2.5 text-sm font-medium text-primary whitespace-nowrap">
+        <td className="px-3 py-3 text-right text-xs font-bold text-muted tabular-nums">
+          {rank ?? '—'}
+        </td>
+        <td className="px-3 py-3 text-sm font-semibold text-primary whitespace-nowrap">
           <span className="flex items-center gap-1.5">
-            {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            {displayName(s.stint, lang)}
+            {open ? (
+              <ChevronDown size={14} className="shrink-0 text-brand" />
+            ) : (
+              <ChevronRight size={14} className="shrink-0 text-muted" />
+            )}
+            <span>{displayName(s.stint, lang)}</span>
             {s.stint.interim && (
-              <span className="rounded border border-border px-1 py-0.5 text-[10px] uppercase text-muted">
-                {L('รักษาการ', 'interim')}
+              <span className="rounded-full border border-warning/30 bg-warning-soft px-1.5 py-0.5 text-[10px] font-bold uppercase text-warning">
+                {L('รักษาการ', 'Interim')}
               </span>
             )}
             {isCurrent(s.stint) && (
-              <span className="rounded bg-brand-soft px-1.5 py-0.5 text-[10px] font-semibold uppercase text-brand">
-                {L('ปัจจุบัน', 'current')}
+              <span className="rounded-full bg-brand-soft px-1.5 py-0.5 text-[10px] font-bold uppercase text-brand">
+                {L('ปัจจุบัน', 'Current')}
               </span>
             )}
             {smallSample && (
-              <span className="text-[10px] text-muted">{L('ตัวอย่างน้อย', 'small sample')}</span>
+              <span className="rounded-full border border-border bg-bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-muted">
+                {L('ตัวอย่างน้อย', 'Small sample')}
+              </span>
             )}
           </span>
         </td>
-        <td className="px-3 py-2.5 text-right text-sm text-muted tabular-nums whitespace-nowrap">{periodShort(s.stint, lang)}</td>
-        <td className="px-3 py-2.5 text-right text-sm text-secondary tabular-nums">{s.mp}</td>
-        <td className="px-3 py-2.5"><WdlBar s={s} /></td>
+        <td className="px-3 py-3 text-right text-xs text-muted tabular-nums whitespace-nowrap">
+          <div>{periodShort(s.stint, lang)}</div>
+          <div className="text-[10px] opacity-75">{tenureDuration(daysInCharge(s.stint), lang)}</div>
+        </td>
+        <td className="px-3 py-3 text-right text-sm font-medium text-primary tabular-nums">{s.mp}</td>
+        <td className="px-3 py-3"><WdlBar s={s} /></td>
         {metricCells(s, s)}
       </tr>,
       ...(open
-        ? s.seasons.map((ss) => (
-            <tr key={`${s.id}-${ss.season}`} className="border-b border-border-light bg-bg-secondary/50">
-              <td />
-              <td className="px-3 py-2 pl-9 text-sm text-muted whitespace-nowrap">{seasonShort(ss.season)}</td>
-              <td className="px-3 py-2 text-right text-xs text-muted tabular-nums whitespace-nowrap">
-                {ss.first} → {ss.last}
+        ? [
+            ...s.seasons.map((ss) => (
+              <tr key={`${s.id}-${ss.season}`} className="border-b border-border-light bg-bg-secondary/40">
+                <td />
+                <td className="px-3 py-2 pl-9 text-xs font-semibold text-secondary whitespace-nowrap">
+                  {seasonShort(ss.season)}
+                </td>
+                <td className="px-3 py-2 text-right text-[11px] text-muted tabular-nums whitespace-nowrap">
+                  {ss.first} → {ss.last}
+                </td>
+                <td className="px-3 py-2 text-right text-xs text-secondary tabular-nums">{ss.mp}</td>
+                <td className="px-3 py-2"><WdlBar s={ss} /></td>
+                {metricCells(ss)}
+              </tr>
+            )),
+            <tr key={`${s.id}-log`} className="border-b border-border bg-bg-secondary/30">
+              <td colSpan={colCount} className="px-4 py-3">
+                {renderMatchLogBlock(s)}
               </td>
-              <td className="px-3 py-2 text-right text-sm text-secondary tabular-nums">{ss.mp}</td>
-              <td className="px-3 py-2"><WdlBar s={ss} /></td>
-              {metricCells(ss)}
-            </tr>
-          ))
+            </tr>,
+          ]
         : []),
     ];
   };
@@ -245,88 +354,163 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
     const p = ppg(s);
     const open = expanded === s.id;
     return (
-      <div key={s.id} className={`rounded-xl border border-border bg-surface p-3 ${s.mp < minN ? 'opacity-60' : ''}`}>
+      <div
+        key={s.id}
+        className={`rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none ${
+          s.mp < minN ? 'opacity-70' : ''
+        }`}
+        style={
+          isCurrent(s.stint)
+            ? { borderTopWidth: 2, borderTopColor: 'var(--brand)' }
+            : undefined
+        }
+      >
         <button
           type="button"
           aria-expanded={open}
-          onClick={() => setExpanded(open ? null : s.id)}
-          className="flex w-full items-center justify-between gap-2 text-left focus-visible:outline-2 focus-visible:outline-brand"
+          onClick={() => toggleExpand(s.id)}
+          className="flex w-full items-start justify-between gap-2 text-left focus-visible:outline-2 focus-visible:outline-brand"
         >
-          <span className="flex items-baseline gap-2">
-            {rank != null && <span className="text-sm text-muted tabular-nums">{rank}</span>}
-            <span className="font-medium text-primary">{displayName(s.stint, lang)}</span>
+          <span className="flex flex-wrap items-center gap-1.5">
+            {rank != null && (
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-bg-secondary text-[11px] font-bold text-muted tabular-nums">
+                {rank}
+              </span>
+            )}
+            <span className="font-display text-base font-bold text-primary">
+              {displayName(s.stint, lang)}
+            </span>
             {isCurrent(s.stint) && (
-              <span className="rounded bg-brand-soft px-1.5 py-0.5 text-[10px] font-semibold uppercase text-brand">
-                {L('ปัจจุบัน', 'current')}
+              <span className="rounded-full bg-brand-soft px-1.5 py-0.5 text-[10px] font-bold uppercase text-brand">
+                {L('ปัจจุบัน', 'Current')}
+              </span>
+            )}
+            {s.stint.interim && (
+              <span className="rounded-full border border-warning/30 bg-warning-soft px-1.5 py-0.5 text-[10px] font-bold uppercase text-warning">
+                {L('รักษาการ', 'Interim')}
               </span>
             )}
           </span>
-          <span className="text-xs text-muted whitespace-nowrap">{periodShort(s.stint, lang)}</span>
+          <span className="shrink-0 text-right text-xs text-muted tabular-nums">
+            {periodShort(s.stint, lang)}
+          </span>
         </button>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="w-10 text-sm font-semibold text-primary tabular-nums">{fmt(p)}</span>
-          <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-secondary">
+
+        {/* PPG bar */}
+        <div className="mt-3 flex items-center gap-2.5">
+          <span className="w-11 font-display text-lg font-bold text-primary tabular-nums">
+            {fmt(p, 2)}
+          </span>
+          <span className="h-2 flex-1 overflow-hidden rounded-full bg-bg-secondary">
             <span
               className="block h-full rounded-full"
-              style={{ width: `${((p ?? 0) / 3) * 100}%`, background: 'var(--brand)' }}
+              style={{ width: `${(Math.min(p ?? 0, 3) / 3) * 100}%`, background: 'var(--brand)' }}
             />
           </span>
+          <span className="text-[11px] font-semibold uppercase text-muted">
+            {L('แต้ม/นัด', 'PPG')}
+          </span>
         </div>
-        <div className="mt-2"><WdlBar s={s} /></div>
-        <div className="mt-1.5 text-xs text-secondary">
-          {s.mp} MP · {pct(winRate(s), 2)} {L('ชนะ', 'win')}
-          {hasXg && <> · xGD {signed(xgdPer(s))}</>}
+
+        {/* W-D-L bar */}
+        <div className="mt-2.5 flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-secondary tabular-nums">
+            {s.mp} {L('นัด', 'MP')} · {pct(winRate(s), 2)} {L('ชนะ', 'Win')}
+          </span>
+          <WdlBar s={s} />
         </div>
-        {open &&
-          s.seasons.map((ss) => (
-            <div key={ss.season} className="mt-1.5 border-t border-border-light pt-1.5 text-xs text-secondary">
-              <span className="font-medium text-primary">{seasonShort(ss.season)}</span> · {ss.mp} MP ·{' '}
-              {ss.w}–{ss.d}–{ss.l} · {fmt(ppg(ss))} {L('แต้ม/นัด', 'pts/match')}
+
+        {/* Compact stat pills */}
+        <div className="mt-2.5 grid grid-cols-3 gap-2 rounded-xl bg-bg-secondary/60 p-2 text-center text-xs tabular-nums">
+          <div>
+            <div className="text-[10px] font-semibold uppercase text-muted">GF/GA</div>
+            <div className="font-semibold text-primary">
+              {fmt(gfPer(s), 2)} / {fmt(gaPer(s), 2)}
             </div>
-          ))}
+          </div>
+          <div>
+            <div className="text-[10px] font-semibold uppercase text-muted">{L('คลีนชีต', 'CS %')}</div>
+            <div className="font-semibold text-primary">{pct(csRate(s), 2)}</div>
+          </div>
+          <div>
+            <div className="text-[10px] font-semibold uppercase text-muted">
+              {hasXg ? 'xGD/M' : L('ระยะเวลา', 'Tenure')}
+            </div>
+            <div className="font-semibold text-primary">
+              {hasXg ? signed(xgdPer(s), 2) : tenureDuration(daysInCharge(s.stint), lang)}
+            </div>
+          </div>
+        </div>
+
+        {open && (
+          <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+            {s.seasons.map((ss) => (
+              <div
+                key={ss.season}
+                className="flex items-center justify-between gap-2 rounded-lg bg-bg-secondary/50 px-2.5 py-1.5 text-xs text-secondary tabular-nums"
+              >
+                <span className="font-semibold text-primary">{seasonShort(ss.season)}</span>
+                <span>{ss.mp} MP · {ss.w}–{ss.d}–{ss.l}</span>
+                <span className="font-semibold text-primary">{fmt(ppg(ss), 2)} PPG</span>
+              </div>
+            ))}
+            <div className="mt-1">{renderMatchLogBlock(s)}</div>
+          </div>
+        )}
       </div>
     );
   };
 
   return (
     <>
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="font-display text-lg font-semibold text-primary">
-          {L('ตารางอันดับผู้จัดการ', 'Manager leaderboard')}
-        </h3>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
+            {L('การจัดอันดับผู้จัดการทีม', 'MANAGERIAL RANKINGS')}
+          </p>
+          <h3 className="mt-0.5 font-display text-lg font-bold text-primary sm:text-xl">
+            {L('ตารางอันดับผู้จัดการทีม', 'Manager leaderboard')}
+          </h3>
+          <p className="mt-0.5 text-xs text-muted">
+            {L(
+              `คลิกที่แถวเพื่อดูสถิติรายฤดูกาลและบันทึกการแข่งขัน · สีเขียว = ดีที่สุดในคอลัมน์ (≥${minN} นัด)`,
+              `Click any row for season splits & match logs · Green = column leader (min ${minN} matches)`,
+            )}
+          </p>
+        </div>
         <button
           type="button"
           aria-pressed={hideInterim}
           onClick={() => setHideInterim((v) => !v)}
-          className={`rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-brand ${
+          className={`rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-brand ${
             hideInterim
               ? 'border-brand bg-brand-soft text-brand'
-              : 'border-border bg-surface text-secondary hover:bg-bg-secondary'
+              : 'border-border bg-surface text-secondary hover:border-primary/30 hover:text-primary'
           }`}
         >
-          {L('ซ่อนรักษาการ', 'Hide interim')}
+          {L('ซ่อนผู้จัดการรักษาการ', 'Hide interim managers')}
         </button>
       </div>
 
       {/* desktop table */}
-      <section className="hidden overflow-hidden rounded-2xl border border-border bg-surface md:block">
+      <section className="hidden overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none md:block">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1080px] border-collapse whitespace-nowrap">
+          <table className="w-full min-w-[1100px] border-collapse whitespace-nowrap">
             <thead className="bg-surface-elevated">
               <tr className="border-b border-border">
-                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-muted">#</th>
+                <th className="px-3 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted">#</th>
                 {th('name', L('ผู้จัดการ', 'Manager'), true)}
                 {th('from', L('ช่วงเวลา', 'Period'))}
                 {th('mp', 'MP')}
-                <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-muted">W–D–L</th>
-                {th('ppg', L('แต้ม/นัด', 'Pts/match'))}
-                {th('win', L('อัตราชนะ', 'Win rate'))}
-                {th('gf', 'GF/' + L('นัด', 'match'))}
-                {th('ga', 'GA/' + L('นัด', 'match'))}
-                {th('cs', L('คลีนชีต', 'Clean sheets'))}
-                {hasXg && th('xg', 'xG/' + L('นัด', 'match'))}
-                {hasXg && th('xga', 'xGA/' + L('นัด', 'match'))}
-                {hasXg && th('xgd', 'xGD/' + L('นัด', 'match'))}
+                <th className="px-3 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted">W–D–L</th>
+                {th('ppg', L('แต้ม/นัด', 'PPG'))}
+                {th('win', L('อัตราชนะ', 'Win %'))}
+                {th('gf', 'GF/' + L('นัด', 'M'))}
+                {th('ga', 'GA/' + L('นัด', 'M'))}
+                {th('cs', L('คลีนชีต %', 'CS %'))}
+                {hasXg && th('xg', 'xG/' + L('นัด', 'M'))}
+                {hasXg && th('xga', 'xGA/' + L('นัด', 'M'))}
+                {hasXg && th('xgd', 'xGD/' + L('นัด', 'M'))}
               </tr>
             </thead>
             <tbody>
@@ -335,7 +519,10 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
                 ...(small.length > 0
                   ? [
                       <tr key="divider" aria-hidden>
-                        <td colSpan={hasXg ? 13 : 10} className="border-t-2 border-border bg-bg-secondary/40 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                        <td
+                          colSpan={colCount}
+                          className="border-t-2 border-border bg-bg-secondary/50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted"
+                        >
                           {L(`ตัวอย่างน้อย (< ${minN} นัด)`, `Small sample (< ${minN} matches)`)}
                         </td>
                       </tr>,
@@ -345,7 +532,7 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
               ]}
               {ranked.length + small.length === 0 && (
                 <tr>
-                  <td colSpan={hasXg ? 13 : 10} className="px-4 py-8 text-center text-sm text-muted">
+                  <td colSpan={colCount} className="px-4 py-8 text-center text-sm text-muted">
                     {L('ไม่มีนัดในรายการนี้', 'No matches in this competition')}
                   </td>
                 </tr>
@@ -356,16 +543,16 @@ export function VariantB({ data, lang, hasXg, minN }: VariantProps) {
       </section>
 
       {/* mobile stacked list */}
-      <section className="flex flex-col gap-2 md:hidden">
+      <section className="flex flex-col gap-3 md:hidden">
         {ranked.map((s, i) => mobileCard(s, i + 1))}
         {small.length > 0 && ranked.length > 0 && (
-          <div className="border-t-2 border-border bg-bg-secondary/40 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <div className="rounded-xl border border-border bg-bg-secondary/50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted">
             {L(`ตัวอย่างน้อย (< ${minN} นัด)`, `Small sample (< ${minN} matches)`)}
           </div>
         )}
         {small.map((s) => mobileCard(s, null))}
         {ranked.length + small.length === 0 && (
-          <div className="rounded-xl border border-border bg-surface p-6 text-center text-sm text-muted">
+          <div className="rounded-2xl border border-border bg-surface p-6 text-center text-sm text-muted">
             {L('ไม่มีนัดในรายการนี้', 'No matches in this competition')}
           </div>
         )}

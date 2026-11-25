@@ -96,6 +96,8 @@ export function buildStints(stints: ManagerStint[], matches: MatchRow[]): StintS
 export const pts = (s: StatBase) => 3 * s.w + s.d;
 export const ppg = (s: StatBase) => (s.mp > 0 ? pts(s) / s.mp : null);
 export const winRate = (s: StatBase) => (s.mp > 0 ? s.w / s.mp : null);
+export const drawRate = (s: StatBase) => (s.mp > 0 ? s.d / s.mp : null);
+export const lossRate = (s: StatBase) => (s.mp > 0 ? s.l / s.mp : null);
 export const gfPer = (s: StatBase) => (s.mp > 0 ? s.gf / s.mp : null);
 export const gaPer = (s: StatBase) => (s.mp > 0 ? s.ga / s.mp : null);
 export const csRate = (s: StatBase) => (s.mp > 0 ? s.cs / s.mp : null);
@@ -143,6 +145,19 @@ export function daysInCharge(stint: ManagerStint): number {
   const from = new Date(`${stint.from}T00:00:00Z`).getTime();
   const to = stint.to ? new Date(`${stint.to}T00:00:00Z`).getTime() : Date.now();
   return Math.max(0, Math.round((to - from) / 86400000));
+}
+
+/** Human-readable tenure duration (e.g., "2y 5m" or "184d"). */
+export function tenureDuration(days: number, lang: Lang): string {
+  if (days >= 365) {
+    const yrs = Math.floor(days / 365);
+    const mos = Math.floor((days % 365) / 30);
+    if (lang === 'th') {
+      return mos > 0 ? `${yrs} ปี ${mos} เดือน` : `${yrs} ปี`;
+    }
+    return mos > 0 ? `${yrs}y ${mos}m` : `${yrs}y`;
+  }
+  return lang === 'th' ? `${days} วัน` : `${days}d`;
 }
 
 /** Compact period: "2022–2024", "2026–…", or a short date range inside one year. */
@@ -219,4 +234,5 @@ export interface VariantProps {
   lang: Lang;
   hasXg: boolean;
   minN: number;
+  group: CompGroup;
 }
