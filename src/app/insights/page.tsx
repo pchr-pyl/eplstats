@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { InsightsClient } from '@/components/insights/InsightsClient';
 import { getInsightsExtended } from '@/lib/insightsExtended';
 import { getClubIndex } from '@/lib/data';
+import { getQuadrantData } from '@/lib/quadrants';
 
 export const metadata: Metadata = {
   title: 'Premier League Insights',
@@ -11,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function InsightsPage() {
-  return <InsightsClient data={getInsightsExtended()} clubs={getClubIndex()} />;
+  return <InsightsClient data={getInsightsExtended()} clubs={getClubIndex()} quadrants={getQuadrantData()} />;
 }

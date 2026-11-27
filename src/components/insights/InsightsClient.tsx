@@ -22,6 +22,8 @@ import type { InsightsExtendedData } from '@/lib/insightsExtended';
 import { bkkKickoff, fmt } from '@/lib/format';
 import { seasonShort } from '@/lib/stats';
 import { PowerQuadrant } from './PowerQuadrant';
+import { MoreQuadrants } from './MoreQuadrants';
+import type { QuadrantClub } from '@/lib/quadrants';
 import { RacesAndLuck } from './RacesAndLuck';
 import { DramaAndTiming } from './DramaAndTiming';
 
@@ -52,7 +54,9 @@ type SplitSort = 'home' | 'away' | 'skew';
 export function InsightsClient({
   data,
   clubs,
+  quadrants,
 }: {
+  quadrants: Record<string, QuadrantClub[]>;
   data: InsightsExtendedData;
   clubs: ClubIndexEntry[];
 }) {
@@ -136,6 +140,7 @@ export function InsightsClient({
           {[
             ['#matchweek', tx('Matchweek Pulse', 'สรุปสัปดาห์ & โปรแกรม')],
             ['#power-map', tx('Power Quadrant', 'แผนที่รุก-รับ')],
+            ['#more-quadrants', tx('Club Comparisons', 'เปรียบเทียบ 5 มิติ')],
             ['#races', tx('Races & xG Luck', 'เส้นทางแต้ม & xG')],
             ['#drama', tx('Timing & Drama', 'ช่วงเวลาประตู & ดราม่า')],
             ['#splits', tx('Home/Away & Forecast', 'เหย้า-เยือน & คาดการณ์')],
@@ -572,6 +577,7 @@ export function InsightsClient({
 
         {/* ----------------------------- 20-Club Power Quadrant */}
         <PowerQuadrant table={data.table} clubs={clubMap} th={th} />
+        <MoreQuadrants data={quadrants} clubs={clubMap} th={th} />
 
         {/* ----------------------------- Points Races + xG Luck */}
         <RacesAndLuck
